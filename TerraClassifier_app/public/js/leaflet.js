@@ -68,16 +68,50 @@ function satelliteImages(coordinates) {
   console.log(SouthwestCoordinates);
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
+
   $('#popup_sat').modal('show');
 }
 // Initialize Bootstrap Datepicker for 'fromDate' and 'toDate' input fields
+$(document).ready(function(){ 
+  $('#fromDate').datepicker({
+    autoclose: false,
+    format: 'yyyy-mm-dd',
+    todayHighlight: true,
+    toDate: '+Od'
+  });
+  $('#toDate').datepicker({
+    autoclose: true,
+    format: 'dd/mm/yyyy',
+    toDate: '+Od'
+  });
+  // Event-Handler für Änderungen im Startdatum
+  $('#fromDate').change(function() {
+    var selectedFromDate = $('#fromDate').datepicker('getDate');
+    var maxToDate = new Date(selectedFromDate);
+    maxToDate.setDate(maxToDate.getDate() + 14); // Maximal 2 Wochen hinzufügen
+
+    $('#toDate').datepicker('setFromDate', selectedFromDate);
+    $('#toDate').datepicker('setToDate', maxToDate);
+    
+    // Überprüfen und anpassen des Enddatums, falls es außerhalb des gültigen Bereichs liegt
+    var selectedToDate = $('#toDate').datepicker('getDate');
+    if (selectedToDate > maxToDate) {
+        $('#toDate').datepicker('setDate', maxToDate);
+    }
+  });
+});
+
+/*
 $('#fromDate, #toDate').datepicker({
   format: 'dd/mm/yyyy', // Date format
   autoclose: true, // Close the datepicker when a date is selected
   todayHighlight: true, // Highlight today's date
-});
+});*/
 
-function getSatelliteImages() {
+
+function getSatelliteImages(coordinates, ) {
+
+  console.log(coordinates);
   $('#popup_sat').modal('hide');
 }
 
