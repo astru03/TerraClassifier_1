@@ -1,0 +1,97 @@
+html {
+    position: relative;
+    height: 100%;
+    padding-bottom:auto;
+  }
+  footer {
+    /* position: fixed; */
+    bottom: 0;
+    width: 100%;
+    height: 87px;
+    margin-top: auto; 
+    /* display: table-row; */
+  }
+
+  body {
+    height: 100%;
+    width: 100%;
+    display: table;
+    table-layout: fixed;
+  }
+
+
+  #logo {
+    width: 100px;
+    height: auto;
+  }
+  
+  main {
+    /* display: table-row; */
+   display: flex;
+   justify-content: center;
+   background-image: url("../images/blue-technology-1920x1080.jpg");
+   background-repeat: no-repeat;
+   background-size: cover ;
+   height:100%;
+  }
+
+  .main-content {
+    background-image: url('../images/blue-technology-1920x1080.jpg'), url('pfad/zum/linken-bild.jpg'), url('pfad/zum/rechten-bild.jpg');
+    background-size: cover, auto, auto; 
+    background-position: center, left, right; 
+    height: 100vh; /* 100% der Bildschirmhöhe */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* color: #fff;  */
+}
+
+
+
+
+  
+  /* Define breakpoints for different screen sizes */
+@media (min-width: 1200px) {
+  /* Styles for screens 1200px and above */
+  /* For example: */
+  /* Increase font size for headings */
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  /* Styles for screens between 992px and 1199px */
+  /* For example: */
+  /* Reduce padding for navigation items */
+  nav li {
+    padding: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  /* Styles for screens between 768px and 991px */
+  /* For example: */
+  /* Stack grid items vertically */
+  .grid-item {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Styles for screens 767px and below */
+  /* For example: */
+  /* Hide sidebar */
+  .sidebar {
+    display: none;
+  }
+}
+
+@media (min-width: 2560px) {
+  /* Styles für Bildschirme mit einer Breite von 2560px und größer */
+  /* Zum Beispiel: */
+  /* Vergrößern Sie die Schriftgröße für Überschriften */
+  h1 {
+    font-size: 2.5rem;
+  }
+}

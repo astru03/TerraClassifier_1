@@ -1,0 +1,29 @@
+{
+  "name": "terraclassifier_backend",
+  "version": "1.0.0",
+  "description": "TerraClassifier Backend API",
+  "main": "backend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astru03/TerraClassifier_1.git"
+  },
+  "keywords": [
+    "TerraClassifier",
+    "Backend",
+    "API"
+  ],
+  "author": "\"Dominik, Kieran, Lena, Jonas, Philip, Andreas\"",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/astru03/TerraClassifier_1/issues"
+  },
+  "homepage": "https://github.com/astru03/TerraClassifier_1#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "nodemon": "^3.0.1"
+  }
+}

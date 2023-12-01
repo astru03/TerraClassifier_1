@@ -1,0 +1,34 @@
+{
+  "name": "terraclassifier_app",
+  "version": "1.0.0",
+  "description": "TerraClassifier",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astru03/TerraClassifier_1.git"
+  },
+  "keywords": [
+    "Classifier"
+  ],
+  "author": "\"Dominik, Kieran, Lena, Jonas, Philip, Andreas\"",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/astru03/TerraClassifier_1/issues"
+  },
+  "homepage": "https://github.com/astru03/TerraClassifier_1#readme",
+  "dependencies": {
+    "@openeo/js-client": "^2.5.1",
+    "ajax": "^0.0.4",
+    "bootstrap": "^5.3.2",
+    "express": "^4.18.2",
+    "jquery": "^3.7.1",
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
+    "leaflet-easybutton": "^2.4.0",
+    "nodemon": "^3.0.1"
+  }
+}
