@@ -8,11 +8,11 @@
     // Mit diesen werten wird dann die STAC API angezogen und die Satelitenbilder herangezogen
     // Wenn ein Zeitraum ausgewählt wurde (z.b. 2 Wochen) wofür es mehrere Satelitenbilder für den Bereich gibt, muss eine Auswahlmöglichkeit vorhanden sein
     // sodass der user auswählen kann welche bilder von welchem Zeitraum er verwenden möchte.
-    // Die satelitenbilder müssen verarbeitet werden. Mit openEOcubes oder GDALcubes
+    // Die satelitenbilder müssen verarbeitet werden. Mit openEOcubes oder GDALcubes???
 
 
 // Über res werden die geholten satelitenbilder wieder an das frontend zurückgesendet und dort angezeigt.
-// WICHTIG: Die Satelitenbilder müssen weiterhin beibehalten werden!! WIE??????
+// WICHTIG: Die Satelitenbilder müssen weiterhin beibehalten werden!! WIE?????? oder gleichzeitig an das R backend schicken
 
 // Trainigsdaten zeichnen
     // Mit der Funktion kann der user trainigsdaten zeichnen. 
@@ -22,7 +22,7 @@
     // Wenn außerhalb, muss eine Fehlermeldung erscheiben oder zuvor ein hinweis, dass Trainigsdaten 
     // außerhalb der korrdinaten von den Satellitenbildern nicht mitberücksichtigt werden.
     // Trainigsdaten können abgespeichert werden als JSON und Geopackage
-// WICHTIG: Trainigsdaten müssen weiterhin beibehalten werden!! WIE??????
+// WICHTIG: Trainigsdaten müssen weiterhin beibehalten werden!! WIE?????? oder gleichzeitig an das R backend schicken
 
 // Algorithmus auswahlen
 
