@@ -4,7 +4,7 @@
 // Hier werden nur die Satellitenbilder herausgesucht und zu datacubs gemacht
 
     // Hier muss die API die URL erhalten und in dieser URL müssen koordinaten des Rechteckes und des Zeitraumes stehen
-    //Zeitraum darf nicht größer sein als 2 Wochen!!!!
+    // Zeitraum darf nicht größer sein als 2 Wochen!!!!
     // Mit diesen werten wird dann die STAC API angezogen und die Satelitenbilder herangezogen
     // Wenn ein Zeitraum ausgewählt wurde (z.b. 2 Wochen) wofür es mehrere Satelitenbilder für den Bereich gibt, muss eine Auswahlmöglichkeit vorhanden sein
     // sodass der user auswählen kann welche bilder von welchem Zeitraum er verwenden möchte.
