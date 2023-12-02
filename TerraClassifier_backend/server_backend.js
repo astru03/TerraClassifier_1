@@ -1,3 +1,17 @@
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 8080
+
+
+
+
+
+//Listener
+app.listen(port, () => {
+    console.log(`Backend Service listening at http://localhost:${port}`)
+  });
+
+
 // Hier müssen die Daten hingeschickt werden, verarbeitet und zurückgesendet. das ist die API.
 // Dabei muss es den openEO-Spezifikationen folgen (z.b. Prozessgraph)
 
