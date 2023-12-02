@@ -62,9 +62,10 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //2. Funktion darf nicht ausgeführt werden, wenn ein AOI über ein Polygon ausgewählt wurde. (Wenn möglich)
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
 function satelliteImages(coordinates) {
-  let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat.toFixed(4) + ' ; Lng: ' + coordinates.getNorthEast().lng.toFixed(4);
+  
+  let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat + ' ; Lng: ' + coordinates.getNorthEast().lng;
   //console.log(NorthEastCoordinates);
-  let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat.toFixed(4) + ' ; Lng: ' + coordinates.getSouthWest().lng.toFixed(4);
+  let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat + ' ; Lng: ' + coordinates.getSouthWest().lng;
   //console.log(SouthwestCoordinates);
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
@@ -105,12 +106,28 @@ function satelliteImages(coordinates) {
 
 
 
-function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
+async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
   console.log(datum);
   console.log(NorthEastCoordinates);
   console.log(SouthwestCoordinates);
-  $('#popup_sat').modal('hide');
-  
+
+  try {
+    const response = await fetch('http://localhost:8080/satellite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'Date and Coord'
+        },
+        body: JSON.stringify({
+          Datum: datum,
+          NEC: NorthEastCoordinates,
+          SWC: SouthwestCoordinates
+        })
+    });
+  } catch (error) {
+    console.error('Es gab einen Fehler:', error);
+  }
+
+  $('#popup_sat').modal('hide'); 
 }
 
 function trainingData() {

@@ -4,6 +4,20 @@ const port = process.env.PORT || 8080
 
 
 
+app.post('/satellite', (req, res) => {
+    const receivedDatum = req.body.Datum;
+    const receivedNEC = req.body.NEC;
+    const receivedSWC = req.body.SWC;
+    // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
+    console.log(receivedDatum);
+    console.log(receivedNEC);
+    console.log(receivedSWC);
+
+    //URL des AWS für Sentinel-2 Daten aufrufen
+  });
+
+
+
 
 
 //Listener
