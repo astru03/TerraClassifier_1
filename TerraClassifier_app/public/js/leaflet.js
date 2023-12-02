@@ -63,56 +63,54 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat.toFixed(4) + ' ; Lng: ' + coordinates.getNorthEast().lng.toFixed(4);
-  console.log(NorthEastCoordinates);
+  //console.log(NorthEastCoordinates);
   let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat.toFixed(4) + ' ; Lng: ' + coordinates.getSouthWest().lng.toFixed(4);
-  console.log(SouthwestCoordinates);
+  //console.log(SouthwestCoordinates);
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
-
   $('#popup_sat').modal('show');
+  
+  //Datum auswahl
+  $(document).ready(function(){
+    var selectedDate = null; // Variable to store the selected date
+    $('#fromDate').datepicker({
+        autoclose: true,
+        format: 'dd/mm/yyyy',
+        todayHighlight: true,
+        endDate: '+0d' // Set the end date limit to today
+    }).on('changeDate', function(selected){
+        selectedDate = selected.date;
+    });
+
+    $('#saveChangesBtn').on('click', function() {
+        if(selectedDate !== null) {
+            var day = selectedDate.getDate(); // Tag auswählen
+            var month = selectedDate.getMonth() + 1; // Monat auswählen (Monate beginnen bei 0)
+            var year = selectedDate.getFullYear(); // Jahr auswählen
+
+            let datum = day +"."+ month + "." + year
+            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates);
+            // You can perform actions with the selected date here
+        } else {
+            console.log('Please select a date.');
+        }
+    });
+  });
+  
 }
-// Initialize Bootstrap Datepicker for 'fromDate' and 'toDate' input fields
-$(document).ready(function(){ 
-  $('#fromDate').datepicker({
-    autoclose: false,
-    format: 'yyyy-mm-dd',
-    todayHighlight: true,
-    toDate: '+Od'
-  });
-  $('#toDate').datepicker({
-    autoclose: true,
-    format: 'dd/mm/yyyy',
-    toDate: '+Od'
-  });
-  // Event-Handler für Änderungen im Startdatum
-  $('#fromDate').change(function() {
-    var selectedFromDate = $('#fromDate').datepicker('getDate');
-    var maxToDate = new Date(selectedFromDate);
-    maxToDate.setDate(maxToDate.getDate() + 14); // Maximal 2 Wochen hinzufügen
-
-    $('#toDate').datepicker('setFromDate', selectedFromDate);
-    $('#toDate').datepicker('setToDate', maxToDate);
-    
-    // Überprüfen und anpassen des Enddatums, falls es außerhalb des gültigen Bereichs liegt
-    var selectedToDate = $('#toDate').datepicker('getDate');
-    if (selectedToDate > maxToDate) {
-        $('#toDate').datepicker('setDate', maxToDate);
-    }
-  });
-});
-
-/*
-$('#fromDate, #toDate').datepicker({
-  format: 'dd/mm/yyyy', // Date format
-  autoclose: true, // Close the datepicker when a date is selected
-  todayHighlight: true, // Highlight today's date
-});*/
 
 
-function getSatelliteImages(coordinates, ) {
 
-  console.log(coordinates);
+
+
+
+
+function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
+  console.log(datum);
+  console.log(NorthEastCoordinates);
+  console.log(SouthwestCoordinates);
   $('#popup_sat').modal('hide');
+  
 }
 
 function trainingData() {
