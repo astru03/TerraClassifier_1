@@ -2,7 +2,15 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
+// Middleware für CORS aktivieren
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Hier können die erlaubten Origin-Domains spezifiziert werden
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 app.post('/satellite', (req, res) => {
     const receivedDatum = req.body.Datum;
@@ -12,8 +20,22 @@ app.post('/satellite', (req, res) => {
     console.log(receivedDatum);
     console.log(receivedNEC);
     console.log(receivedSWC);
-
     //URL des AWS für Sentinel-2 Daten aufrufen
+
+
+
+
+    
+    //Wie ein Objekt wieder zurückgegeben werden kann
+    let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
+    console.log(modifiedData);
+
+    if (modifiedData != null ) {
+      res.json(modifiedData)
+    } else {
+      res.status(400).json({ error: 'Ungültige Anfrage' });
+    }
+    
   });
 
 

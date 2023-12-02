@@ -35,7 +35,7 @@ map.on("draw:created", function(event){
   if (type == 'rectangle') {
     //rectangleCoordinates = layer.getBounds().toBBoxString();
     rectangleCoordinates = layer.getBounds();
-    console.log(rectangleCoordinates); 
+    //console.log(rectangleCoordinates); 
   }
     drawnFeatures.addLayer(layer);
 })
@@ -101,33 +101,36 @@ function satelliteImages(coordinates) {
 }
 
 
-
-
-
-
-
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
-  console.log(datum);
-  console.log(NorthEastCoordinates);
-  console.log(SouthwestCoordinates);
-
   try {
     const response = await fetch('http://localhost:8080/satellite', {
         method: 'POST',
         headers: {
-            'Content-Type': 'Date and Coord'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           Datum: datum,
           NEC: NorthEastCoordinates,
-          SWC: SouthwestCoordinates
-        })
-    });
+          SWC: SouthwestCoordinates})
+      }) 
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
+      const data = await response.json();
+      console.log('Datum', data.valueDate);
+      console.log('NEC', data.valueNEC);
+      console.log('SWL', data.valueSWC);
+      console.log('Message', data.message);
+
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
   }
 
   $('#popup_sat').modal('hide'); 
+
 }
 
 function trainingData() {
