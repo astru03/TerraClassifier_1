@@ -63,7 +63,7 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
 function satelliteImages(coordinates) {
   
-  let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat + ' ; Lng: ' + coordinates.getNorthEast().lng;
+  let NorthEastCoordinatesL = 'Lat: ' + coordinates.getNorthEast().lat + ' ; Lng: ' + coordinates.getNorthEast().lng;
   //console.log(NorthEastCoordinates);
   let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat + ' ; Lng: ' + coordinates.getSouthWest().lng;
   //console.log(SouthwestCoordinates);
