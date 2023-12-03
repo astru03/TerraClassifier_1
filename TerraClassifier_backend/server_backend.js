@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080
 
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
@@ -22,8 +23,33 @@ app.post('/satellite', (req, res) => {
     console.log(receivedSWC);
     //URL des AWS für Sentinel-2 Daten aufrufen
 
+    const apiUrl = 'https://earth-search.aws.element84.com/v1'; // STAC server URL
 
-
+    async function queryStacEndpoint() {
+      console.log('kommt')
+      try {
+        const response = await fetch(`${apiUrl}/collections`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Hier könnten weitere Header für Authentifizierung oder andere Anforderungen hinzugefügt werden
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+    
+        const data = await response.json();
+        // Verarbeite die Daten, die von der API zurückgegeben wurden
+        console.log('Erhaltene Daten:', data);
+      } catch (error) {
+        console.error('Es gab ein Problem beim Abrufen der Daten:', error);
+      }
+    }
+    
+    // Aufruf der Funktion zur Abfrage des STAC-Endpunkts
+    queryStacEndpoint();
 
     
     //Wie ein Objekt wieder zurückgegeben werden kann
