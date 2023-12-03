@@ -35,7 +35,7 @@ map.on("draw:created", function(event){
   if (type == 'rectangle') {
     //rectangleCoordinates = layer.getBounds().toBBoxString();
     rectangleCoordinates = layer.getBounds();
-    console.log(rectangleCoordinates); 
+    //console.log(rectangleCoordinates); 
   }
     drawnFeatures.addLayer(layer);
 })
@@ -62,9 +62,10 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //2. Funktion darf nicht ausgeführt werden, wenn ein AOI über ein Polygon ausgewählt wurde. (Wenn möglich)
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
 function satelliteImages(coordinates) {
-  let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat.toFixed(4) + ' ; Lng: ' + coordinates.getNorthEast().lng.toFixed(4);
+  
+  let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat + ' ; Lng: ' + coordinates.getNorthEast().lng;
   //console.log(NorthEastCoordinates);
-  let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat.toFixed(4) + ' ; Lng: ' + coordinates.getSouthWest().lng.toFixed(4);
+  let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat + ' ; Lng: ' + coordinates.getSouthWest().lng;
   //console.log(SouthwestCoordinates);
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
@@ -100,17 +101,36 @@ function satelliteImages(coordinates) {
 }
 
 
+async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
+  try {
+    const response = await fetch('http://localhost:8080/satellite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          Datum: datum,
+          NEC: NorthEastCoordinates,
+          SWC: SouthwestCoordinates})
+      }) 
 
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
+      // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
+      const data = await response.json();
+      console.log('Datum', data.valueDate);
+      console.log('NEC', data.valueNEC);
+      console.log('SWL', data.valueSWC);
+      console.log('Message', data.message);
 
+  } catch (error) {
+    console.error('Es gab einen Fehler:', error);
+  }
 
+  $('#popup_sat').modal('hide'); 
 
-function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
-  console.log(datum);
-  console.log(NorthEastCoordinates);
-  console.log(SouthwestCoordinates);
-  $('#popup_sat').modal('hide');
-  
 }
 
 function trainingData() {

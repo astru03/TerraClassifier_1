@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/astru03/TerraClassifier_1#readme",
   "dependencies": {
+    "aws-sdk": "^2.1510.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "nodemon": "^3.0.1"

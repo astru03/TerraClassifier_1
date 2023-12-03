@@ -1,15 +1,15 @@
 version: '3'
 services:
-  TerraClassifier_app:
-    container_name: TerraClassifier_app
-    build: ./TerraClassifier_app            # Pfad zum Dockerfile der Webanwendung. Baut daraus ein Image 
+  terraclassifier_app:
+    container_name: terraclassifier_app
+    build: ./terraclassifier_app            # Pfad zum Dockerfile der Webanwendung. Baut daraus ein Image 
     ports:
       - "3000:3000"            # Port 4000 des Host wird gemappt auf Port 4000 des Container, der das Image ausführt
   
-  TerraClassifier_backend:
-    container_name: TerraClassifier_backend
-    build: ./TerraClassifier_backend  # Pfad zum Dockerfile des EasyButton-Services
+  terraclassifier_backend:
+    container_name: terraclassifier_backend
+    build: ./terraclassifier_backend  # Pfad zum Dockerfile des EasyButton-Services
     ports:
       - "8080:8080"              # Port des EasyButton-Service
     depends_on:
-      - TerraClassifier_app
+      - terraclassifier_app
