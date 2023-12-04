@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080
+const fetch = require('node-fetch');
 
 
 const bodyParser = require('body-parser');
@@ -13,56 +14,163 @@ app.use((req, res, next) => {
   next();
 });
 
+
 app.post('/satellite', (req, res) => {
-    const receivedDatum = req.body.Datum;
-    const receivedNEC = req.body.NEC;
-    const receivedSWC = req.body.SWC;
-    // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
-    console.log(receivedDatum);
-    console.log(receivedNEC);
-    console.log(receivedSWC);
-    //URL des AWS für Sentinel-2 Daten aufrufen
+  //check if Datum and Coordinates not null
+  if(req.body.Datum == '' || req.body.NEC == '' || req.body.SWC == ''){
+  //res.sendFile(reqpath + "/public/error_empty_input.html")
+  console.log('Fehler Felder nicht gefüllt')
+  return;
+  }
+  //let receivedDatum = req.body.Datum;
+  //let receivedNEC = req.body.NEC;
+  //let receivedSWC = req.body.SWC;
+  // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
+  //console.log(receivedDatum);
+  //console.log(receivedNEC);
+  //console.log(receivedSWC);
+  // Wenn gewünscht könnte hier aus den Infos ein Objekt gemacht werden
+  // let AOIInfor = {
+    // AOIInfos.nec = req.body.NEC
+    // AOIInfos.swc = req.body.SWC
+    // AOIInfo.datum = req.body.Datum
+  // }
 
-    const apiUrl = 'https://earth-search.aws.element84.com/v1'; // STAC server URL
+  //-----------------TEST------------------
+  const polygonCoordinates = [
+    [7.645221826577512, 51.969251756766084],
+    [7.645221826577512, 51.95923063662394],
+    [7.671077429750937, 51.95923063662394],
+    [7.671077429750937, 51.969251756766084],
+    [7.645221826577512, 51.969251756766084], // Schließe das Polygon
+  ];
+  
+  // Konvertiere die Koordinaten in das erforderliche Format für die STAC API
+  const polygonGeoJSON = {
+    "type": "Polygon",
+    "coordinates": [polygonCoordinates],
+  };
+  console.log(polygonGeoJSON);
+  // Definiere den Zeitraum
+  const startDate = '2023-11-27T00:00:00Z';
+  const endDate = '2023-12-02T23:59:59Z';
 
-    async function queryStacEndpoint() {
-      console.log('kommt')
-      try {
-        const response = await fetch(`${apiUrl}/collections`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            // Hier könnten weitere Header für Authentifizierung oder andere Anforderungen hinzugefügt werden
-          },
-        });
+  // Baue die Anfrage-URL für die STAC API zusammen
+  const apiUrl = `https://earth-search.aws.element84.com/v1/search?datetime=${startDate}/${endDate}&intersects=${encodeURIComponent(JSON.stringify(polygonGeoJSON))}&collections=sentinel-s2-l2a-cogs`;
+  console.log(apiUrl);
+  // Sende die Anfrage an die STAC API
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      // Hier erhältst du die Daten der Sentinel-2-Bilder, die du auf der Karte anzeigen kannst
+      // data enthält die Informationen zu den gefundenen Bildern
+
+      // Beispiel: Iteriere durch die Ergebnisse
+      data.features.forEach(image => {
+        const imageId = image.id;
+        const imageUrl = image.assets['thumbnail'].href; // Annehmen, dass 'thumbnail' das Bild ist, das du anzeigen möchtest
+        const imageBounds = image.geometry.coordinates[0].map(coord => [coord[1], coord[0]]); // Leaflet erwartet Koordinaten in [lat, lng]
+        console.log(imageId)
+        console.log(imageUrl)
+        console.log(imageBounds)
+        // Erstelle ein ImageOverlay für jedes Bild
+        const imageOverlay = L.imageOverlay(imageUrl, imageBounds);
+
+        // Füge das Overlay der Karte hinzu
+        imageOverlay.addTo(map);
+      });
+    })
+    .catch(error => {
+      // Behandlung von Fehlern bei der Anfrage
+      console.error('Fehler beim Abrufen der Daten:', error);
+    });
+
+
+
+
+  //-----------------TEST------------------
+
+
+
+
+  // URL der STAC-API
+  //let apiUrl = 'https://earth-search.aws.element84.com/v1';
+
+  // Beispielhafte Suchkriterien für Sentinel-2-Daten (kann je nach Bedarf angepasst werden)
+  /*
+  let searchCriteria = {
+    collections: ['sentinel-s2-l2a-cogs'], // Sentinel-2 Level-2A Daten
+    datetime: '2023-11-27T00:00:00Z/2023-12-03T23:59:59Z', // Zeitraum
+    intersects: {
+      type: 'Polygon',
+      coordinates: [[[7.645221826577512, 51.969251756766084], [7.645221826577512, 51.95923063662394], [7.671077429750937, 51.95923063662394], [7.671077429750937, 51.969251756766084],[7.645221826577512, 51.969251756766084]]] // Koordinaten des Rechtecks oder der Fläche
+    }
+  };*/
+
+  // Aufruf der Funktion zur Abfrage des STAC-Endpunkts
+  //fetchFromSTAC(apiUrl, searchCriteria);
+
+
+  //Wie ein Objekt wieder zurückgegeben werden kann
+  //let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
+  //console.log(modifiedData)
+  //if (modifiedData != null ) {
+  //  res.json(modifiedData)
+  //} else {
+  //  res.status(400).json({ error: 'Ungültige Anfrage' });
+  //}
+});
+
+
+
+/**
+ * Functionality addNewStationToDB
+ * @param {*} receivedDatum
+ * @param {*} receivedNEC 
+ * @param {*} receivedSWC 
+ */  
+async function fetchFromSTAC(apiUrl, searchCriteria) 
+{
+  /*
+  fetch(apiUrl)
+  .then(response => {
+    // Überprüfe, ob die Anfrage erfolgreich war (Statuscode 200)
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json(); // Konvertiere die Antwort in JSON
+  })
+  .then(data => {
+    // Handle die erhaltenen Daten hier
+    console.log('Collections:', data.collections); // Gib die Sammlungen in der Konsole aus
+    // Hier kannst du mit den erhaltenen Daten arbeiten und sie anzeigen lassen
+  })
+  .catch(error => {
+    console.error('There was a problem fetching the collections:', error);
+  }); */
+  
+  //URL des AWS für Sentinel-2 Daten aufrufen
+  try {
+    //let apiUrl = 'https://earth-search.aws.element84.com/v1'; // STAC server URL  //https://earth-search.aws.element84.com/search?bbox=&
+    console.log(apiUrl)
+    let response = await fetch(`${apiUrl}/search`, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(searchCriteria)
+    });
     
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-    
-        const data = await response.json();
-        // Verarbeite die Daten, die von der API zurückgegeben wurden
-        console.log('Erhaltene Daten:', data);
-      } catch (error) {
-        console.error('Es gab ein Problem beim Abrufen der Daten:', error);
-      }
+    if (!response.ok) {
+      throw new Error('NetworkError');
     }
     
-    // Aufruf der Funktion zur Abfrage des STAC-Endpunkts
-    queryStacEndpoint();
-
-    
-    //Wie ein Objekt wieder zurückgegeben werden kann
-    let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
-    console.log(modifiedData);
-
-    if (modifiedData != null ) {
-      res.json(modifiedData)
-    } else {
-      res.status(400).json({ error: 'Ungültige Anfrage' });
-    }
-    
-  });
+    let data = await response.json();
+    console.log('Erhaltene Daten:', data);
+    } catch (error) {
+      console.error('Es gab ein Problem beim Abrufen der Daten:', error);
+    } 
+}
 
 
 
@@ -72,6 +180,10 @@ app.post('/satellite', (req, res) => {
 app.listen(port, () => {
     console.log(`Backend Service listening at http://localhost:${port}`)
   });
+
+
+
+
 
 
 // Hier müssen die Daten hingeschickt werden, verarbeitet und zurückgesendet. das ist die API.

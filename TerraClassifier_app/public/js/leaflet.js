@@ -31,7 +31,6 @@ var rectangleCoordinates = null;
 map.on("draw:created", function(event){
   var type = event.layerType,
   layer = event.layer;
-
   if (type == 'rectangle') {
     //rectangleCoordinates = layer.getBounds().toBBoxString();
     rectangleCoordinates = layer.getBounds();
@@ -55,14 +54,13 @@ map.on("draw:edited", function(event){
 // show the scale bar on the lower left corner
 L.control.scale({imperial: true, metric: true}).addTo(map);
 
-
+//-----------------------------------------------------------------------------------
 // Funktionen für die Aktionen des Menüs
 //Wenn dies die erste Funktion wird, über die Sentinal-2 Daten erhalten werden können, müssen folgende vorbeidnungen beachtet/erfüllt/hier im code abgefangen werden
 //1. Funktion darf nur ausgeführt werden, wenn auch ein AOI über das Rechteck ausgewählt wurde.
 //2. Funktion darf nicht ausgeführt werden, wenn ein AOI über ein Polygon ausgewählt wurde. (Wenn möglich)
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
 function satelliteImages(coordinates) {
-  
   let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat + ' ; Lng: ' + coordinates.getNorthEast().lng;
   //console.log(NorthEastCoordinates);
   let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat + ' ; Lng: ' + coordinates.getSouthWest().lng;
@@ -132,6 +130,9 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
   $('#popup_sat').modal('hide'); 
 
 }
+
+
+
 
 function trainingData() {
     alert('Option 2 wurde geklickt!');
