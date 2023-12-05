@@ -61,9 +61,9 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //2. Funktion darf nicht ausgeführt werden, wenn ein AOI über ein Polygon ausgewählt wurde. (Wenn möglich)
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
 function satelliteImages(coordinates) {
-  let NorthEastCoordinates = 'Lat: ' + coordinates.getNorthEast().lat + ' ; Lng: ' + coordinates.getNorthEast().lng;
+  let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   //console.log(NorthEastCoordinates);
-  let SouthwestCoordinates = 'Lat: ' + coordinates.getSouthWest().lat + ' ; Lng: ' + coordinates.getSouthWest().lng;
+  let SouthwestCoordinates = coordinates.getSouthWest().lng + ', ' + coordinates.getSouthWest().lat;
   //console.log(SouthwestCoordinates);
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
