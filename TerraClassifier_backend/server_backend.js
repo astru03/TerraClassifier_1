@@ -35,16 +35,80 @@ app.post('/satellite', (req, res) => {
     // AOIInfos.swc = req.body.SWC
     // AOIInfo.datum = req.body.Datum
   // }
+  //------------------------------------------------------------------------------------------
+//-----------------TEST ANFANG------------------
+const api_url = 'https://earth-search.aws.element84.com/v1';
+const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
+const point = {
+  type: 'Point',
+  coordinates: [4.89, 52.37], // Amsterdam coordinates
+};
+const searchBody = {
+  collections: [collection],
+  intersects: point,
+  limit: 10,
+  datetime: '2023-11-27T00:00:00Z/2023-12-03T23:59:59Z',
+};
+fetch(`${api_url}/search`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(searchBody),
+})
+  .then((response) => response.json())
+  .then((data) => {
+    console.log(data.context);
+    const items = data.features;
+    console.log(items.length);
+    for (var index = 0; index < items.length; index ++) {
+      let itemID = items[index].id
+      console.log(itemID);
+    }
+    let assets = items[index].assets;
+    console.log(assets);
+    //console.log(items);
+        /*
+    items.forEach((item) => {
+      console.log(item);
+      console.log(item.properties.datetime);
+      console.log(item.geometry);
+      console.log(item.properties);
+    });*/
+    /*
+    if (items.length > 0) {
+      const firstItem = items[0];
+      console.log(firstItem.properties.datetime);
+      console.log(firstItem.geometry);
+      console.log(firstItem.properties);
+    } */
+    
+    
+    /*
+    console.log(Object.keys(assets));
 
-  //-----------------TEST------------------
+    for (const key in assets) {
+      if (Object.hasOwnProperty.call(assets, key)) {
+        const asset = assets[key];
+        console.log(`${key}: ${asset.title}`);
+      }
+    }
+    console.log(assets["thumbnail"].href); */
+
+  })
+  .catch((error) => console.error('Error:', error));
+//-----------------TEST ENDE------------------
+
+
+  /*
+  //-----------------TEST ANFANG------------------
   const polygonCoordinates = [
     [7.645221826577512, 51.969251756766084],
     [7.645221826577512, 51.95923063662394],
     [7.671077429750937, 51.95923063662394],
     [7.671077429750937, 51.969251756766084],
-    [7.645221826577512, 51.969251756766084], // Schließe das Polygon
+    [7.645221826577512, 51.969251756766084],
   ];
-  
   // Konvertiere die Koordinaten in das erforderliche Format für die STAC API
   const polygonGeoJSON = {
     "type": "Polygon",
@@ -54,7 +118,6 @@ app.post('/satellite', (req, res) => {
   // Definiere den Zeitraum
   const startDate = '2023-11-27T00:00:00Z';
   const endDate = '2023-12-02T23:59:59Z';
-
   // Baue die Anfrage-URL für die STAC API zusammen
   const apiUrl = `https://earth-search.aws.element84.com/v1/search?datetime=${startDate}/${endDate}&intersects=${encodeURIComponent(JSON.stringify(polygonGeoJSON))}&collections=sentinel-s2-l2a-cogs`;
   console.log(apiUrl);
@@ -64,7 +127,6 @@ app.post('/satellite', (req, res) => {
     .then(data => {
       // Hier erhältst du die Daten der Sentinel-2-Bilder, die du auf der Karte anzeigen kannst
       // data enthält die Informationen zu den gefundenen Bildern
-
       // Beispiel: Iteriere durch die Ergebnisse
       data.features.forEach(image => {
         const imageId = image.id;
@@ -75,7 +137,6 @@ app.post('/satellite', (req, res) => {
         console.log(imageBounds)
         // Erstelle ein ImageOverlay für jedes Bild
         const imageOverlay = L.imageOverlay(imageUrl, imageBounds);
-
         // Füge das Overlay der Karte hinzu
         imageOverlay.addTo(map);
       });
@@ -84,20 +145,14 @@ app.post('/satellite', (req, res) => {
       // Behandlung von Fehlern bei der Anfrage
       console.error('Fehler beim Abrufen der Daten:', error);
     });
+  //-----------------TEST ENDE------------------
+*/
 
 
-
-
-  //-----------------TEST------------------
-
-
-
-
+  /*
   // URL der STAC-API
   //let apiUrl = 'https://earth-search.aws.element84.com/v1';
-
   // Beispielhafte Suchkriterien für Sentinel-2-Daten (kann je nach Bedarf angepasst werden)
-  /*
   let searchCriteria = {
     collections: ['sentinel-s2-l2a-cogs'], // Sentinel-2 Level-2A Daten
     datetime: '2023-11-27T00:00:00Z/2023-12-03T23:59:59Z', // Zeitraum
@@ -105,12 +160,13 @@ app.post('/satellite', (req, res) => {
       type: 'Polygon',
       coordinates: [[[7.645221826577512, 51.969251756766084], [7.645221826577512, 51.95923063662394], [7.671077429750937, 51.95923063662394], [7.671077429750937, 51.969251756766084],[7.645221826577512, 51.969251756766084]]] // Koordinaten des Rechtecks oder der Fläche
     }
-  };*/
-
+  };
   // Aufruf der Funktion zur Abfrage des STAC-Endpunkts
-  //fetchFromSTAC(apiUrl, searchCriteria);
+  //fetchFromSTAC(apiUrl, searchCriteria); 
+  */
 
 
+  //------------------------------- WIE ein Objekt wieder zurück an das Frontend gegeben werden kann ------------------
   //Wie ein Objekt wieder zurückgegeben werden kann
   //let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
   //console.log(modifiedData)
@@ -119,6 +175,7 @@ app.post('/satellite', (req, res) => {
   //} else {
   //  res.status(400).json({ error: 'Ungültige Anfrage' });
   //}
+  //------------------------------------------------------------------------------------------------------
 });
 
 
