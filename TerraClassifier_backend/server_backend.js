@@ -60,8 +60,9 @@ app.post('/satellite', (req, res) => {
     datetime: '2023-12-01T00:00:00Z/2023-12-03T23:59:59Z',
   };
 
+
+
   //Könnnte man noch auslagern als eigene funktion fetchFromSTAC() um error handling zu verbessern? siehe ab Zeile 162
-  //Das muss als async function ausgeführt werden und als Rückgabe des Objekt zurückliefern, dass dann wiederum an das frontend geliefert wird.
   fetch(`${api_url}/search`, {
     method: 'POST',
     headers: {
@@ -70,11 +71,12 @@ app.post('/satellite', (req, res) => {
     body: JSON.stringify(searchBody),
   })
     .then((response) => response.json())
+
     .then((data) => {
       console.log(data.context);
       const items = data.features;
       console.log(items.length); //Wieviele wurden gefunden nach den kriterien
-
+      let objSatellitenImages = {};
       for (var index = 0; index < items.length; index ++) {
         //let itemID = items[index].id
         //console.log(itemID);
@@ -86,13 +88,20 @@ app.post('/satellite', (req, res) => {
         //console.log(assetsHref);
         //let imagebound = items[index].geometry.coordinates
         //console.log(imagebound);
-        let objSatellitenImages = {};
-        objSatellitenImages = {
+        
+        objSatellitenImages['item_' + index] = {
           id: items[index].id, 
           url: items[index].assets.thumbnail.href,
           imageBounds: items[index].geometry.coordinates}
       }
-      //console.log(objSatellitenImages);
+      console.log(objSatellitenImages);
+      
+      if (objSatellitenImages != null ) {
+        res.json(objSatellitenImages)
+      } else {
+        res.status(400).json({ error: 'Ungültige Anfrage' });
+      }
+
     })
     .catch((error) => console.error('Error:', error));
 
@@ -101,12 +110,13 @@ app.post('/satellite', (req, res) => {
   //let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
   //console.log(modifiedData)
 
+  /*
   console.log(objSatellitenImages);
   if (objSatellitenImages != null ) {
     res.json(objSatellitenImages)
   } else {
     res.status(400).json({ error: 'Ungültige Anfrage' });
-  }
+  }*/
   //------------------------------------------------------------------------------------------------------
 });
 

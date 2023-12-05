@@ -88,8 +88,7 @@ function satelliteImages(coordinates) {
             var year = selectedDate.getFullYear(); // Jahr auswählen
 
             let datum = day +"."+ month + "." + year
-            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates);
-            // You can perform actions with the selected date here
+            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates); // Über die Funktion werden die Werte weitergeleitet an das Backend, was ide Images holt und die ImageURL und die imageBound zurückgibt
         } else {
             console.log('Please select a date.');
         }
@@ -118,17 +117,28 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
       // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
       const data = await response.json();
-      console.log('ID', data.id);
-      console.log('URL', data.url);
-      console.log('ImageBound', data.imageBounds);
-      //console.log('Message', data.message);
+      console.log(data)
+      for (var index = 0; index < Object.keys(data).length; index ++){
+        var key = 'item_' + index;
 
+        if(data.hasOwnProperty(key)){
+          var item = data[key];
+          console.log('ID', item.id);
+          console.log('URL', item.url);
+          console.log('ImageBound', item.imageBounds);
+
+          console.log(item.imageBounds);
+          let leafletImageBounds = item.imageBounds.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
+          console.log(leafletImageBounds);
+          let imageOverlay = L.imageOverlay(item.url, leafletImageBounds);
+          imageOverlay.addTo(map);
+        }
+      }
+      
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
   }
-
   $('#popup_sat').modal('hide'); 
-
 }
 
 
