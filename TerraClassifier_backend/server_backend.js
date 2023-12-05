@@ -16,32 +16,33 @@ app.use((req, res, next) => {
 
 
 app.post('/satellite', (req, res) => {
-  //check if Datum and Coordinates not null
-  if(req.body.Datum == '' || req.body.NEC == '' || req.body.SWC == ''){
+  //check if Date and Coordinates not null
+  if(req.body.Date == '' || req.body.NEC == '' || req.body.SWC == ''){
     //res.sendFile(reqpath + "/public/error_empty_input.html")
     console.log('Fehler Felder nicht gefüllt')
   return;
   }
-  //let receivedDatum = req.body.Datum;
-  //let receivedNEC = req.body.NEC;
-  //let receivedSWC = req.body.SWC;
+  let receivedDate = req.body.Date;
+  let receivedNEC = req.body.NEC;
+  let receivedSWC = req.body.SWC;
   // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
-  //console.log(receivedDatum);
+  //console.log(receivedDate);
   //console.log(receivedNEC);
   //console.log(receivedSWC);
   // Wenn gewünscht könnte hier aus den Infos ein Objekt gemacht werden
   // let AOIInfor = {
     // AOIInfos.nec = req.body.NEC
     // AOIInfos.swc = req.body.SWC
-    // AOIInfo.datum = req.body.Datum
+    // AOIInfo.date = req.body.Date
   // }
+
 //Aus den NEC und SWC muss ein polygonCoordinates gemacht werden. Das muss noch dynamisch funktionieren
 //Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
 
 
 
   const api_url = 'https://earth-search.aws.element84.com/v1';
-  let collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
+  const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
   let polygonCoordinates = [
     [7.63,51.97],
     [7.63,51.96],

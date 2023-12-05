@@ -106,7 +106,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          Datum: datum,
+          Date: datum,
           NEC: NorthEastCoordinates,
           SWC: SouthwestCoordinates})
       }) 
