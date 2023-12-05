@@ -35,11 +35,11 @@ app.post('/satellite', (req, res) => {
     // AOIInfos.swc = req.body.SWC
     // AOIInfo.datum = req.body.Datum
   // }
-//Aus den NEC und SWC muss ein polygonCoordinates gemacht werden
-//Das Datum muss an den searchbody übergeben werden
+//Aus den NEC und SWC muss ein polygonCoordinates gemacht werden. Das muss noch dynamisch funktionieren
+//Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
 
-  //------------------------------------------------------------------------------------------
-  //-----------------TEST ANFANG------------------
+
+
   const api_url = 'https://earth-search.aws.element84.com/v1';
   let collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
   let polygonCoordinates = [
@@ -78,15 +78,15 @@ app.post('/satellite', (req, res) => {
       console.log(items.length); //Wieviele wurden gefunden nach den kriterien
       let objSatellitenImages = {};
       for (var index = 0; index < items.length; index ++) {
-        //let itemID = items[index].id
+        //let itemID = items[index].id  //So kommt man an die items.id
         //console.log(itemID);
-        //let assets = items[index].assets;
+        //let assets = items[index].assets; //So kommt man an die items.assets
         //console.log(assets);
-        //let assetsThumbnail = items[index].assets.thumbnail;
+        //let assetsThumbnail = items[index].assets.thumbnail; //So kommt man an die items.assets-thumbnails (Hier können auch andere Bänder herangezogen werden)
         //console.log(assetsThumbnail);
-        //let assetsHref = items[index].assets.thumbnail.href; //imageUrl
+        //let assetsHref = items[index].assets.thumbnail.href; //So kommt man an die entsprechende imageUrl
         //console.log(assetsHref);
-        //let imagebound = items[index].geometry.coordinates
+        //let imagebound = items[index].geometry.coordinates  //So kommt man an die imagebound Koordinaten, die für die anzeige in leaflet wichtig sind.
         //console.log(imagebound);
         
         objSatellitenImages['item_' + index] = {
@@ -96,6 +96,7 @@ app.post('/satellite', (req, res) => {
       }
       console.log(objSatellitenImages);
       
+      //Objekt wird zurückgegeben an das Frontend
       if (objSatellitenImages != null ) {
         res.json(objSatellitenImages)
       } else {
@@ -104,139 +105,7 @@ app.post('/satellite', (req, res) => {
 
     })
     .catch((error) => console.error('Error:', error));
-
-  //------------------------------- WIE ein Objekt wieder zurück an das Frontend gegeben werden kann ------------------
-  //Wie ein Objekt wieder zurückgegeben werden kann
-  //let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
-  //console.log(modifiedData)
-
-  /*
-  console.log(objSatellitenImages);
-  if (objSatellitenImages != null ) {
-    res.json(objSatellitenImages)
-  } else {
-    res.status(400).json({ error: 'Ungültige Anfrage' });
-  }*/
-  //------------------------------------------------------------------------------------------------------
 });
-
-//-----------------TEST ENDE------------------
-
-
-  /*
-  //-----------------TEST ANFANG------------------
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-      // Hier erhältst du die Daten der Sentinel-2-Bilder, die du auf der Karte anzeigen kannst
-      // data enthält die Informationen zu den gefundenen Bildern
-      // Beispiel: Iteriere durch die Ergebnisse
-      data.features.forEach(image => {
-        const imageId = image.id;
-        const imageUrl = image.assets['thumbnail'].href; // Annehmen, dass 'thumbnail' das Bild ist, das du anzeigen möchtest
-        const imageBounds = image.geometry.coordinates[0].map(coord => [coord[1], coord[0]]); // Leaflet erwartet Koordinaten in [lat, lng]
-        console.log(imageId)
-        console.log(imageUrl)
-        console.log(imageBounds)
-        // Erstelle ein ImageOverlay für jedes Bild
-        const imageOverlay = L.imageOverlay(imageUrl, imageBounds);
-        // Füge das Overlay der Karte hinzu
-        imageOverlay.addTo(map);
-      });
-    })
-    .catch(error => {
-      // Behandlung von Fehlern bei der Anfrage
-      console.error('Fehler beim Abrufen der Daten:', error);
-    });
-  //-----------------TEST ENDE------------------
-*/
-
-
-  /*
-  // URL der STAC-API
-  //let apiUrl = 'https://earth-search.aws.element84.com/v1';
-  // Beispielhafte Suchkriterien für Sentinel-2-Daten (kann je nach Bedarf angepasst werden)
-  let searchCriteria = {
-    collections: ['sentinel-s2-l2a-cogs'], // Sentinel-2 Level-2A Daten
-    datetime: '2023-11-27T00:00:00Z/2023-12-03T23:59:59Z', // Zeitraum
-    intersects: {
-      type: 'Polygon',
-      coordinates: [[[7.645221826577512, 51.969251756766084], [7.645221826577512, 51.95923063662394], [7.671077429750937, 51.95923063662394], [7.671077429750937, 51.969251756766084],[7.645221826577512, 51.969251756766084]]] // Koordinaten des Rechtecks oder der Fläche
-    }
-  };
-  // Aufruf der Funktion zur Abfrage des STAC-Endpunkts
-  //fetchFromSTAC(apiUrl, searchCriteria); 
-  */
-
-
-
-
-
-
-/**
- * Functionality addNewStationToDB
- * @param {*} searchBody
- * @param {*} polygonGeoJSON 
- */  
-async function fetchFromSTAC(searchBody, polygonGeoJSON) 
-{
-  /*
-  fetch(apiUrl)
-  .then(response => {
-    // Überprüfe, ob die Anfrage erfolgreich war (Statuscode 200)
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json(); // Konvertiere die Antwort in JSON
-  })
-  .then(data => {
-    // Handle die erhaltenen Daten hier
-    console.log('Collections:', data.collections); // Gib die Sammlungen in der Konsole aus
-    // Hier kannst du mit den erhaltenen Daten arbeiten und sie anzeigen lassen
-  })
-  .catch(error => {
-    console.error('There was a problem fetching the collections:', error);
-  }); */
-  
-  //URL des AWS für Sentinel-2 Daten aufrufen
-  try {
-    //let apiUrl = 'https://earth-search.aws.element84.com/v1'; // STAC server URL  //https://earth-search.aws.element84.com/search?bbox=&
-    console.log(apiUrl)
-    let response = await fetch(`${apiUrl}/search`, {
-      method: 'POST',
-      headers: {
-      'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(searchCriteria)
-    });
-    
-    if (!response.ok) {
-      throw new Error('NetworkError');
-    }
-    
-    let data = await response.json();
-    console.log('Erhaltene Daten:', data);
-    } catch (error) {
-      console.error('Es gab ein Problem beim Abrufen der Daten:', error);
-    } 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //Listener
