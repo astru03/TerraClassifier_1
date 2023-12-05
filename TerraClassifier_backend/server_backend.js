@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 app.post('/satellite', (req, res) => {
   //check if Datum and Coordinates not null
   if(req.body.Datum == '' || req.body.NEC == '' || req.body.SWC == ''){
-  //res.sendFile(reqpath + "/public/error_empty_input.html")
-  console.log('Fehler Felder nicht gefüllt')
+    //res.sendFile(reqpath + "/public/error_empty_input.html")
+    console.log('Fehler Felder nicht gefüllt')
   return;
   }
   //let receivedDatum = req.body.Datum;
@@ -35,93 +35,86 @@ app.post('/satellite', (req, res) => {
     // AOIInfos.swc = req.body.SWC
     // AOIInfo.datum = req.body.Datum
   // }
+//Aus den NEC und SWC muss ein polygonCoordinates gemacht werden
+//Das Datum muss an den searchbody übergeben werden
+
   //------------------------------------------------------------------------------------------
-//-----------------TEST ANFANG------------------
-const api_url = 'https://earth-search.aws.element84.com/v1';
-const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
-const point = {
-  type: 'Point',
-  coordinates: [4.89, 52.37], // Amsterdam coordinates
-};
-const searchBody = {
-  collections: [collection],
-  intersects: point,
-  limit: 10,
-  datetime: '2023-11-27T00:00:00Z/2023-12-03T23:59:59Z',
-};
-fetch(`${api_url}/search`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(searchBody),
-})
-  .then((response) => response.json())
-  .then((data) => {
-    console.log(data.context);
-    const items = data.features;
-    console.log(items.length);
-    for (var index = 0; index < items.length; index ++) {
-      let itemID = items[index].id
-      console.log(itemID);
-    }
-    let assets = items[index].assets;
-    console.log(assets);
-    //console.log(items);
-        /*
-    items.forEach((item) => {
-      console.log(item);
-      console.log(item.properties.datetime);
-      console.log(item.geometry);
-      console.log(item.properties);
-    });*/
-    /*
-    if (items.length > 0) {
-      const firstItem = items[0];
-      console.log(firstItem.properties.datetime);
-      console.log(firstItem.geometry);
-      console.log(firstItem.properties);
-    } */
-    
-    
-    /*
-    console.log(Object.keys(assets));
+  //-----------------TEST ANFANG------------------
+  const api_url = 'https://earth-search.aws.element84.com/v1';
+  let collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
+  let polygonCoordinates = [
+    [7.63,51.97],
+    [7.63,51.96],
+    [7.65,51.96],
+    [7.65,51.97],
+    [7.63,51.97],
+  ];
+  let polygonGeoJSON = {
+    "type": "Polygon",
+    "coordinates": [polygonCoordinates],
+  };
+  const searchBody = {
+    collections: [collection],
+    intersects: polygonGeoJSON,
+    limit: 10,
+    datetime: '2023-12-01T00:00:00Z/2023-12-03T23:59:59Z',
+  };
 
-    for (const key in assets) {
-      if (Object.hasOwnProperty.call(assets, key)) {
-        const asset = assets[key];
-        console.log(`${key}: ${asset.title}`);
-      }
-    }
-    console.log(assets["thumbnail"].href); */
-
+  //Könnnte man noch auslagern als eigene funktion fetchFromSTAC() um error handling zu verbessern? siehe ab Zeile 162
+  //Das muss als async function ausgeführt werden und als Rückgabe des Objekt zurückliefern, dass dann wiederum an das frontend geliefert wird.
+  fetch(`${api_url}/search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(searchBody),
   })
-  .catch((error) => console.error('Error:', error));
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.context);
+      const items = data.features;
+      console.log(items.length); //Wieviele wurden gefunden nach den kriterien
+
+      for (var index = 0; index < items.length; index ++) {
+        //let itemID = items[index].id
+        //console.log(itemID);
+        //let assets = items[index].assets;
+        //console.log(assets);
+        //let assetsThumbnail = items[index].assets.thumbnail;
+        //console.log(assetsThumbnail);
+        //let assetsHref = items[index].assets.thumbnail.href; //imageUrl
+        //console.log(assetsHref);
+        //let imagebound = items[index].geometry.coordinates
+        //console.log(imagebound);
+        let objSatellitenImages = {};
+        objSatellitenImages = {
+          id: items[index].id, 
+          url: items[index].assets.thumbnail.href,
+          imageBounds: items[index].geometry.coordinates}
+      }
+      //console.log(objSatellitenImages);
+    })
+    .catch((error) => console.error('Error:', error));
+
+  //------------------------------- WIE ein Objekt wieder zurück an das Frontend gegeben werden kann ------------------
+  //Wie ein Objekt wieder zurückgegeben werden kann
+  //let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
+  //console.log(modifiedData)
+
+  console.log(objSatellitenImages);
+  if (objSatellitenImages != null ) {
+    res.json(objSatellitenImages)
+  } else {
+    res.status(400).json({ error: 'Ungültige Anfrage' });
+  }
+  //------------------------------------------------------------------------------------------------------
+});
+
 //-----------------TEST ENDE------------------
 
 
   /*
   //-----------------TEST ANFANG------------------
-  const polygonCoordinates = [
-    [7.645221826577512, 51.969251756766084],
-    [7.645221826577512, 51.95923063662394],
-    [7.671077429750937, 51.95923063662394],
-    [7.671077429750937, 51.969251756766084],
-    [7.645221826577512, 51.969251756766084],
-  ];
-  // Konvertiere die Koordinaten in das erforderliche Format für die STAC API
-  const polygonGeoJSON = {
-    "type": "Polygon",
-    "coordinates": [polygonCoordinates],
-  };
-  console.log(polygonGeoJSON);
-  // Definiere den Zeitraum
-  const startDate = '2023-11-27T00:00:00Z';
-  const endDate = '2023-12-02T23:59:59Z';
-  // Baue die Anfrage-URL für die STAC API zusammen
-  const apiUrl = `https://earth-search.aws.element84.com/v1/search?datetime=${startDate}/${endDate}&intersects=${encodeURIComponent(JSON.stringify(polygonGeoJSON))}&collections=sentinel-s2-l2a-cogs`;
-  console.log(apiUrl);
-  // Sende die Anfrage an die STAC API
   fetch(apiUrl)
     .then(response => response.json())
     .then(data => {
@@ -166,27 +159,16 @@ fetch(`${api_url}/search`, {
   */
 
 
-  //------------------------------- WIE ein Objekt wieder zurück an das Frontend gegeben werden kann ------------------
-  //Wie ein Objekt wieder zurückgegeben werden kann
-  //let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
-  //console.log(modifiedData)
-  //if (modifiedData != null ) {
-  //  res.json(modifiedData)
-  //} else {
-  //  res.status(400).json({ error: 'Ungültige Anfrage' });
-  //}
-  //------------------------------------------------------------------------------------------------------
-});
+
 
 
 
 /**
  * Functionality addNewStationToDB
- * @param {*} receivedDatum
- * @param {*} receivedNEC 
- * @param {*} receivedSWC 
+ * @param {*} searchBody
+ * @param {*} polygonGeoJSON 
  */  
-async function fetchFromSTAC(apiUrl, searchCriteria) 
+async function fetchFromSTAC(searchBody, polygonGeoJSON) 
 {
   /*
   fetch(apiUrl)
@@ -233,10 +215,37 @@ async function fetchFromSTAC(apiUrl, searchCriteria)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Listener
 app.listen(port, () => {
     console.log(`Backend Service listening at http://localhost:${port}`)
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

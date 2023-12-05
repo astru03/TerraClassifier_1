@@ -118,10 +118,10 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
       // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
       const data = await response.json();
-      console.log('Datum', data.valueDate);
-      console.log('NEC', data.valueNEC);
-      console.log('SWL', data.valueSWC);
-      console.log('Message', data.message);
+      console.log('ID', data.id);
+      console.log('URL', data.url);
+      console.log('ImageBound', data.imageBounds);
+      //console.log('Message', data.message);
 
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
