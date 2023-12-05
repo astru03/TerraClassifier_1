@@ -41,26 +41,29 @@ app.post('/satellite', (req, res) => {
   let [SWLng, SWLat] = receivedSWC;
   let receivedNWC = [SWLng, NELat];
   let receivedSEC = [NELng, SWLat];
+  console.log(receivedNWC)
+  console.log(receivedSEC)
 //Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
 
 
 
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
-  /* let polygonCoordinates = [
+  let polygonCoordinates = [
     [7.63,51.97], //Nordosten
     [7.63,51.96], //Südosten
     [7.65,51.96], //Südwesten
     [7.65,51.97], //Nordwesten
     [7.63,51.97], //Nordosten
-  ]; */
+  ];
+  /*
   let polygonCoordinates = [
     [receivedNEC[0], receivedNEC[1]], //Nordosten
     [receivedSEC[0], receivedSEC[1]], //Südosten
     [receivedSWC[0], receivedSWC[1]], //Südwesten
     [receivedNWC[0], receivedNWC[1]], //Nordwesten
     [receivedNEC[0], receivedNEC[1]], //Nordosten
-  ];
+  ];*/
   console.log(polygonCoordinates);
   let polygonGeoJSON = {
     "type": "Polygon",
