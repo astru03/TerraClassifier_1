@@ -103,19 +103,19 @@ writeRaster(s2_aot, "s2_aot.grd", overwrite = TRUE)
 trainingsdata <- st_read("Trainingspolygone_Dortmund.gpkg")
 
 # combine the raster data with the trainingsdata
-extraction <- extract(s2_aot, trainingsdata, df=TRUE)
-trainingsdata$PolyID <- seq_len(nrow(trainingsdata)) 
-extraction <- merge(extraction, trainingsdata, by.x="ID", by.y="PolyID")
+extraction <- extract(s2_aot, trainingsdata, df = TRUE)
+trainingsdata$PolyID <- seq_len(nrow(trainingsdata))
+extraction <- merge(extraction, trainingsdata, by.x = "ID", by.y = "PolyID")
 
 # prepare the model
 predictors <- names(s2_aoi)
-trainIDs <- createDataPartition(extraction$ID,p=0.1,list = FALSE)
-trainDat <- extraction[trainIDs,]
-trainDat <- trainDat[complete.cases(trainDat[,predictors]),]
+train_ids <- createDataPartition(extraction$ID, p = 0.1, list = FALSE)
+train_dat <- extraction[train_ids, ]
+train_dat <- train_dat[complete.cases(train_dat[, predictors]), ]
 
 # train the model with knn (k-nearest neighbor)
-model <- train(trainDat[, predictors],
-               trainDat$Label,
+model <- train(train_dat[, predictors],
+               train_dat$Label,
                method = "knn",
                tuneLength = 10)
 
