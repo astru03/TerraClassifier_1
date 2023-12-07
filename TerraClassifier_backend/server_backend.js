@@ -29,56 +29,63 @@ app.post('/satellite', (req, res) => {
   console.log(receivedDate);
   console.log(receivedNEC);
   console.log(receivedSWC);
-  // Wenn gewünscht könnte hier aus den Infos ein Objekt gemacht werden
-  // let AOIInfor = {
-    // AOIInfos.nec = req.body.NEC
-    // AOIInfos.swc = req.body.SWC
-    // AOIInfo.date = req.body.Date
-  // }
 
 //Aus den NEC und SWC muss ein polygonCoordinates gemacht werden. Das muss noch dynamisch funktionieren
-  let [NELng, NELat] = receivedNEC;
-  let [SWLng, SWLat] = receivedSWC;
-  let receivedNWC = [SWLng, NELat];
-  let receivedSEC = [NELng, SWLat];
-  console.log(receivedNWC)
-  console.log(receivedSEC)
+  let SplitReceivedNEC = receivedNEC.split(",") //Aufspalten am Komma um auch die Koordinaten für NWC und SEC zu erhalten
+  let SplitReceivedSWC = receivedSWC.split(",") //Die sind nötig um weiter unten das Rechteckt aufzubauen
+  let stringNEC = [SplitReceivedNEC[0], SplitReceivedNEC[1].trim()] 
+  let stringNWC = [SplitReceivedSWC[0], SplitReceivedNEC[1].trim()];
+  let stringSWC = [SplitReceivedSWC[0], SplitReceivedSWC[1].trim()]
+  let stringSEC = [SplitReceivedNEC[0], SplitReceivedSWC[1].trim()];
+  let NEC = stringNEC.map(parseFloat);  //um aus Array von Strings ein Array aus Gleitkommazahlen zu machen
+  let NWC = stringNWC.map(parseFloat);
+  let SWC = stringSWC.map(parseFloat);
+  let SEC = stringSEC.map(parseFloat);
+
 //Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
-
-
-
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
+ 
   let polygonCoordinates = [
-    [7.63,51.97], //Nordosten
-    [7.63,51.96], //Südosten
-    [7.65,51.96], //Südwesten
-    [7.65,51.97], //Nordwesten
-    [7.63,51.97], //Nordosten
+    NEC, //Nordosten
+    SEC, //Südosten
+    SWC, //Südwesten
+    NWC, //Nordwesten
+    NEC, //Nordosten
   ];
-  /*
-  let polygonCoordinates = [
-    [receivedNEC[0], receivedNEC[1]], //Nordosten
-    [receivedSEC[0], receivedSEC[1]], //Südosten
-    [receivedSWC[0], receivedSWC[1]], //Südwesten
-    [receivedNWC[0], receivedNWC[1]], //Nordwesten
-    [receivedNEC[0], receivedNEC[1]], //Nordosten
-  ];*/
   console.log(polygonCoordinates);
   let polygonGeoJSON = {
     "type": "Polygon",
     "coordinates": [polygonCoordinates],
   };
+
+  //Datum formatieren
+  let dateParts = receivedDate.split('.') //Aufspalten des Datums
+  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); //Vorsicht Monate starten bei 0. Also Janua = 0 deswegen -1 bei Monat
+  let year = newDate.getFullYear();
+  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Führende Nullen für Monat hinzufügen
+  let day = String(newDate.getDate()).padStart(2, '0'); // Führende Nullen für Tag hinzufügen
+  let NewStartDate = `${year}-${month}-${day}`;
+
+
+  let startDate = new Date(NewStartDate); //Hier kommt ein komisches format raus z.b. 2023-12-03T00:00:00.000Z
+  startDate.setDate(startDate.getDate() + 14); // zu dem format wird 14 Tage zum Startdatum hinzufügen
+  let endDate = startDate.toISOString().split('T')[0]; // Formatieren damit nur noch das Format YYYY-MM-DD vorliegt
+  let startTime = 'T00:00:00Z';
+  let endTime = 'T23:59:59Z';
+  let date = NewStartDate + startTime + '/' + endDate + endTime;
+  //console.log(date);
+
   const searchBody = {
     collections: [collection],
     intersects: polygonGeoJSON,
     limit: 10,
-    datetime: '2023-12-01T00:00:00Z/2023-12-03T23:59:59Z',
+    datetime: date,
   };
 
+  console.log(searchBody);
 
-
-  //Könnnte man noch auslagern als eigene funktion fetchFromSTAC() um error handling zu verbessern? siehe ab Zeile 162
+  //Fetch der API um die Bilder zu holen
   fetch(`${api_url}/search`, {
     method: 'POST',
     headers: {
@@ -108,6 +115,7 @@ app.post('/satellite', (req, res) => {
         objSatellitenImages['item_' + index] = {
           id: items[index].id, 
           url: items[index].assets.thumbnail.href,
+          //url: items[index].assets.visual.href,
           imageBounds: items[index].geometry.coordinates}
       }
       console.log(objSatellitenImages);
