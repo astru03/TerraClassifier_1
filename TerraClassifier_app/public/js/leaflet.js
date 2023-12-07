@@ -60,6 +60,7 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //1. Funktion darf nur ausgeführt werden, wenn auch ein AOI über das Rechteck ausgewählt wurde.
 //2. Funktion darf nicht ausgeführt werden, wenn ein AOI über ein Polygon ausgewählt wurde. (Wenn möglich)
 //3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
+let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   //console.log(NorthEastCoordinates);
@@ -89,7 +90,8 @@ function satelliteImages(coordinates) {
 
             let datum = day +"."+ month + "." + year
             getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates); // Über die Funktion werden die Werte weitergeleitet an das Backend, was ide Images holt und die ImageURL und die imageBound zurückgibt
-        } else {
+          
+          } else {
             console.log('Please select a date.');
         }
     });
@@ -117,29 +119,71 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
       // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
       const data = await response.json();
-      console.log(data)
-      for (var index = 0; index < Object.keys(data).length; index ++){
-        var key = 'item_' + index;
+      //console.log(data)
 
-        if(data.hasOwnProperty(key)){
-          var item = data[key];
-          console.log('ID', item.id);
-          console.log('URL', item.url);
-          console.log('ImageBound', item.imageBounds);
-
-          console.log(item.imageBounds);
-          let leafletImageBounds = item.imageBounds.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
-          console.log(leafletImageBounds);
-          let imageOverlay = L.imageOverlay(item.url, leafletImageBounds);
-          imageOverlay.addTo(map);
+      if (Object.keys(data).length >= 2 ) { //Wenn mehr als 2 Objekte gefunden wurden, dann werden die id und die url in ein Objekt geschrieben URLlist
+        for (var index = 0; index < Object.keys(data).length; index ++){
+          var key = 'item_' + index;
+          if(data.hasOwnProperty(key)){
+            var item = data[key];
+            //console.log('ID', item.id);
+            //console.log('URL', item.url);
+            //console.log('ImageBound', item.imageBounds);
+            let URLListItem = {
+                ID: item.id,
+                URL: item.url,
+                IB: item.imageBounds
+            };
+            URLlist.push(URLListItem)
+          }  
         }
       }
-      
+
+      let selectionContent = $('#objectSelect');
+      selectionContent.empty(); // Leere den Inhalt des Modal-Bodies
+      // Erstelle die Auswahlliste im zweiten Popup
+      URLlist.forEach(function (item) {
+        selectionContent.append($('<option>', {
+          text: item.ID
+        }));
+      });
+
+      $('#selectPopupModal').modal('show'); // Öffne das Auswahllisten-Popup
+
+      $('#confirmSelectionBtn').on('click', function() {
+        // Hier könntest du die Bestätigung der Auswahl behandeln
+        let selectedID = $('#objectSelect').val();
+        console.log(selectedID)
+
+        //Muss noch prüfen, wenn selectedID z.b. S2B_32UMC_20231203_0_L2A = 
+        for ( var i = 0; i < URLlist.length; i++){
+          if (selectedID === URLlist[i].ID) {
+            console.log(URLlist[i].URL)
+            console.log(URLlist[i].IB)
+            let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
+            let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
+            imageOverlay.addTo(map);
+          }
+        }
+
+
+        $('#selectPopupModal').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
+      }); 
+
+
+      //zum anzeigen des images
+      //console.log(item.imageBounds);
+      //let leafletImageBounds = item.imageBounds.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
+      //console.log(leafletImageBounds);
+      //let imageOverlay = L.imageOverlay(item.url, leafletImageBounds);
+      //imageOverlay.addTo(map);
+
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
   }
   $('#popup_sat').modal('hide'); 
 }
+
 
 
 

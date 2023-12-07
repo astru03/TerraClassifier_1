@@ -75,7 +75,8 @@
         </header>
         
         <main>
-            <!-- Popup satellite images -->
+            
+          <!-- Popup satellite images -->
             <div class="modal" id="popup_sat">
                 <div class="modal-dialog">
                   <div class="modal-content">
@@ -117,7 +118,32 @@
                 </div>
               </div>
 
-            <!-- If no rectangle was selected, corresponding popup opens -->
+          <!-- Popupfenster für die Auswahl, wenn mehrere Sattelitelbilder verfügbar sind -->
+            <div class="modal fade" id="selectPopupModal" tabindex="-1" role="dialog" aria-labelledby="secondPopupModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="selectPopupModalLabel">Auswahl treffen</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <select id="objectSelect" class="form-control">
+                      <!-- Hier wird die dynamische Auswahlliste eingefügt -->
+                    </select>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="confirmSelectionBtn">OK</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+          <!-- If no rectangle was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoRectangle" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
