@@ -99,7 +99,11 @@ app.post('/satellite', (req, res) => {
       console.log(data.context);
       const items = data.features;
       console.log(items.length); //Wieviele wurden gefunden nach den kriterien
-      let objSatellitenImages = {};
+      
+      let objSatellitenImages = {}; //in diesem Objekt werden die id, die url und die imageBounds der resulate gespeichert
+
+      
+      
       for (var index = 0; index < items.length; index ++) {
         //let itemID = items[index].id  //So kommt man an die items.id
         //console.log(itemID);
@@ -118,6 +122,7 @@ app.post('/satellite', (req, res) => {
           //url: items[index].assets.visual.href,
           imageBounds: items[index].geometry.coordinates}
       }
+      
       console.log(objSatellitenImages);
       
       //Objekt wird zurückgegeben an das Frontend
