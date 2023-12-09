@@ -154,7 +154,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         }));
       });
 
-      $('#selectPopupModal').modal('show'); // Öffne das Auswahllisten-Popup
+      $('#popup_select_sat').modal('show'); // Öffne das Auswahllisten-Popup
 
       $('#confirmSelectionBtn').on('click', function() {
         // Hier könntest du die Bestätigung der Auswahl behandeln
@@ -171,9 +171,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
             imageOverlay.addTo(map);
           }
         }
-
-
-        $('#selectPopupModal').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
+        $('#popup_select_sat').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
       }); 
 
 
@@ -199,10 +197,30 @@ function trainingData() {
 }
 
 function algorithm() {
-    var popup = document.getElementById('popup_algo');
-    popup.style.display = 'block';
+    $('#popup_algo').modal('show');
+    $('#confirmSelectionAlg').on('click', function() {
+      var algorithmMD = document.getElementById('algorithm1').checked;
+      var algorithmRF = document.getElementById('algorithm2').checked;
+
+      if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {
+        $('#popup_NoAlgorithm').modal('show');
+      } else {
+        // Hier kannst du die ausgewählte Option verwenden
+        if (algorithmMD) {
+          let MinimumDistanc = 'Minimum Distanz';
+          console.log(MinimumDistanc);
+        } else {
+          let RandomForest = 'Random Forest';
+          console.log(RandomForest);
+        }
+
+      $('#popup_algo').modal('hide');
+    }})
+    //var popup = document.getElementById('popup_algo');
+    //popup.style.display = 'block';
 }
 
+/*
 function useSelectedAlgorithm() {
   var algorithmNN = document.getElementById('algorithmNearestNeighbor').checked;
   var algorithmRF = document.getElementById('algorithmRandomForrest').checked;
@@ -210,7 +228,7 @@ function useSelectedAlgorithm() {
   console.log('Random forest Algorithmus ausgewählt:', algorithmRF);
   var popup = document.getElementById('popup_algo');
   popup.style.display = 'none';
-}
+} */
 
 function modelTraining() {
   alert('Option 4 wurde geklickt!');
@@ -224,10 +242,14 @@ function closePopup(ID_Popup) {
     if (ID_Popup == 'popup_sat') {
       $('#popup_sat').modal('hide');
     } else if (ID_Popup == 'popup_algo') {
-      var popup = document.getElementById('popup_algo');
-      popup.style.display = 'none';
+      $('#popup_algo').modal('hide');
     } else if (ID_Popup == 'popup_NoRectangle') {
       $('#popup_NoRectangle').modal('hide');
+    } else if (ID_Popup == 'popup_NoAlgorithm') {
+      $('#popup_NoAlgorithm').modal('hide');
+    } else if (ID_Popup == 'popup_select_sat') {
+      $('#popup_select_sat').modal('hide');
+      $('#popup_sat').modal('show');
     }
 }
 
