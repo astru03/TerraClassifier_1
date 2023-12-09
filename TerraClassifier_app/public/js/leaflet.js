@@ -63,8 +63,6 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 
 //-----------------------------------------------------------------------------------
 // Funktionen für die Aktionen des Menüs
-//Wenn dies die erste Funktion wird, über die Sentinal-2 Daten erhalten werden können, müssen folgende vorbeidnungen beachtet/erfüllt/hier im code abgefangen werden
-//1. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde. FERTIG
 
 let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
 function satelliteImages(coordinates) {
@@ -102,11 +100,11 @@ function satelliteImages(coordinates) {
         }
     });
   });
-  
 }
 
 
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
+  URLlist = []; //Wenn ein neues Datum gewählt wurde dann muss die liste wieder geleert werden, damit die nicht immer wieder neu befüllt wird
   try {
     const response = await fetch('http://localhost:8080/satellite', {
         method: 'POST',
@@ -147,7 +145,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
       let selectionContent = $('#objectSelect');
       selectionContent.empty(); // Leere den Inhalt des Modal-Bodies
-      // Erstelle die Auswahlliste im zweiten Popup
+      // Erstellt die Auswahlliste im zweiten Popup
       URLlist.forEach(function (item) {
         selectionContent.append($('<option>', {
           text: item.ID
@@ -157,12 +155,10 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
       $('#popup_select_sat').modal('show'); // Öffne das Auswahllisten-Popup
 
       $('#confirmSelectionBtn').on('click', function() {
-        // Hier könntest du die Bestätigung der Auswahl behandeln
         let selectedID = $('#objectSelect').val();
         console.log(selectedID)
-
-        //Muss noch prüfen, wenn selectedID z.b. S2B_32UMC_20231203_0_L2A = 
-        for ( var i = 0; i < URLlist.length; i++){
+        //zum anzeigen des images
+        for (var i = 0; i < URLlist.length; i++){
           if (selectedID === URLlist[i].ID) {
             console.log(URLlist[i].URL)
             console.log(URLlist[i].IB)
@@ -174,18 +170,10 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         $('#popup_select_sat').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
       }); 
 
-
-      //zum anzeigen des images
-      //console.log(item.imageBounds);
-      //let leafletImageBounds = item.imageBounds.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
-      //console.log(leafletImageBounds);
-      //let imageOverlay = L.imageOverlay(item.url, leafletImageBounds);
-      //imageOverlay.addTo(map);
-
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
   }
-  $('#popup_sat').modal('hide'); 
+  $('#popup_sat').modal('hide');
 }
 
 
@@ -201,11 +189,9 @@ function algorithm() {
     $('#confirmSelectionAlg').on('click', function() {
       var algorithmMD = document.getElementById('algorithm1').checked;
       var algorithmRF = document.getElementById('algorithm2').checked;
-
-      if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {
+      if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  //Wenn kein oder beide Algorithmen ausgewählt wurden
         $('#popup_NoAlgorithm').modal('show');
       } else {
-        // Hier kannst du die ausgewählte Option verwenden
         if (algorithmMD) {
           let MinimumDistanc = 'Minimum Distanz';
           console.log(MinimumDistanc);
@@ -213,22 +199,11 @@ function algorithm() {
           let RandomForest = 'Random Forest';
           console.log(RandomForest);
         }
-
       $('#popup_algo').modal('hide');
     }})
-    //var popup = document.getElementById('popup_algo');
-    //popup.style.display = 'block';
 }
 
-/*
-function useSelectedAlgorithm() {
-  var algorithmNN = document.getElementById('algorithmNearestNeighbor').checked;
-  var algorithmRF = document.getElementById('algorithmRandomForrest').checked;
-  console.log('Nearest neighbor Algorithmus ausgewählt:', algorithmNN);
-  console.log('Random forest Algorithmus ausgewählt:', algorithmRF);
-  var popup = document.getElementById('popup_algo');
-  popup.style.display = 'none';
-} */
+
 
 function modelTraining() {
   alert('Option 4 wurde geklickt!');
@@ -249,6 +224,7 @@ function closePopup(ID_Popup) {
       $('#popup_NoAlgorithm').modal('hide');
     } else if (ID_Popup == 'popup_select_sat') {
       $('#popup_select_sat').modal('hide');
+      URLlist = []; //Hiermit wird die liste geller wenn im Popup-fenster für die selektion auf abbrechen gedrückt wird
       $('#popup_sat').modal('show');
     }
 }
