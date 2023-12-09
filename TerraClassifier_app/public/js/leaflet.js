@@ -13,9 +13,9 @@ var drawnFeatures = new L.FeatureGroup();
 map.addLayer(drawnFeatures);
 
 // Adding a Leaflet.Draw Toolbar
-map.addControl(new L.Control.Draw( {
+var drawControl = new L.Control.Draw( {
     edit: {featureGroup: drawnFeatures},
-    // Only rectangle and point draw function is needed
+    // Only rectangle draw function is needed
     draw: {
         polyline: false,
         rectangle: true,
@@ -24,20 +24,28 @@ map.addControl(new L.Control.Draw( {
         circlemarker: false,
         marker: false
     }
-})) 
+}) 
+
+map.addControl(drawControl);
 
 var rectangleCoordinates = null;
+var previousRectangle = null;
 // Event-Handler for drawing polygons
 map.on("draw:created", function(event){
-  var type = event.layerType,
-  layer = event.layer;
+  var layer = event.layer;
+  var type = event.layerType;
   if (type == 'rectangle') {
+    if (previousRectangle !== null) { //Wenn schon ein rechteck gezeichnet wurde, dann wird das alte gelöscht. Es darf immer nur eines geben, was die Koordinaten wweitergibt
+      drawnFeatures.removeLayer(previousRectangle);
+    }
     //rectangleCoordinates = layer.getBounds().toBBoxString();
     rectangleCoordinates = layer.getBounds();
-    //console.log(rectangleCoordinates); 
+    console.log(rectangleCoordinates)
   }
     drawnFeatures.addLayer(layer);
+    previousRectangle = layer;
 })
+
 
 // Event-Handler for editing rectangle
 map.on("draw:edited", function(event){
@@ -46,7 +54,6 @@ map.on("draw:edited", function(event){
     if (layer instanceof L.Rectangle) {
       //rectangleCoordinates = layer.getBounds().toBBoxString();
       rectangleCoordinates = layer.getBounds();
-      //console.log('Edited Rectangle Coordinates:', rectangleCoordinates);
     }
   });
 })
@@ -57,9 +64,8 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //-----------------------------------------------------------------------------------
 // Funktionen für die Aktionen des Menüs
 //Wenn dies die erste Funktion wird, über die Sentinal-2 Daten erhalten werden können, müssen folgende vorbeidnungen beachtet/erfüllt/hier im code abgefangen werden
-//1. Funktion darf nur ausgeführt werden, wenn auch ein AOI über das Rechteck ausgewählt wurde.
-//2. Funktion darf nicht ausgeführt werden, wenn ein AOI über ein Polygon ausgewählt wurde. (Wenn möglich)
-//3. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde
+//1. Funktion darf nicht ausgeführt werden, wenn kein AOI gewählt wurde. FERTIG
+
 let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
