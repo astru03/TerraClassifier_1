@@ -75,14 +75,13 @@
         </header>
         
         <main>
-            <!-- Popup satellite images -->
+          <!-- Pop-up window for satellite images -->
             <div class="modal" id="popup_sat">
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <!-- Modal Header -->
                     <div class="modal-header">
                       <h5 class="modal-title">Satelliten</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <!-- Modal Body -->
                     <div class="modal-body">
@@ -117,44 +116,105 @@
                 </div>
               </div>
 
-            <!-- If no rectangle was selected, corresponding popup opens -->
+          <!-- Pop-up window for selection when multiple satellite images are available -->
+            <div class="modal fade" id="popup_select_sat" tabindex="-1" role="dialog" aria-labelledby="secondPopupModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="popup_select_satLabel">Auswahl treffen</h5>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    <select id="objectSelect" class="form-control">
+                      <!-- Hier wird die dynamische Auswahlliste eingefügt -->
+                    </select>
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closePopup('popup_select_sat')">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="confirmSelectionBtn">OK</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+          <!-- If no rectangle was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoRectangle" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
+                    <!-- Modal Header -->
                     <div class="modal-header">
                       <h4 class="modal-title" id="myModalLabel">Fehler</h4>
                     </div>
+                    <!-- Modal Body -->
                     <div class="modal-body">
                         Bitte zeichnen Sie zuerst ein Rechteck auf die Karte und definieren somit ein Area of Intrest (AOI).
                     </div>
+                    <!-- Modal Footer -->
                     <div class="modal-footer">
                       <button type="button" class="btn btn-info" onclick="closePopup('popup_NoRectangle')">Ok</button>
                     </div>
                   </div>
                 </div>
-              </div>
-
-            <!-- Popup algorithm -->
-            <div id="popup_algo" class="popup">
-                <div class="form-group">
-                    <label for="choose_algo">Bitte wählen Sie ein Algorithmus</label>
-                </div>
-                <div class="form-group">
-                    <label>
-                      <input type="checkbox" class="form-check-input" id="algorithmNearestNeighbor">
-                      Nearest neighbor
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label>
-                      <input type="checkbox" class="form-check-input" id="algorithmRandomForrest">
-                      Random forest
-                    </label>
-                  </div>
-                <span class="closeBtn" onclick="closePopup('popup_algo')">X</span>
-                <button onclick="useSelectedAlgorithm()">Ok</button>
-                <button onclick="closePopup('popup_algo')">Abbrechen</button>
             </div>
+
+          <!-- Pop-up window for selection the algorithm -->
+            <div class="modal" id="popup_algo">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title">Algorithmus auswählen</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="algorithm1" value="algorithm1">
+                      <label class="form-check-label" for="algorithm1">
+                        Minimum Distance
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="algorithm2" value="algorithm2">
+                      <label class="form-check-label" for="algorithm2">
+                        Random forest
+                      </label>
+                    </div>
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="confirmSelectionAlg">OK</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closePopup('popup_algo')">Abbrechen</button>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+          
+          <!-- If no Algorithm was selected, corresponding popup opens -->
+            <div class="modal fade" id="popup_NoAlgorithm" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    Bitte wählen Sie genau einen Algorithmus aus.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_NoAlgorithm')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
 
             <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
             <div class="container-fluid mt-2" id="mapcontainer">

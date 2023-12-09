@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080
+const fetch = require('node-fetch');
+
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -12,40 +14,150 @@ app.use((req, res, next) => {
   next();
 });
 
+
 app.post('/satellite', (req, res) => {
-    const receivedDatum = req.body.Datum;
-    const receivedNEC = req.body.NEC;
-    const receivedSWC = req.body.SWC;
-    // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
-    console.log(receivedDatum);
-    console.log(receivedNEC);
-    console.log(receivedSWC);
-    //URL des AWS für Sentinel-2 Daten aufrufen
+  //check if Date and Coordinates not null
+  if(req.body.Date == '' || req.body.NEC == '' || req.body.SWC == ''){
+    //res.sendFile(reqpath + "/public/error_empty_input.html")
+    console.log('Fehler Felder nicht gefüllt')
+  return;
+  }
+  let receivedDate = req.body.Date;
+  let receivedNEC = req.body.NEC;
+  let receivedSWC = req.body.SWC;
+  // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
+  console.log(receivedDate);
+  console.log(receivedNEC);
+  console.log(receivedSWC);
+
+//Aus den NEC und SWC muss ein polygonCoordinates gemacht werden. Das muss noch dynamisch funktionieren
+  let SplitReceivedNEC = receivedNEC.split(",") //Aufspalten am Komma um auch die Koordinaten für NWC und SEC zu erhalten
+  let SplitReceivedSWC = receivedSWC.split(",") //Die sind nötig um weiter unten das Rechteckt aufzubauen
+  let stringNEC = [SplitReceivedNEC[0], SplitReceivedNEC[1].trim()] 
+  let stringNWC = [SplitReceivedSWC[0], SplitReceivedNEC[1].trim()];
+  let stringSWC = [SplitReceivedSWC[0], SplitReceivedSWC[1].trim()]
+  let stringSEC = [SplitReceivedNEC[0], SplitReceivedSWC[1].trim()];
+  let NEC = stringNEC.map(parseFloat);  //um aus Array von Strings ein Array aus Gleitkommazahlen zu machen
+  let NWC = stringNWC.map(parseFloat);
+  let SWC = stringSWC.map(parseFloat);
+  let SEC = stringSEC.map(parseFloat);
+
+//Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
+  const api_url = 'https://earth-search.aws.element84.com/v1';
+  const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
+ 
+  let polygonCoordinates = [
+    NEC, //Nordosten
+    SEC, //Südosten
+    SWC, //Südwesten
+    NWC, //Nordwesten
+    NEC, //Nordosten
+  ];
+  console.log(polygonCoordinates);
+  let polygonGeoJSON = {
+    "type": "Polygon",
+    "coordinates": [polygonCoordinates],
+  };
+
+  //Datum formatieren
+  let dateParts = receivedDate.split('.') //Aufspalten des Datums
+  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); //Vorsicht Monate starten bei 0. Also Janua = 0 deswegen -1 bei Monat
+  let year = newDate.getFullYear();
+  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Führende Nullen für Monat hinzufügen
+  let day = String(newDate.getDate()).padStart(2, '0'); // Führende Nullen für Tag hinzufügen
+  let NewStartDate = `${year}-${month}-${day}`;
 
 
+  let startDate = new Date(NewStartDate); //Hier kommt ein komisches format raus z.b. 2023-12-03T00:00:00.000Z
+  startDate.setDate(startDate.getDate() + 14); // zu dem format wird 14 Tage zum Startdatum hinzufügen
+  let endDate = startDate.toISOString().split('T')[0]; // Formatieren damit nur noch das Format YYYY-MM-DD vorliegt
+  let startTime = 'T00:00:00Z';
+  let endTime = 'T23:59:59Z';
+  let date = NewStartDate + startTime + '/' + endDate + endTime;
+  //console.log(date);
 
+  const searchBody = {
+    collections: [collection],
+    intersects: polygonGeoJSON,
+    limit: 10,
+    datetime: date,
+  };
 
-    
-    //Wie ein Objekt wieder zurückgegeben werden kann
-    let modifiedData = {valueDate: receivedDatum, valueNEC: receivedNEC, valueSWC: receivedSWC, message: 'Erfolg'}
-    console.log(modifiedData);
+  console.log(searchBody);
 
-    if (modifiedData != null ) {
-      res.json(modifiedData)
-    } else {
-      res.status(400).json({ error: 'Ungültige Anfrage' });
-    }
-    
-  });
+  //Fetch der API um die Bilder zu holen
+  fetch(`${api_url}/search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(searchBody),
+  })
+    .then((response) => response.json())
 
+    .then((data) => {
+      console.log(data.context);
+      const items = data.features;
+      console.log(items.length); //Wieviele wurden gefunden nach den kriterien
+      
+      let objSatellitenImages = {}; //in diesem Objekt werden die id, die url und die imageBounds der resulate gespeichert
 
+      
+      
+      for (var index = 0; index < items.length; index ++) {
+        //let itemID = items[index].id  //So kommt man an die items.id
+        //console.log(itemID);
+        //let assets = items[index].assets; //So kommt man an die items.assets
+        //console.log(assets);
+        //let assetsThumbnail = items[index].assets.thumbnail; //So kommt man an die items.assets-thumbnails (Hier können auch andere Bänder herangezogen werden)
+        //console.log(assetsThumbnail);
+        //let assetsHref = items[index].assets.thumbnail.href; //So kommt man an die entsprechende imageUrl
+        //console.log(assetsHref);
+        //let imagebound = items[index].geometry.coordinates  //So kommt man an die imagebound Koordinaten, die für die anzeige in leaflet wichtig sind.
+        //console.log(imagebound);
+        
+        objSatellitenImages['item_' + index] = {
+          id: items[index].id, 
+          url: items[index].assets.thumbnail.href,
+          //url: items[index].assets.visual.href,
+          imageBounds: items[index].geometry.coordinates}
+      }
+      
+      console.log(objSatellitenImages);
+      
+      //Objekt wird zurückgegeben an das Frontend
+      if (objSatellitenImages != null ) {
+        res.json(objSatellitenImages)
+      } else {
+        res.status(400).json({ error: 'Ungültige Anfrage' });
+      }
 
+    })
+    .catch((error) => console.error('Error:', error));
+});
 
 
 //Listener
 app.listen(port, () => {
     console.log(`Backend Service listening at http://localhost:${port}`)
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Hier müssen die Daten hingeschickt werden, verarbeitet und zurückgesendet. das ist die API.
