@@ -206,8 +206,8 @@ app.listen(port, () => {
 
 // Konfiguration mit deinen AWS-Zugangsdaten
 AWS.config.update({
-  accessKeyId: 'DEIN_ACCESS_KEY',
-  secretAccessKey: 'DEIN_SECRET_KEY',
+  accessKeyId: 'ec2-54-185-59-127.us-west-2.compute.amazonaws.com',
+  secretAccessKey: 'b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZWQyNTUxOQAAACAldUTO2odSzHvcG+kLVCyheHHQPbMgG46LEu673Nwr5gAAAIjOyTxUzsk8VAAAAAtzc2gtZWQyNTUxOQAAACAldUTO2odSzHvcG+kLVCyheHHQPbMgG46LEu673Nwr5gAAAEAwUQIBATAFBgMrZXAEIgQgerZb/FffJMwiEAodTO1gdSV1RM7ah1LMe9wb6QtULKF4cdA9syAbjosS7rvc3CvmAAAAAAECAwQF',
   region: 'us-west-2' // deine Region   ec2-54-185-59-127.us-west-2.compute.amazonaws.com
 });
 
