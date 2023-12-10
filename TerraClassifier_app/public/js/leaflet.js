@@ -224,7 +224,7 @@ function closePopup(ID_Popup) {
       $('#popup_NoAlgorithm').modal('hide');
     } else if (ID_Popup == 'popup_select_sat') {
       $('#popup_select_sat').modal('hide');
-      URLlist = []; //Hiermit wird die liste geller wenn im Popup-fenster für die selektion auf abbrechen gedrückt wird
+      URLlist = []; //Hiermit wird die liste geleert wenn im Popup-fenster für die selektion auf abbrechen gedrückt wird
       $('#popup_sat').modal('show');
     }
 }
