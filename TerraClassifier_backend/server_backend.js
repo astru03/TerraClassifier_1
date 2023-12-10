@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080
 const fetch = require('node-fetch');
-
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -196,3 +198,44 @@ app.listen(port, () => {
 // Klassifikation
 // mit dem trainirten Modell und den Satellitenbildern aus dem ersten Teil muss die klassifikation erfolgen
 
+
+
+
+//-----------AWS einbinden--------------------------------------------
+
+
+// Konfiguration mit deinen AWS-Zugangsdaten
+AWS.config.update({
+  accessKeyId: 'DEIN_ACCESS_KEY',
+  secretAccessKey: 'DEIN_SECRET_KEY',
+  region: 'us-west-2' // deine Region   ec2-54-185-59-127.us-west-2.compute.amazonaws.com
+});
+
+// Erstelle eine Instanz von AWS S3
+const s3 = new AWS.S3();
+
+// Konfiguration von Multer für Datei-Uploads
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'DEIN_BUCKET_NAME',
+    acl: 'public-read', // Zugriffssteuerung für hochgeladene Dateien
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString() + '-' + file.originalname);
+    }
+  })
+});
+
+// Beispiel: Hochladen einer Datei über einen Endpunkt
+app.post('/upload', upload.single('file'), (req, res) => {
+  res.json({ message: 'Datei erfolgreich hochgeladen', file: req.file });
+});
+
+// Starte den Express-Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server läuft auf Port ${PORT}`);
+});
