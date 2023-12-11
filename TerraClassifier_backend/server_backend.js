@@ -76,7 +76,7 @@ app.post('/satellite', (req, res) => {
   let date = NewStartDate + startTime + '/' + endDate + endTime;
   //console.log(date);
 
-  const searchBody = {
+  let searchBody = { 
     collections: [collection],
     intersects: polygonGeoJSON,
     limit: 10,
