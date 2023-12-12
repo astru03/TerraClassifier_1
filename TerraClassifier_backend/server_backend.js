@@ -42,6 +42,8 @@ app.post('/satellite', (req, res) => {
   let SWC = stringSWC.map(parseFloat);
   let SEC = stringSEC.map(parseFloat);
 
+  // Koordinaten von AOI und AOT in liste pushen.
+  
 //Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
