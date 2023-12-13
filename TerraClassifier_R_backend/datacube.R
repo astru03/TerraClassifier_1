@@ -39,9 +39,8 @@ bbox <- c(7.466846, 51.858571, 7.835575, 52.047204)
 # set extent of Datacube for proper cropping
 
 extent_to_crop <- list(left = 394861, right = 420134,
-                       bottom = 5746419, top = 5767397,
-                       t0 = "2021", t1 = "2021")
-
+                      bottom = 5746419, top = 5767397,
+                      t0 = "2021-06", t1 = "2021-06")
 
 # fetch data from AWS through rstac
 s <- stac("https://earth-search.aws.element84.com/v0") # API endpoint
@@ -50,7 +49,7 @@ items <- s |>
   stac_search(collections = "sentinel-s2-l2a-cogs",
               bbox = bbox,
               datetime = date,
-              limit = 500) |>
+              limit = 3) |>
   post_request() |>
   items_fetch(progress = FALSE)
 
@@ -62,8 +61,8 @@ assets <- c("B01", "B02", "B03", "B04", "B05",
 s2_collection <- stac_image_collection(items$features, asset_names = assets, property_filter = function(x) {x[["eo:cloud_cover"]] < 10}) # nolint
 
 # create geometry for datacube from image collection
-s2_geom <- cube_view(srs = "EPSG:25832", dx = 100, dy = 100, dt = "P1Y",
-                     aggregation = "mean", resampling = "bilinear",
+s2_geom <- cube_view(srs = "EPSG:25832", dx = 100, dy = 100, dt = "P1M",
+                     aggregation = "median", resampling = "bilinear",
                      extent = s2_collection)
 
 # create datacube from image collection, geometry and mask
@@ -83,7 +82,7 @@ plot(s2_cube_cropped, rgb = 3:1, zlim = c(0, 2500))
 s2_raster <- raster::brick(
   write_tif(
     select_bands(
-      s2_cube,
+      s2_cube_cropped,
       c("B02", "B03", "B04", "B08", "NDVI")
     )
   )
@@ -140,3 +139,6 @@ pdf("C:/Users/kgalb/Documents/Workspace/R/DataCubes/prediction_muenster-knn.pdf"
 spplot(deratify(prediction), maxpixels = ncell(prediction) * 0.4,
        col.regions = cols)
 dev.off()
+
+# connect to openeocubes on aws
+con <- connect("http://ec2-54-185-59-127.us-west-2.compute.amazonaws.com:8000/")
