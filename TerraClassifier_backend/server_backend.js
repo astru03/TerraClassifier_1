@@ -120,8 +120,8 @@ app.post('/satellite', (req, res) => {
         
         objSatellitenImages['item_' + index] = {
           id: items[index].id, 
-          url: items[index].assets.thumbnail.href,
-          //url: items[index].assets.visual.href,
+          //url: items[index].assets.thumbnail.href,
+          url: items[index].assets.visual.href,
           imageBounds: items[index].geometry.coordinates}
       }
       

@@ -160,11 +160,42 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         //zum anzeigen des images
         for (var i = 0; i < URLlist.length; i++){
           if (selectedID === URLlist[i].ID) {
-            console.log(URLlist[i].URL)
+            //console.log(URLlist[i].URL)
+            //Hier wird die URL vom Geotiff angezeigt
             console.log(URLlist[i].IB)
-            let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
-            let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
-            imageOverlay.addTo(map);
+            let imageBound = URLlist[i].IB
+            let minY = imageBound[0][1][1];
+            console.log(minY);
+            let minX = imageBound[0][0][0];
+            console.log(minX);
+            let maxY = imageBound[0][3][1];
+            console.log(maxY);
+            let maxX = imageBound[0][2][0];
+            console.log(maxX);
+            let geoTiffURL = URLlist[i].URL;
+            console.log(geoTiffURL)
+            let imageBounds = [[minY, minX], [maxY, maxX]];
+            console.log(imageBounds);
+
+            /*
+            // Erstelle den GeoRasterLayer mit der GeoTIFF-URL und den ImageBounds
+            GeoRasterLayer.fromGeoTiff(geoTiffURL).then(function (geoRasterLayer) {
+            // Füge den erstellten Layer zur Leaflet-Map hinzu
+            geoRasterLayer.addTo(map);
+
+            // Setze die ImageBounds für den Layer
+            geoRasterLayer.setBounds(imageBounds);
+
+            // Passe die Karte an die ImageBounds an
+            map.fitBounds(imageBounds);
+            }).catch(function (error) {
+            console.error('Error loading GeoTIFF:', error);
+            }); */
+
+            //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
+            //console.log(leafletImageBounds);
+            //let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
+            //imageOverlay.addTo(map);
           }
         }
         $('#popup_select_sat').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
