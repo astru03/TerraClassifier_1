@@ -12,14 +12,19 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 var drawnFeatures = new L.FeatureGroup();
 map.addLayer(drawnFeatures);
 
+/**
+ * *********************************************************
+ */
+
 // Adding a Leaflet.Draw Toolbar
 var drawControl = new L.Control.Draw( {
-    edit: {featureGroup: drawnFeatures},
+    edit: {featureGroup: drawnFeatures, 
+      remove: true},
     // Only rectangle draw function is needed
     draw: {
         polyline: false,
         rectangle: true,
-        polygon: false,
+        polygon: true,
         circle: false,
         circlemarker: false,
         marker: false
@@ -28,22 +33,65 @@ var drawControl = new L.Control.Draw( {
 
 map.addControl(drawControl);
 
+
+function setStyle(layer, layerType){
+  if(layerType === 'rectangle'){
+    layer.setStyle({
+      color : 'black', 
+      weight : 2, 
+      fillOpacity : 0,
+    })
+  }
+}
+
 var rectangleCoordinates = null;
 var previousRectangle = null;
 // Event-Handler for drawing polygons
 map.on("draw:created", function(event){
   var layer = event.layer;
   var type = event.layerType;
-  if (type == 'rectangle') {
+  var newFeature = event.layer.toGeoJSON();
+  setStyle(layer, event.layerType)
+
+
+  if (type === 'rectangle') {
     if (previousRectangle !== null) { //Wenn schon ein rechteck gezeichnet wurde, dann wird das alte gelöscht. Es darf immer nur eines geben, was die Koordinaten wweitergibt
       drawnFeatures.removeLayer(previousRectangle);
     }
     //rectangleCoordinates = layer.getBounds().toBBoxString();
     rectangleCoordinates = layer.getBounds();
     console.log(rectangleCoordinates)
-  }
+    console.log('Koordinaten: ', newFeature);
+    node_rectangle(newFeature)
+  
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
+  }else if(type === 'polygon'){
+    if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
+      var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
+      var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
+      classID = parseInt(classID);
+        if(isNaN(classID)){
+        alert('ObjektID muss eine Ganzzahl sein!')
+        classID=undefined;
+    }
+
+        // Hinzufügen der Daten zum Feature
+      newFeature.properties = {
+      classID: classID,
+      name: name
+    };
+
+      polygonToGeoJSON(newFeature);
+      node_polygon(newFeature);
+      drawnFeatures.addLayer(layer);
+      addPopup(layer)
+
+    }else{
+      alert('Polygone müssen sich innerhalb')
+    }
+    
+  }
 })
 
 
@@ -56,6 +104,23 @@ map.on("draw:edited", function(event){
       rectangleCoordinates = layer.getBounds();
     }
   });
+})
+
+//Löschen von den Trainingsdaten
+map.on(L.Draw.Event.DELETED, function(event){
+  var deleteAll = confirm('Möchten sie das Area of Training und die Trainingsdaten löschen')
+  delete_data(deleteAll);
+  if(deleteAll){
+    allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
+    allRectangle = {"type": "Featurecollection", "features": []};
+  }else{
+    // Nur Trainingsdaten
+    allDrawnFeatures = { "type": "FeatureCollection", "features": [] };
+  }
+
+  drawnFeatures.clearLayers()
+  
+  location.reload()
 })
 
 // show the scale bar on the lower left corner
@@ -181,7 +246,8 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
 
 function trainingData() {
-    alert('Option 2 wurde geklickt!');
+  document.getElementById('fileInput').click();
+  document.getElementById('fileInput').addEventListener('change', handleFileUpload);
 }
 
 function algorithm() {
@@ -285,3 +351,375 @@ var toggleMenuButton = L.easyButton({
 // Füge den Haupt-Button zur Karte hinzu
 toggleMenuButton.addTo(map);
 
+
+
+/**
+ * **********************************************************************************
+ */
+
+
+// globale Variablen speichern, Polygone
+var allDrawnFeatures = {
+  "type": "FeatureCollection",
+  "features": []
+};
+
+var allRectangle = {
+  "type": "FeatureCollection", 
+  "features": []
+};
+
+
+
+//
+var duplicate_key = {}
+
+/**
+ * Generiert einen eindeutigen Schlüssel für ein gegebenes Feature. 
+ * Die Funktion bekommt ein feature-Objekt und wandelt dieses, aufgrund der Geometrie und der Eigenschaft, in ein JSON-String um und fügt sie zusammen. 
+ * Diese Kombination dient als eindeutiger Schlüssel und wird später eingesetzt, um doppelte Polygone zu verhindern. 
+ * @param {*} feature 
+ * @returns {String} Einen einzigartigen Schlüssel für das gegebene Feature
+ */
+function create_key(feature){
+  return JSON.stringify(feature.geometry) + JSON.stringify(feature.properties)
+}
+
+/**
+ * Fügt ein Feature zu Sammlung hinzu, wenn es noch nicht vorhanden ist 
+ * Verwendet 'create_key', um Duplikate zu vermeiden
+ * @param {*} feature 
+ */
+function addFeature(feature){
+  var key = create_key(feature)
+  if(!duplicate_key[key]){
+    allDrawnFeatures.features.push(feature);
+    duplicate_key[key] = true;
+  }
+}
+
+
+/**
+ * Diese Funktion, fügt ein Polygon als GeoJSON-Objekt hinzu
+ * @param {*} newFeature Das GeoJSON-Objekt, was hinzugeügt werden soll
+ */
+function polygonToGeoJSON(newFeature) {
+  addFeature(newFeature)
+}
+
+function merge_choice(onConfirm, onCancel) {
+  var userChoice = confirm("Möchten Sie die hochgeladene GeoJSON-Datei mit den vorhandenen Daten zusammenführen?");
+  if (userChoice) {
+    onConfirm();
+  } else {
+    onCancel();
+  }
+}
+
+
+
+function isUploadinRectangle(feature, rectangleCoordinates){
+  const bounds = L.geoJSON(feature).getBounds();
+  return rectangleCoordinates.contains(bounds)
+}
+
+
+
+/**
+ * Diese asynchrone Funktion ermöglicht das hcohladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
+ * @returns 
+ */
+async function handleFileUpload() {
+  console.log('file_upload');
+
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+
+  if (!file) {
+      alert('Datei auswählen!');
+      return;
+  }
+
+  // Datentyp filtern 
+  const fileType = file.name.split('.').pop().toLowerCase();
+
+  if (fileType === 'json' || fileType === 'geojson') {
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+      console.log('GeoJSON Datei wurde erfolgreich geladen');
+      const data_geojson = JSON.parse(event.target.result);
+      
+      if (rectangleCoordinates) {
+        const filteredFeatures = data_geojson.features.filter(feature => 
+          isUploadinRectangle(feature, rectangleCoordinates)
+        );
+        data_geojson.features = filteredFeatures;
+      }else{
+        console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
+      }
+
+
+      merge_choice(
+        //Wenn man auf Ok drückt
+         () => {
+          addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
+          node_polygon(data_geojson)
+          console.log('GeoJSON Daten zur Karte hinzugefügt');
+        }, 
+        //Wenn man abbricht
+        () => {
+          L.geoJSON(data_geojson).addTo(map)
+          console.log('GeoJSON', data_geojson)
+        }
+        
+      )
+      
+    };
+    reader.readAsText(file);
+  }
+  else if (fileType === 'gpkg') {
+    console.log('GeoPackage Datei auswählen');
+    const formData = new FormData()
+    formData.append('file', file)
+
+    fetch('http://localhost:8080/upload' , {
+      method : 'POST' , 
+      body : formData ,
+
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      const layers = data.data 
+      for(layer in layers){
+        const geojson_data = layers[layer]
+        if(geojson_data.type === 'FeatureCollection'){
+          let filter = geojson_data.features
+          if(rectangleCoordinates){
+            filter = geojson_data.features.filter(feature => 
+              isUploadinRectangle(feature, rectangleCoordinates)
+          )
+          }
+          geojson_data.features = filter
+          addToMap(geojson_data)
+          node_polygon(geojson_data)
+        }else{
+          console.error('Kein gültiges Format!')
+        }
+      }
+      
+    })
+    .catch(error => {
+      console.error('Fehler', error)
+      
+    })
+
+    
+    
+} else {
+      alert('Nicht unterstütztes Dateiformat. Bitte laden Sie eine GeoJSON- oder GeoPackage-Datei hoch.');
+  }
+}
+
+
+
+/**
+ * Fügt die Daten zur leaflet-Karte hinzu
+ * @param {*} data GeoJSON-data die zur Karte hinzugefügt werden soll
+ */
+function addToMap(data) {
+  if (data.type === 'FeatureCollection') {
+      // Einzelnes GeoJSON-Objekt
+      L.geoJSON(data, {
+          onEachFeature: function(feature, layer) {
+              addFeature(feature);
+              drawnFeatures.addLayer(layer);
+          }
+      }).addTo(map);
+  } else if (typeof data === 'object') {
+      // Sammlung von GeoJSON-Objekten
+      for (const layerName in data) {
+          const layerData = data[layerName];
+          L.geoJSON(layerData, {
+              onEachFeature: function(feature, layer) {
+              }
+          }).addTo(map);
+      }
+  } else {
+      console.error('Ungültige Datenstruktur für die Kartenanzeige');
+  }
+}
+
+
+/**
+ * Verarbeitet GeoJSON-Daten. Es wird differenziert zwischen Feature und FeatureCollection, aber sendet jedes Feature einzeln
+ * @param {*} geojsonData 
+ * @returns 
+ */
+function node_polygon(geojsonData) {
+  // Wenn geojsonData null oder undefiniert ist, sende allDrawnFeatures
+  if (!geojsonData || geojsonData.type === 'rectangle') {
+    send_feature(allDrawnFeatures);
+    return;
+  }
+
+  // Wenn ein einzelnes Feature übergeben wird, füge es zu allDrawnFeatures hinzu
+  if (geojsonData.type === 'Feature') {
+    addFeature(geojsonData);
+  }
+  // Wenn eine FeatureCollection übergeben wird, füge jedes Feature einzeln hinzu
+  else if (geojsonData.type === 'FeatureCollection') {
+    
+    geojsonData.features.forEach(addFeature)
+  }
+  send_feature(allDrawnFeatures);
+
+}
+
+function node_rectangle(area_of_Training){
+  console.log("allRectangle vor dem Push:", allRectangle);
+  console.log("area_of_Training:", area_of_Training);
+  allRectangle.features.push(area_of_Training)
+  area_of_Training_save(area_of_Training)
+
+  // Setzen der rectangle_Boundes auf die Grenzen des neuen Rechtecks
+  rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
+}
+
+/**
+ * Diese Funktion verwenden wir, um unsere Daten zu dem Server zu senden
+ * Verwendet 'fetch' für http-POST-Anfragen 
+ * @param {*} features Die Datei, welche zu dem Server gesendet werden soll
+ */
+function send_feature(features) {
+  fetch('http://localhost:8080/geojson-save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(features)
+  })
+  .then(response => response.json())
+  .then(data => console.log("Serverantwort:", data))
+  .catch(error => console.error('Fehler beim Senden der Daten:', error));
+}
+
+function area_of_Training_save(features){
+  fetch('http://localhost:8080/area_of_Training', {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/json',
+    }, 
+    body : JSON.stringify(features)
+    
+  })
+  .then(response => response.json())
+  .then(data => console.log('Serverantwort', data))
+  .catch(error => console.error('Fehler beim Senden des Area of Training', error))
+}
+
+
+function load_area_of_Training() {
+  fetch('http://localhost:8080/get_area_of_Training')
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      var r = L.geoJSON(data, {
+         onEachFeature: function(feature, layer){
+           setStyle(layer, 'rectangle')
+         }
+
+      })
+      .addTo(map); 
+      rectangleCoordinates = r.getBounds()
+    })
+    .catch(error => console.error('Fehler beim Laden der Area of Training Daten:', error));
+}
+
+
+/**
+ * Diese Funktion lädt unsere GeoJSON-Daten vom Server und fügt sie der Karte hinzu
+ */
+function load_data() {
+  fetch('http://localhost:8080/get-geojson')
+      .then(response => response.json())
+      .then(data => {
+          if (data && data.type === "FeatureCollection") {
+              
+              data.features.forEach(feature => {
+                 addFeature(feature)
+              });
+              L.geoJSON(allDrawnFeatures, {
+                onEachFeature: function(feature, layer) {
+                  drawnFeatures.addLayer(layer)
+                  addPopup(layer)
+                }
+              }).addTo(map)
+              console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(allDrawnFeatures));
+
+          } else {
+              console.error('Geladene Daten haben nicht die Struktur einer FeatureCollection');
+          }
+      })
+      .catch(error => console.error('Fehler beim Laden der GeoJSON-Daten:', error));
+}
+
+async function status_server(){
+  
+    return fetch('http://localhost:8080/status')
+      .then(response => {
+        if(!response.ok){
+          console.log('Server-Fehler')
+        }
+        return response.json()})
+        .then(data => data.status === 'ready')
+        .catch(error => {console.error('Status konnte nicht abgerufen werden', error);return false})
+        
+    
+
+  
+}
+
+async function check_map()
+{
+  if(await status_server()){
+    load_data()
+    load_area_of_Training()
+  }else{
+    console.log('Server ist noch nicht bereit!')
+    location.reload()
+
+  }
+}
+
+
+
+// Event-Listener - wird beim Laden der Seite aufgerufen. Ruft dabei die Funktion load_data, um unsere Trainingsdaten direkt auf der Karten sich anzeigen zu lassen
+document.addEventListener('DOMContentLoaded', check_map);
+
+/**
+ * Diese Funktion löscht die Trainingsdaten vom Server
+ */
+function delete_data(deleteAll){
+  fetch('http://localhost:8080/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({deleteAll: deleteAll}) 
+  })
+  .then(response => response.json())
+  .then(data => console.log('Serverantwort: ', data))
+  .catch(error => console.error('Fehler beim löschen', error))
+}
+
+//Download data_geojson.json als ZIP-Datei 
+function addPopup(layer){
+  var popupContent = '<button onclick="download_data()">Download</button>'
+  layer.bindPopup(popupContent);
+}
+
+function download_data(){
+  window.open('http://localhost:8080/download', '_blank')
+
+}
