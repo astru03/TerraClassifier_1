@@ -73,7 +73,7 @@ function satelliteImages(coordinates) {
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
   $('#popup_sat').modal('show');
-  
+
   //Datum auswahl
   $(document).ready(function(){
     var selectedDate = null; // Variable to store the selected date
@@ -91,9 +91,12 @@ function satelliteImages(coordinates) {
             var day = selectedDate.getDate(); // Tag auswählen
             var month = selectedDate.getMonth() + 1; // Monat auswählen (Monate beginnen bei 0)
             var year = selectedDate.getFullYear(); // Jahr auswählen
-
             let datum = day +"."+ month + "." + year
-            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates); // Über die Funktion werden die Werte weitergeleitet an das Backend, was ide Images holt und die ImageURL und die imageBound zurückgibt
+
+            //Wert für die Cloudcover
+            let cloudCoverInput = document.getElementById('cloudCoverInput').value;
+
+            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput); // Über die Funktion werden die Werte weitergeleitet an das Backend, was ide Images holt und die ImageURL und die imageBound zurückgibt
           
           } else {
             console.log('Please select a date.');
@@ -103,7 +106,7 @@ function satelliteImages(coordinates) {
 }
 
 
-async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
+async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
   let URLlist = []; //Wenn ein neues Datum gewählt wurde dann muss die liste wieder geleert werden, damit die nicht immer wieder neu befüllt wird
   console.log(URLlist);
   try {
@@ -115,7 +118,8 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         body: JSON.stringify({
           Date: datum,
           NEC: NorthEastCoordinates,
-          SWC: SouthwestCoordinates})
+          SWC: SouthwestCoordinates,
+          CCI: cloudCoverInput})
       }) 
 
       if (!response.ok) {
@@ -124,9 +128,9 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
       // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
       const data = await response.json();
-      //console.log(data)
+      console.log(data)
 
-      if (Object.keys(data).length >= 2 ) { //Wenn mehr als 2 Objekte gefunden wurden, dann werden die id und die url in ein Objekt geschrieben URLlist
+      if (Object.keys(data).length >= 1 ) { //Wenn mehr als 2 Objekte gefunden wurden, dann werden die id und die url in ein Objekt geschrieben URLlist
         for (var index = 0; index < Object.keys(data).length; index ++){
           var key = 'item_' + index;
           if(data.hasOwnProperty(key)){

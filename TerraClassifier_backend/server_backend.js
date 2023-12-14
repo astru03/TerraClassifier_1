@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 
 app.post('/satellite', (req, res) => {
   //check if Date and Coordinates not null
-  if(req.body.Date == '' || req.body.NEC == '' || req.body.SWC == ''){
+  if(req.body.Date == '' || req.body.NEC == '' || req.body.SWC == '' || req.body.CCI == ''){
     //res.sendFile(reqpath + "/public/error_empty_input.html")
     console.log('Fehler Felder nicht gefüllt')
   return;
@@ -25,10 +25,12 @@ app.post('/satellite', (req, res) => {
   let receivedDate = req.body.Date;
   let receivedNEC = req.body.NEC;
   let receivedSWC = req.body.SWC;
+  let receivedCCI = req.body.CCI;
   // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
   console.log(receivedDate);
   console.log(receivedNEC);
   console.log(receivedSWC);
+  console.log(receivedCCI);
 
 //Aus den NEC und SWC muss ein polygonCoordinates gemacht werden. Das muss noch dynamisch funktionieren
   let SplitReceivedNEC = receivedNEC.split(",") //Aufspalten am Komma um auch die Koordinaten für NWC und SEC zu erhalten
@@ -83,6 +85,9 @@ app.post('/satellite', (req, res) => {
     intersects: polygonGeoJSON,
     limit: 10,
     datetime: date,
+    query: {"eo:cloud_cover": {
+      lte: receivedCCI
+    }}
   };
 
   console.log(searchBody);
