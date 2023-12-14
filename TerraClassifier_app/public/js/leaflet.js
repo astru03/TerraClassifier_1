@@ -64,7 +64,7 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //-----------------------------------------------------------------------------------
 // Funktionen für die Aktionen des Menüs
 
-let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
+//let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   //console.log(NorthEastCoordinates);
@@ -104,7 +104,8 @@ function satelliteImages(coordinates) {
 
 
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
-  URLlist = []; //Wenn ein neues Datum gewählt wurde dann muss die liste wieder geleert werden, damit die nicht immer wieder neu befüllt wird
+  let URLlist = []; //Wenn ein neues Datum gewählt wurde dann muss die liste wieder geleert werden, damit die nicht immer wieder neu befüllt wird
+  console.log(URLlist);
   try {
     const response = await fetch('http://localhost:8080/satellite', {
         method: 'POST',
@@ -160,37 +161,40 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         //zum anzeigen des images
         for (var i = 0; i < URLlist.length; i++){
           if (selectedID === URLlist[i].ID) {
-            //console.log(URLlist[i].URL)
-            //Hier wird die URL vom Geotiff angezeigt
-            console.log(URLlist[i].IB)
             let imageBound = URLlist[i].IB
             let minY = imageBound[0][1][1];
-            console.log(minY);
+            //console.log(minY);
             let minX = imageBound[0][0][0];
-            console.log(minX);
+            //console.log(minX);
             let maxY = imageBound[0][3][1];
-            console.log(maxY);
+            //console.log(maxY);
             let maxX = imageBound[0][2][0];
-            console.log(maxX);
+            //console.log(maxX);
             let geoTiffURL = URLlist[i].URL;
             console.log(geoTiffURL)
             let imageBounds = [[minY, minX], [maxY, maxX]];
             console.log(imageBounds);
 
-            /*
-            // Erstelle den GeoRasterLayer mit der GeoTIFF-URL und den ImageBounds
-            GeoRasterLayer.fromGeoTiff(geoTiffURL).then(function (geoRasterLayer) {
-            // Füge den erstellten Layer zur Leaflet-Map hinzu
-            geoRasterLayer.addTo(map);
-
-            // Setze die ImageBounds für den Layer
-            geoRasterLayer.setBounds(imageBounds);
-
-            // Passe die Karte an die ImageBounds an
-            map.fitBounds(imageBounds);
-            }).catch(function (error) {
-            console.error('Error loading GeoTIFF:', error);
-            }); */
+            
+            // GeoTIFF von der STAC API mit georaster_layer_for_leaflet laden
+              parseGeoraster(geoTiffURL).then(georaster => {
+              console.log("georaster:", georaster);
+                /*
+                    GeoRasterLayer is an extension of GridLayer,
+                    which means can use GridLayer options like opacity.
+                    Just make sure to include the georaster option!
+                    http://leafletjs.com/reference-1.2.0.html#gridlayer
+                */
+              var layer = new GeoRasterLayer({
+                useWebWorkers: true,
+                attribution: "earth-search.aws.element84.com",
+                georaster: georaster,
+                resolution: 128,
+                keepBuffer: 8
+                });
+                layer.addTo(map);
+                //map.fitBounds(layer.getBounds());
+            }); 
 
             //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
             //console.log(leafletImageBounds);
