@@ -167,6 +167,25 @@
                   </div>
                 </div>
             </div>
+          <!-- If no Date was selected, corresponding popup opens -->
+            <div class="modal fade" id="popup_NoDate" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                      Bitte wählen Sie ein Datum aus.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_NoDate')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           <!-- Pop-up window for selection the algorithm -->
             <div class="modal" id="popup_algo">

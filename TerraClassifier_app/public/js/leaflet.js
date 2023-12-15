@@ -98,19 +98,26 @@ function satelliteImages(coordinates) {
         selectedDate = selected.date;
     });
 
+    // Value for the cloud cover
+    let cloudCoverInput = document.getElementById('cloudCoverInput');
+    console.log(cloudCoverInput.value);
     // When the "ok" button is clicked, the coordinates, date and cloud cover are passed to the getSatelliteImages function
     $('#saveChangesBtn').on('click', function() {
-        if(selectedDate !== null) {
+        if(selectedDate !== null || cloudCoverInput === undefined) {
             var day = selectedDate.getDate(); // Day of the selected date
             var month = selectedDate.getMonth() + 1; // Month of the selected date (Months start at 0)
             var year = selectedDate.getFullYear(); // Year of the selected date
             let datum = day +"."+ month + "." + year
-            // Value for the cloud cover
             let cloudCoverInput = document.getElementById('cloudCoverInput').value;
             // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
             getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
-          } else {
+          } else if (selectedDate === null) {
             console.log('Please select a date.');
+            $('#popup_sat').modal('hide');
+            $('#popup_NoDate').modal('show');
+          } else if (cloudCoverInput === null) {
+            $('#popup_sat').modal('hide');
+            $('#popup_NoDate').modal('show');
         }
     });
   });
@@ -292,6 +299,9 @@ function closePopup(ID_Popup) {
       $('#popup_algo').modal('hide');
     } else if (ID_Popup == 'popup_NoRectangle') {
       $('#popup_NoRectangle').modal('hide');
+    } else if (ID_Popup == 'popup_NoDate') {
+        $('#popup_NoDate').modal('hide');
+        $('#popup_sat').modal('show');
     } else if (ID_Popup == 'popup_NoAlgorithm') {
       $('#popup_NoAlgorithm').modal('hide');
     } else if (ID_Popup == 'popup_select_sat') {
