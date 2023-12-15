@@ -99,11 +99,25 @@ function satelliteImages(coordinates) {
     });
 
     // Value for the cloud cover
-    let cloudCoverInput = document.getElementById('cloudCoverInput');
-    console.log(cloudCoverInput.value);
+    //let cloudCoverInput = document.getElementById('cloudCoverInput').value;
+    //if (cloudCoverInput === '' ){
+    //  cloudCoverInput = null;
+    //}
+
     // When the "ok" button is clicked, the coordinates, date and cloud cover are passed to the getSatelliteImages function
     $('#saveChangesBtn').on('click', function() {
-        if(selectedDate !== null || cloudCoverInput === undefined) {
+        let cloudCoverInput = document.getElementById('cloudCoverInput').value;
+        if (cloudCoverInput === ''){
+          cloudCoverInput = null;
+        } else if (cloudCoverInput > 100 || cloudCoverInput < 0) {
+          cloudCoverInput = 'overHundred';
+        }
+        let selectedDateNull = document.getElementById('fromDate').value;
+        console.log(selectedDateNull);
+        if (selectedDateNull === '' ){
+          selectedDate = null;
+        }
+        if(selectedDate !== null && cloudCoverInput !== null && cloudCoverInput !== 'overHundred') {
             var day = selectedDate.getDate(); // Day of the selected date
             var month = selectedDate.getMonth() + 1; // Month of the selected date (Months start at 0)
             var year = selectedDate.getFullYear(); // Year of the selected date
@@ -117,8 +131,11 @@ function satelliteImages(coordinates) {
             $('#popup_NoDate').modal('show');
           } else if (cloudCoverInput === null) {
             $('#popup_sat').modal('hide');
-            $('#popup_NoDate').modal('show');
-        }
+            $('#popup_NoCloudCover').modal('show');
+        } else if (cloudCoverInput === 'overHundred') {
+          $('#popup_sat').modal('hide');
+          $('#popup_CloudCoverNotOver100').modal('show');
+      }
     });
   });
 }
@@ -302,6 +319,12 @@ function closePopup(ID_Popup) {
     } else if (ID_Popup == 'popup_NoDate') {
         $('#popup_NoDate').modal('hide');
         $('#popup_sat').modal('show');
+    } else if (ID_Popup == 'popup_NoCloudCover') {
+      $('#popup_NoCloudCover').modal('hide');
+      $('#popup_sat').modal('show');
+    } else if (ID_Popup == 'popup_CloudCoverNotOver100') {
+      $('#popup_CloudCoverNotOver100').modal('hide');
+      $('#popup_sat').modal('show');
     } else if (ID_Popup == 'popup_NoAlgorithm') {
       $('#popup_NoAlgorithm').modal('hide');
     } else if (ID_Popup == 'popup_select_sat') {

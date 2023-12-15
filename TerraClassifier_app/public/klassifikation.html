@@ -146,8 +146,6 @@
               </div>
             </div>
 
-
-
           <!-- If no rectangle was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoRectangle" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
@@ -167,6 +165,7 @@
                   </div>
                 </div>
             </div>
+
           <!-- If no Date was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoDate" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
@@ -182,6 +181,46 @@
                   <!-- Modal Footer -->
                   <div class="modal-footer">
                     <button type="button" class="btn btn-info" onclick="closePopup('popup_NoDate')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- If no Date was selected, corresponding popup opens -->
+            <div class="modal fade" id="popup_NoCloudCover" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                      Bitte wählen Sie eine Wolkenbedeckung aus.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_NoCloudCover')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- If no Date was selected, corresponding popup opens -->
+            <div class="modal fade" id="popup_CloudCoverNotOver100" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                      Der Wert für die Wolkenbedeckung darf nicht unter 0% und über 100% liegen.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_CloudCoverNotOver100')">Ok</button>
                   </div>
                 </div>
               </div>
