@@ -56,7 +56,17 @@ map.on("draw:edited", function(event){
       rectangleCoordinates = layer.getBounds();
     }
   });
-})
+});
+
+// Event-Handler for deleting rectangle
+map.on("draw:deleted", function(event){
+  var layers = event.layers;
+  layers.eachLayer(function (layer) {
+    if (layer instanceof L.Rectangle) {
+      rectangleCoordinates = null;
+    }
+  });
+});
 
 // show the scale bar on the lower left corner
 L.control.scale({imperial: true, metric: true}).addTo(map);
