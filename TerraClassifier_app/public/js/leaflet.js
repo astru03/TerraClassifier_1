@@ -35,7 +35,7 @@ map.on("draw:created", function(event){
   var layer = event.layer;
   var type = event.layerType;
   if (type == 'rectangle') {
-    if (previousRectangle !== null) { //Wenn schon ein rechteck gezeichnet wurde, dann wird das alte gelöscht. Es darf immer nur eines geben, was die Koordinaten wweitergibt
+    if (previousRectangle !== null) { // If a rectangle has already been drawn, the old one will be deleted. There can only ever be one that passes on the coordinates
       drawnFeatures.removeLayer(previousRectangle);
     }
     //rectangleCoordinates = layer.getBounds().toBBoxString();
@@ -62,19 +62,21 @@ map.on("draw:edited", function(event){
 L.control.scale({imperial: true, metric: true}).addTo(map);
 
 //-----------------------------------------------------------------------------------
-// Funktionen für die Aktionen des Menüs
-
-//let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
+/**
+ * Functionality satelliteImages
+ * The coordinates of the rectangle are displayed in the pop-up window
+ * A date for "Zeitraum von:" can be entered
+ * The degree of cloud cover can be entered
+ * @param {*} coordinates
+ */
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
-  //console.log(NorthEastCoordinates);
   let SouthwestCoordinates = coordinates.getSouthWest().lng + ', ' + coordinates.getSouthWest().lat;
-  //console.log(SouthwestCoordinates);
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
   $('#popup_sat').modal('show');
 
-  //Datum auswahl
+  // Date selection
   $(document).ready(function(){
     var selectedDate = null; // Variable to store the selected date
     $('#fromDate').datepicker({
@@ -86,18 +88,17 @@ function satelliteImages(coordinates) {
         selectedDate = selected.date;
     });
 
+    // When the "ok" button is clicked, the coordinates, date and cloud cover are passed to the getSatelliteImages function
     $('#saveChangesBtn').on('click', function() {
         if(selectedDate !== null) {
-            var day = selectedDate.getDate(); // Tag auswählen
-            var month = selectedDate.getMonth() + 1; // Monat auswählen (Monate beginnen bei 0)
-            var year = selectedDate.getFullYear(); // Jahr auswählen
+            var day = selectedDate.getDate(); // Day of the selected date
+            var month = selectedDate.getMonth() + 1; // Month of the selected date (Months start at 0)
+            var year = selectedDate.getFullYear(); // Year of the selected date
             let datum = day +"."+ month + "." + year
-
-            //Wert für die Cloudcover
+            // Value for the cloud cover
             let cloudCoverInput = document.getElementById('cloudCoverInput').value;
-
-            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput); // Über die Funktion werden die Werte weitergeleitet an das Backend, was ide Images holt und die ImageURL und die imageBound zurückgibt
-          
+            // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
+            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
           } else {
             console.log('Please select a date.');
         }
@@ -105,12 +106,17 @@ function satelliteImages(coordinates) {
   });
 }
 
-
+/**
+ * Functionality getSatelliteImages
+ * @param {*} datum
+ * @param {*} NorthEastCoordinates
+ * @param {*} SouthwestCoordinates
+ * @param {*} cloudCoverInput
+ */
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
-  let URLlist = []; //Wenn ein neues Datum gewählt wurde dann muss die liste wieder geleert werden, damit die nicht immer wieder neu befüllt wird
-  console.log(URLlist);
+  let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
   try {
-    const response = await fetch('http://localhost:8080/satellite', {
+    const response = await fetch('http://localhost:8080/satellite', {  // Calling the backend
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -121,16 +127,15 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
           SWC: SouthwestCoordinates,
           CCI: cloudCoverInput})
       }) 
-
+      // If response is not returned properly, returns errors
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
-      // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
+      // Interpret the microservice's response in the frontend. Return value of the backend
       const data = await response.json();
-      console.log(data)
 
-      if (Object.keys(data).length >= 1 ) { //Wenn mehr als 2 Objekte gefunden wurden, dann werden die id und die url in ein Objekt geschrieben URLlist
+      if (Object.keys(data).length >= 1 ) { // If more than objects were found, then the id and the url are written into one object URLlist
         for (var index = 0; index < Object.keys(data).length; index ++){
           var key = 'item_' + index;
           if(data.hasOwnProperty(key)){
@@ -147,22 +152,23 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
           }  
         }
       }
-
+      // The selected ID from the selection list where the satellite images can be selected
       let selectionContent = $('#objectSelect');
-      selectionContent.empty(); // Leere den Inhalt des Modal-Bodies
-      // Erstellt die Auswahlliste im zweiten Popup
+      selectionContent.empty(); // Empty the contents of the modal body
+      // Creates the selection list in the pop-up window where the satellite images can be selected
       URLlist.forEach(function (item) {
         selectionContent.append($('<option>', {
           text: item.ID
         }));
       });
 
-      $('#popup_select_sat').modal('show'); // Öffne das Auswahllisten-Popup
+      $('#popup_select_sat').modal('show'); // Open the pop-up window with the satellite image selection list
 
+      // when a satellite image has been selected and confirmed with the “ok” button
       $('#confirmSelectionBtn').on('click', function() {
         let selectedID = $('#objectSelect').val();
         console.log(selectedID)
-        //zum anzeigen des images
+        // Show the geotiff in the leaflet map
         for (var i = 0; i < URLlist.length; i++){
           if (selectedID === URLlist[i].ID) {
             let imageBound = URLlist[i].IB
@@ -179,8 +185,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
             let imageBounds = [[minY, minX], [maxY, maxX]];
             console.log(imageBounds);
 
-            
-            // GeoTIFF von der STAC API mit georaster_layer_for_leaflet laden
+            // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
               parseGeoraster(geoTiffURL).then(georaster => {
               console.log("georaster:", georaster);
                 /*
@@ -197,16 +202,16 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
                 keepBuffer: 8
                 });
                 layer.addTo(map);
-                //map.fitBounds(layer.getBounds());
             }); 
 
+            // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
             //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
             //console.log(leafletImageBounds);
             //let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
             //imageOverlay.addTo(map);
           }
         }
-        $('#popup_select_sat').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
+        $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
       }); 
 
   } catch (error) {
@@ -218,17 +223,25 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
 
 
-
+/**
+ * Functionality trainingData
+ */
 function trainingData() {
     alert('Option 2 wurde geklickt!');
 }
 
+/**
+ * Functionality algorithm
+ * Function that opens the pop-up window for selecting the algorithm
+ * The selection is saved in variables (MinimumDistanc or RandomForest)
+ * If no selection is made or both selections are selected, an error pop-up window will open
+ */
 function algorithm() {
     $('#popup_algo').modal('show');
     $('#confirmSelectionAlg').on('click', function() {
       var algorithmMD = document.getElementById('algorithm1').checked;
       var algorithmRF = document.getElementById('algorithm2').checked;
-      if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  //Wenn kein oder beide Algorithmen ausgewählt wurden
+      if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  //If no selection is made or both selections are selected
         $('#popup_NoAlgorithm').modal('show');
       } else {
         if (algorithmMD) {
@@ -243,14 +256,24 @@ function algorithm() {
 }
 
 
-
+/**
+ * Functionality modelTraining
+ */
 function modelTraining() {
   alert('Option 4 wurde geklickt!');
 }
+/**
+ * Functionality classification
+ */
 function classification() {
   alert('Option 5 wurde geklickt!');
 }
 
+/**
+ * Functionality closePopup
+ * Function so that the pop-up windows can be closed using the Cancel ("Abbrechen") button
+ * @param {*} ID_Popup
+ */
 function closePopup(ID_Popup) {
     console.log(ID_Popup);
     if (ID_Popup == 'popup_sat') {
@@ -263,35 +286,43 @@ function closePopup(ID_Popup) {
       $('#popup_NoAlgorithm').modal('hide');
     } else if (ID_Popup == 'popup_select_sat') {
       $('#popup_select_sat').modal('hide');
-      URLlist = []; //Hiermit wird die liste geleert wenn im Popup-fenster für die selektion auf abbrechen gedrückt wird
+      URLlist = []; //The URLlist is emptied when the popup window is closed using cancel ("Abbrechen")
       $('#popup_sat').modal('show');
     }
 }
 
+/**
+ * Functionality showPopupNoRectangle
+ * Opens the popup with the message that no rectangle has been selected.
+ */
 function showPopupNoRectangle() {
   $('#popup_NoRectangle').modal('show');
 }
+
+/**
+ * Functionality firstSelectRectangle
+ */
+/*
 function firstSelectRectangle() {
   var popup = document.getElementById('popup_NoRectangle');
   popup.style.display = 'none';
-}
+}*/
 
-// Erstelle EasyButtons für die Aktionen des Menüs
+// Create EasyButtons for the toggle menu
 var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', function() {
   if(rectangleCoordinates) {
-    satelliteImages(rectangleCoordinates)
+    satelliteImages(rectangleCoordinates) //If coordinates exist, then execute the function
   } else {
     console.log("Es wurde kein Rechteck gezeichnet!");
     showPopupNoRectangle();
   }
 }, 'Sentinal-2');
-  
 var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
 var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
 var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
     
-// Erstelle den Haupt-Button (Burgermenü-Button)
+// Create the toggle menu buttons
 var toggleMenuButton = L.easyButton({
   position: 'topright',
   states: [{
@@ -321,6 +352,6 @@ var toggleMenuButton = L.easyButton({
   }]
 });
 
-// Füge den Haupt-Button zur Karte hinzu
+// Add the toggle menu to the leaflet-map
 toggleMenuButton.addTo(map);
 
