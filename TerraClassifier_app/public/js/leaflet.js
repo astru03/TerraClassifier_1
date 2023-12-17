@@ -189,64 +189,71 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
       // The selected ID from the selection list where the satellite images can be selected
       let selectionContent = $('#objectSelect');
       selectionContent.empty(); // Empty the contents of the modal body
-      // Creates the selection list in the pop-up window where the satellite images can be selected
-      URLlist.forEach(function (item) {
-        selectionContent.append($('<option>', {
-          text: item.ID
-        }));
-      });
+      console.log(URLlist);
 
-      $('#popup_select_sat').modal('show'); // Open the pop-up window with the satellite image selection list
+      if (URLlist-length === 0) {
+        $('#popup_select_sat').modal('hide');
+        $('#popup_NoData').modal('show');
+      } else {
+        // Creates the selection list in the pop-up window where the satellite images can be selected
+        URLlist.forEach(function (item) {
+          selectionContent.append($('<option>', {
+            text: item.ID
+          }));
+        });
 
-      // when a satellite image has been selected and confirmed with the “ok” button
-      $('#confirmSelectionBtn').on('click', function() {
-        let selectedID = $('#objectSelect').val();
-        console.log(selectedID)
-        // Show the geotiff in the leaflet map
-        for (var i = 0; i < URLlist.length; i++){
-          if (selectedID === URLlist[i].ID) {
-            let imageBound = URLlist[i].IB
-            let minY = imageBound[0][1][1];
-            //console.log(minY);
-            let minX = imageBound[0][0][0];
-            //console.log(minX);
-            let maxY = imageBound[0][3][1];
-            //console.log(maxY);
-            let maxX = imageBound[0][2][0];
-            //console.log(maxX);
-            let geoTiffURL = URLlist[i].URL;
-            console.log(geoTiffURL)
-            let imageBounds = [[minY, minX], [maxY, maxX]];
-            console.log(imageBounds);
+        $('#popup_select_sat').modal('show'); // Open the pop-up window with the satellite image selection list
 
-            // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
-              parseGeoraster(geoTiffURL).then(georaster => {
-              console.log("georaster:", georaster);
-                /*
-                    GeoRasterLayer is an extension of GridLayer,
-                    which means can use GridLayer options like opacity.
-                    Just make sure to include the georaster option!
-                    http://leafletjs.com/reference-1.2.0.html#gridlayer
-                */
-              var layer = new GeoRasterLayer({
-                useWebWorkers: true,
-                attribution: "earth-search.aws.element84.com",
-                georaster: georaster,
-                resolution: 128,
-                keepBuffer: 8
-                });
-                layer.addTo(map);
-            }); 
+        // when a satellite image has been selected and confirmed with the “ok” button
+        $('#confirmSelectionBtn').on('click', function() {
+          let selectedID = $('#objectSelect').val();
+          console.log(selectedID)
+          // Show the geotiff in the leaflet map
+          for (var i = 0; i < URLlist.length; i++){
+            if (selectedID === URLlist[i].ID) {
+              let imageBound = URLlist[i].IB
+              let minY = imageBound[0][1][1];
+              //console.log(minY);
+              let minX = imageBound[0][0][0];
+              //console.log(minX);
+              let maxY = imageBound[0][3][1];
+              //console.log(maxY);
+              let maxX = imageBound[0][2][0];
+              //console.log(maxX);
+              let geoTiffURL = URLlist[i].URL;
+              console.log(geoTiffURL)
+              let imageBounds = [[minY, minX], [maxY, maxX]];
+              console.log(imageBounds);
 
-            // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
-            //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
-            //console.log(leafletImageBounds);
-            //let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
-            //imageOverlay.addTo(map);
+              // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
+                parseGeoraster(geoTiffURL).then(georaster => {
+                console.log("georaster:", georaster);
+                  /*
+                      GeoRasterLayer is an extension of GridLayer,
+                      which means can use GridLayer options like opacity.
+                      Just make sure to include the georaster option!
+                      http://leafletjs.com/reference-1.2.0.html#gridlayer
+                  */
+                var layer = new GeoRasterLayer({
+                  useWebWorkers: true,
+                  attribution: "earth-search.aws.element84.com",
+                  georaster: georaster,
+                  resolution: 128,
+                  keepBuffer: 8
+                  });
+                  layer.addTo(map);
+              }); 
+
+              // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
+              //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
+              //console.log(leafletImageBounds);
+              //let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
+              //imageOverlay.addTo(map);
+            }
           }
-        }
-        $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
-      }); 
+          $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
+        });         
+      }
 
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
@@ -321,6 +328,9 @@ function closePopup(ID_Popup) {
         $('#popup_sat').modal('show');
     } else if (ID_Popup == 'popup_NoCloudCover') {
       $('#popup_NoCloudCover').modal('hide');
+      $('#popup_sat').modal('show');
+    } else if (ID_Popup == 'popup_NoData') {
+      $('#popup_NoData').modal('hide');
       $('#popup_sat').modal('show');
     } else if (ID_Popup == 'popup_CloudCoverNotOver100') {
       $('#popup_CloudCoverNotOver100').modal('hide');

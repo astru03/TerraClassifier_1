@@ -226,6 +226,27 @@
               </div>
             </div>
 
+          <!-- If no Date was found for the corresponding filter query -->
+            <div class="modal fade" id="popup_NoData" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                      Leider wurden keine Sentinel-2 Daten für das angegebene Datum und die Wolkenbedeckung gefunden.
+                      Bitte wählen Sie ein anderes Datum oder ändern Sie den Werk für die Wolkenbedeckung.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_NoData')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           <!-- Pop-up window for selection the algorithm -->
             <div class="modal" id="popup_algo">
               <div class="modal-dialog">
