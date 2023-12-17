@@ -112,21 +112,25 @@ function satelliteImages(coordinates) {
         } else if (cloudCoverInput > 100 || cloudCoverInput < 0) {
           cloudCoverInput = 'overHundred';
         }
+        
         let selectedDateNull = document.getElementById('fromDate').value;
         console.log(selectedDateNull);
         if (selectedDateNull === '' ){
           selectedDate = null;
+        } else {
+          selectedDate = document.getElementById('fromDate').value;
         }
         if(selectedDate !== null && cloudCoverInput !== null && cloudCoverInput !== 'overHundred') {
-            var day = selectedDate.getDate(); // Day of the selected date
-            var month = selectedDate.getMonth() + 1; // Month of the selected date (Months start at 0)
-            var year = selectedDate.getFullYear(); // Year of the selected date
+            let dateParts = selectedDate.split('/');
+            let day = parseInt(dateParts[0], 10); // Day of the selected date
+            let month = parseInt(dateParts[1], 10); // Month of the selected date
+            let year = parseInt(dateParts[2], 10); // Year of the selected date
             let datum = day +"."+ month + "." + year
             let cloudCoverInput = document.getElementById('cloudCoverInput').value;
             // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
             getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
           } else if (selectedDate === null) {
-            console.log('Please select a date.');
+            //console.log('Please select a date.');
             $('#popup_sat').modal('hide');
             $('#popup_NoDate').modal('show');
           } else if (cloudCoverInput === null) {
