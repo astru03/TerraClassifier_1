@@ -111,7 +111,15 @@
                       </div>
                       <div class="mb-3">
                         <label for="cloudCoverInput" class="form-label">Wolkenbedeckung in %:</label>
-                        <input type="number" step="0.01" class="form-control" id="cloudCoverInput" placeholder="Gleitkommazahl eingeben" required>
+                        <input type="number" step="0.01" class="form-control" id="cloudCoverInput" onkeypress="return checkEntry(event)" onpaste="return checkEntry(event)" onchange="return checkEntry(event)" placeholder="Gleitkommazahl eingeben" required>
+                        <!-- Script that prohibits the use of special characters -->
+                        <script>
+                          function checkEntry(e) {
+                            var k;
+                            document.all ? k = e.keyCode : k = e.which;
+                            return (k == 8 || (k >= 48 && k <= 57));
+                            }
+                        </script>
                       </div>
                     </div>
                     <!-- Modal Footer -->
