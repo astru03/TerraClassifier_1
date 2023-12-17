@@ -209,22 +209,20 @@ app.post('/area_of_Training', (req, res) =>{
 
 app.post('/delete', (req, res) => {
   //Trainingsdaten zurücksetzen
-  const deleteAll = req.body.deleteAll;
   fs.writeFile('data_geojson.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
     if(err){
       console.error(err)
       return res.status(500).send({message: 'Fehler beim Zurücksetzen der area_of_Training.json'})
     }
-    //Alles löschen
-    if(deleteAll){
-      fs.writeFile('area_of_Training.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
+  //Area of Training  
+  fs.writeFile('area_of_Training.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
         if(err){
           console.error(err)
           return res.status(500).send({message: 'Fehler beim Löschen der Daten'})
         }
         res.send({message: 'Alle Daten erfolgreich gelöscht und zurückgesetzt!'})
       })
-    }
+    
   })
 })
 

@@ -117,7 +117,7 @@
                   </div>
                 </div>
               </div>
-
+             
           <!-- Pop-up window for selection when multiple satellite images are available -->
             <div class="modal fade" id="popup_select_sat" tabindex="-1" role="dialog" aria-labelledby="secondPopupModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
@@ -162,6 +162,29 @@
                   </div>
                 </div>
             </div>
+           
+           <!-- Pup-up window for selection upload or drawing-->
+           <div class="modal fade" id="popup_TrainingDataChoice" tabindex="-1" role="dialog" aria-labelledby="TrainingDataChoiceLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header-->
+                <div class="modal-header">
+                  <h5 class="modal-title" id="TrainingDataChoiceLabel">Trainingsdaten</h5>
+                </div>
+                <!-- Modal Body-->
+                <div class="modal-body">
+                  Wollen sie Trainingsdaten hochladen oder selber zeichnen?
+                </div>
+                <!-- Modal Footer-->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                  <button type="button" class="btn btn-primary" id="uploadFileChoice">Datei-Upload</button>
+                  <button type="button" class="btn btn-primary" id="drawDataChoice">Zeichnen sie selber Trainingsdaten</button>
+                </div>
+              </div>
+            </div>
+          </div>  
+
 
           <!-- Pop-up window for selection the algorithm -->
             <div class="modal" id="popup_algo">

@@ -17,14 +17,15 @@ map.addLayer(drawnFeatures);
  */
 
 // Adding a Leaflet.Draw Toolbar
-var drawControl = new L.Control.Draw( {
+
+   var drawControl = new L.Control.Draw( {
     edit: {featureGroup: drawnFeatures, 
       remove: true},
     // Only rectangle draw function is needed
     draw: {
         polyline: false,
         rectangle: true,
-        polygon: true,
+        polygon: false,
         circle: false,
         circlemarker: false,
         marker: false
@@ -67,6 +68,7 @@ map.on("draw:created", function(event){
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
   }else if(type === 'polygon'){
+        
     if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
       var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
       var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
@@ -108,19 +110,15 @@ map.on("draw:edited", function(event){
 
 //Löschen von den Trainingsdaten
 map.on(L.Draw.Event.DELETED, function(event){
-  var deleteAll = confirm('Möchten sie das Area of Training und die Trainingsdaten löschen')
-  delete_data(deleteAll);
+  var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?')
   if(deleteAll){
-    allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
-    allRectangle = {"type": "Featurecollection", "features": []};
-  }else{
-    // Nur Trainingsdaten
-    allDrawnFeatures = { "type": "FeatureCollection", "features": [] };
+    delete_data()
+    drawPolygone = false
+    localStorage.setItem('drawPolygone', 'false');
+    update_drawing()
+    location.reload()
   }
-
-  drawnFeatures.clearLayers()
   
-  location.reload()
 })
 
 // show the scale bar on the lower left corner
@@ -242,12 +240,78 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 }
 
 
+var drawPolygone
+console.log(drawPolygone)
+
+if (drawPolygone === null) {
+    localStorage.setItem('drawPolygone', 'false');
+    drawPolygone = false;
+}
+console.log(localStorage.getItem('drawPolygone'))
 
 
+function initial_drawing(){
+  var value = localStorage.getItem('drawPolygone')
+  console.log(value)
+  if(value === null){
+    drawPolygone = false
+    localStorage.setItem('drawPolygone', 'false')
+    console.log('Erster Besuch der Seite', drawPolygone)
+  }else{
+    drawPolygone = value === 'true'
+    console.log('Aktualisiert', drawPolygone)
+  }
+  update_drawing()
+  }
+
+function update_drawing(){
+  map.removeControl(drawControl)
+
+    drawControl = new L.Control.Draw({
+      edit: { featureGroup: drawnFeatures, remove: true}, 
+      draw: {
+        polyline: false, 
+        rectangle: true, 
+        polygon: drawPolygone, 
+        circle: false, 
+        circlemarker: false, 
+        marker: false
+      }
+    })
+    map.addControl(drawControl)
+    console.log(drawPolygone)
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  initial_drawing()
+  check_map()
+});
+
+
+$(document).ready(function(){
+  $('#uploadFileChoice').click(function(){
+    $('#popup_TrainingDataChoice').modal('hide')
+    document.getElementById('fileInput').click()
+
+  })
+  $('#drawDataChoice').click(function(){
+    $('#popup_TrainingDataChoice').modal('hide')
+    reset_AOI()
+    drawPolygone = true
+    localStorage.setItem('drawPolygone', 'true')
+    update_drawing()
+  })
+})
+
+
+var fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', handleFileUpload);
 
 function trainingData() {
-  document.getElementById('fileInput').click();
-  document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+  fileInput.click()
+  //document.getElementById('fileInput').click();
+  //document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+  //fileInput.click()
 }
 
 function algorithm() {
@@ -303,6 +367,15 @@ function firstSelectRectangle() {
   popup.style.display = 'none';
 }
 
+function reset_AOI(){
+  if(previousRectangle){
+    drawnFeatures.removeLayer(previousRectangle)
+    delete_data()
+    previousRectangle = null
+    rectangleCoordinates = null
+  }
+}
+
 // Erstelle EasyButtons für die Aktionen des Menüs
 var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', function() {
   if(rectangleCoordinates) {
@@ -313,7 +386,10 @@ var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/
   }
 }, 'Sentinal-2');
   
-var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
+var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">',function(){
+  $('#popup_TrainingDataChoice').modal('show');
+});
+
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
 var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
 var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
@@ -501,8 +577,8 @@ async function handleFileUpload() {
           )
           }
           geojson_data.features = filter
-          addToMap(geojson_data)
           node_polygon(geojson_data)
+          addToMap(geojson_data)
         }else{
           console.error('Kein gültiges Format!')
         }
@@ -626,6 +702,7 @@ function load_area_of_Training() {
       console.log(data);
       var r = L.geoJSON(data, {
          onEachFeature: function(feature, layer){
+           drawnFeatures.addLayer(layer)
            setStyle(layer, 'rectangle')
          }
 
@@ -674,10 +751,7 @@ async function status_server(){
         return response.json()})
         .then(data => data.status === 'ready')
         .catch(error => {console.error('Status konnte nicht abgerufen werden', error);return false})
-        
-    
-
-  
+       
 }
 
 async function check_map()
@@ -687,15 +761,14 @@ async function check_map()
     load_area_of_Training()
   }else{
     console.log('Server ist noch nicht bereit!')
-    location.reload()
+    //location.reload()
 
   }
 }
 
 
 
-// Event-Listener - wird beim Laden der Seite aufgerufen. Ruft dabei die Funktion load_data, um unsere Trainingsdaten direkt auf der Karten sich anzeigen zu lassen
-document.addEventListener('DOMContentLoaded', check_map);
+
 
 /**
  * Diese Funktion löscht die Trainingsdaten vom Server
@@ -706,10 +779,15 @@ function delete_data(deleteAll){
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({deleteAll: deleteAll}) 
+    body: JSON.stringify({deleteAll: true}) 
   })
   .then(response => response.json())
-  .then(data => console.log('Serverantwort: ', data))
+  .then(data => {
+    allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
+    allRectangle = {"type": "Featurecollection", "features": []};
+    drawnFeatures.clearLayers()
+    rectangleCoordinates = null
+  })
   .catch(error => console.error('Fehler beim löschen', error))
 }
 
