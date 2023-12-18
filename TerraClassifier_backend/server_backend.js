@@ -294,10 +294,6 @@ app.get('/download', async (req, res) => {
 
 
 
-
-
-
-
 app.post('/reset-data', (req, res) => {
   const featureCollection_reset = { "type": "FeatureCollection", "features": []}
 
