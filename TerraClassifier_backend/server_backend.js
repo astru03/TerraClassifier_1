@@ -4,8 +4,52 @@ const port = process.env.PORT || 8080
 const fetch = require('node-fetch');
 
 
+const fs = require('fs');
+const multer = require('multer')
+const { GeoPackageAPI } = require('@ngageoint/geopackage');
+const JSZIP = require('jszip');
+const cors = require('cors');
+var R = require('r-script');
+
+const corsOptions = {
+  origin: 'http://localhost:3000', // Erlaubt Anfragen von Ihrem Frontend
+  optionsSuccessStatus: 200 // Für ältere Browser, die nicht standardmäßig 204 senden
+};
+
+app.use(cors(corsOptions));
+
+app.get('/status', (req, res) => {
+  res.send({status: 'ready'});
+})
+
+const uploadPath = 'upload/';
+
+// Überprüfen, ob der Ordner existiert. Wenn nicht, erstellen Sie ihn
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+
+
+
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
+
+/**
+ * https://github.com/expressjs/multer
+ */
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'upload/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname) // Beibehalten des ursprünglichen Dateinamens
+  }
+})
+
+const upload = multer({ storage: storage })
+
 
 // Middleware für CORS aktivieren
 app.use((req, res, next) => {
@@ -16,78 +60,75 @@ app.use((req, res, next) => {
 
 
 app.post('/satellite', (req, res) => {
-  //check if Date and Coordinates not null
-  if(req.body.Date == '' || req.body.NEC == '' || req.body.SWC == ''){
-    //res.sendFile(reqpath + "/public/error_empty_input.html")
+  //check if Date, Coordinates and Cloud-cover is not null
+  if(req.body.Date == '' || req.body.NEC == '' || req.body.SWC == '' || req.body.CCI == ''){
     console.log('Fehler Felder nicht gefüllt')
   return;
   }
   let receivedDate = req.body.Date;
   let receivedNEC = req.body.NEC;
   let receivedSWC = req.body.SWC;
-  // Beispiel: Wenn die Koordinaten im Terminal ausgegeben werden sollen
-  console.log(receivedDate);
-  console.log(receivedNEC);
-  console.log(receivedSWC);
+  let receivedCCI = req.body.CCI;
 
-//Aus den NEC und SWC muss ein polygonCoordinates gemacht werden. Das muss noch dynamisch funktionieren
-  let SplitReceivedNEC = receivedNEC.split(",") //Aufspalten am Komma um auch die Koordinaten für NWC und SEC zu erhalten
-  let SplitReceivedSWC = receivedSWC.split(",") //Die sind nötig um weiter unten das Rechteckt aufzubauen
+// A polygonCoordinates must be made from the northeast coordinates and the southwest coordinates.
+  let SplitReceivedNEC = receivedNEC.split(",") // Split at the comma to also get the coordinates for NWC and SEC
+  let SplitReceivedSWC = receivedSWC.split(",") // These are necessary to build the rectangle polygon
   let stringNEC = [SplitReceivedNEC[0], SplitReceivedNEC[1].trim()] 
   let stringNWC = [SplitReceivedSWC[0], SplitReceivedNEC[1].trim()];
   let stringSWC = [SplitReceivedSWC[0], SplitReceivedSWC[1].trim()]
   let stringSEC = [SplitReceivedNEC[0], SplitReceivedSWC[1].trim()];
-  let NEC = stringNEC.map(parseFloat);  //um aus Array von Strings ein Array aus Gleitkommazahlen zu machen
+  // to turn array of strings into array of floating point numbers
+  let NEC = stringNEC.map(parseFloat);
   let NWC = stringNWC.map(parseFloat);
   let SWC = stringSWC.map(parseFloat);
   let SEC = stringSEC.map(parseFloat);
 
-  // Koordinaten von AOI und AOT in liste pushen.
+  // Koordinaten von AOI und AOT in liste pushen. ?????????????
   
-//Das Datum muss an den searchbody übergeben werden. Das muss noch dynamisch funktionieren
+  // STAC API from AWS S3
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
  
   let polygonCoordinates = [
-    NEC, //Nordosten
-    SEC, //Südosten
-    SWC, //Südwesten
-    NWC, //Nordwesten
-    NEC, //Nordosten
+    NEC, // Northeast
+    SEC, // southeast
+    SWC, // southwest
+    NWC, // Northwest
+    NEC, // Northeast
   ];
-  console.log(polygonCoordinates);
+  // create a polgongeojson
   let polygonGeoJSON = {
     "type": "Polygon",
     "coordinates": [polygonCoordinates],
   };
 
-  //Datum formatieren
-  let dateParts = receivedDate.split('.') //Aufspalten des Datums
-  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); //Vorsicht Monate starten bei 0. Also Janua = 0 deswegen -1 bei Monat
+  // Format date
+  let dateParts = receivedDate.split('.') // Splitting the old date format
+  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
   let year = newDate.getFullYear();
-  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Führende Nullen für Monat hinzufügen
-  let day = String(newDate.getDate()).padStart(2, '0'); // Führende Nullen für Tag hinzufügen
+  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
+  let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
   let NewStartDate = `${year}-${month}-${day}`;
 
-
-  let startDate = new Date(NewStartDate); //Hier kommt ein komisches format raus z.b. 2023-12-03T00:00:00.000Z
-  startDate.setDate(startDate.getDate() + 14); // zu dem format wird 14 Tage zum Startdatum hinzufügen
-  let endDate = startDate.toISOString().split('T')[0]; // Formatieren damit nur noch das Format YYYY-MM-DD vorliegt
+  let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
+  startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+  let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
   let startTime = 'T00:00:00Z';
   let endTime = 'T23:59:59Z';
   let date = NewStartDate + startTime + '/' + endDate + endTime;
-  //console.log(date);
 
+  // searchbody for obtaining the geotiffs
   let searchBody = { 
     collections: [collection],
     intersects: polygonGeoJSON,
     limit: 10,
     datetime: date,
+    query: {"eo:cloud_cover": {
+      lte: receivedCCI
+    }}
   };
-
   console.log(searchBody);
-
-  //Fetch der API um die Bilder zu holen
+  // Fetch the STAC API to get the geotiff of the satellite images
   fetch(`${api_url}/search`, {
     method: 'POST',
     headers: {
@@ -100,12 +141,10 @@ app.post('/satellite', (req, res) => {
     .then((data) => {
       console.log(data.context);
       const items = data.features;
-      console.log(items.length); //Wieviele wurden gefunden nach den kriterien
+      console.log(items.length); // How many satellite images were found according to the specified search criteria
       
-      let objSatellitenImages = {}; //in diesem Objekt werden die id, die url und die imageBounds der resulate gespeichert
+      let objSatellitenImages = {}; // The id, the url and the imageBounds of the results are stored in this object
 
-      
-      
       for (var index = 0; index < items.length; index ++) {
         //let itemID = items[index].id  //So kommt man an die items.id
         //console.log(itemID);
@@ -120,23 +159,168 @@ app.post('/satellite', (req, res) => {
         
         objSatellitenImages['item_' + index] = {
           id: items[index].id, 
-          url: items[index].assets.thumbnail.href,
-          //url: items[index].assets.visual.href,
+          //url: items[index].assets.thumbnail.href, // To get the URL for the thumbnails
+          url: items[index].assets.visual.href, //To get the URL for the geotiffs
           imageBounds: items[index].geometry.coordinates}
       }
       
-      console.log(objSatellitenImages);
-      
-      //Objekt wird zurückgegeben an das Frontend
+      // Object "objSatellitenImages" is returned to the frontend
       if (objSatellitenImages != null ) {
         res.json(objSatellitenImages)
       } else {
         res.status(400).json({ error: 'Ungültige Anfrage' });
       }
-
     })
     .catch((error) => console.error('Error:', error));
 });
+
+
+//post
+app.post('/geojson-save', (req, res) => {
+  const data_geojson = req.body;
+  fs.writeFile('data_geojson.json', JSON.stringify(data_geojson), (err) => {
+    if (err) {
+      res.status(500).send({ message: 'Fehler beim Speichern der GeoJSON-Daten' });
+    } else {
+      res.send({ message: 'Daten erfolgreich gespeichert' });
+    }
+  });
+});
+
+app.post('/area_of_Training', (req, res) =>{
+  const area_geojson = req.body;
+  fs.writeFile('area_of_Training.json', JSON.stringify(area_geojson), (err) => {
+    if(err){
+      res.status(500).send({message: 'Fehler'})
+    }else{
+      res.send({message: 'Area of Training erfolgreich gespeichert und steht zum abruf bereit!'})
+    }
+  })
+})
+
+
+
+//löschen alles, nicht einzeln!
+
+app.post('/delete', (req, res) => {
+  //Trainingsdaten zurücksetzen
+  fs.writeFile('data_geojson.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
+    if(err){
+      console.error(err)
+      return res.status(500).send({message: 'Fehler beim Zurücksetzen der area_of_Training.json'})
+    }
+  //Area of Training  
+  fs.writeFile('area_of_Training.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
+        if(err){
+          console.error(err)
+          return res.status(500).send({message: 'Fehler beim Löschen der Daten'})
+        }
+        res.send({message: 'Alle Daten erfolgreich gelöscht und zurückgesetzt!'})
+      })
+    
+  })
+})
+
+app.get('/get-geojson', (req, res) => {
+  res.send({type: "FeatureCollection", features: []})  
+})
+  
+  
+
+  
+
+
+app.get('/get_area_of_Training', (req,res) => {
+  
+    res.send({type: "FeatureCollection", features: []})  
+})
+
+
+/**
+ * https://www.npmjs.com/package/@ngageoint/geopackage
+ * https://github.com/ngageoint/geopackage-js
+ */
+app.post('/upload', upload.single('file'), async(req, res) => {
+  try {
+    const file = req.file.path;
+    const geoPackage = await GeoPackageAPI.open(file);
+    const feature = geoPackage.getFeatureTables();
+
+    const layers = {};
+
+    for (const table of feature) {
+      // Abfrage aller Features als GeoJSON
+      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
+
+      layers[table] = {
+        type: 'FeatureCollection',
+        features: geojsonFeatures
+      };
+    }
+
+    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
+  } catch (error) {
+    console.error('Fehler beim Verarbeiten der GeoPackage-Datei:', error);
+    res.status(500).send({ message: 'Fehler beim Verarbeiten der GeoPackage-Datei: ' + error.message });
+  }
+});
+
+//https://github.com/Stuk/jszip
+
+app.get('/download', async (req, res) => {
+  try{
+    if(fs.existsSync('data_geojson.json')){
+      const geojsonData = JSON.parse(fs.readFileSync('data_geojson.json', 'utf-8'))
+
+    //ZIP-Erstellen
+
+    const zip = new JSZIP();
+    zip.file('data_geojson', JSON.stringify(geojsonData))
+
+    //ZIP-Datei generieren
+    const Zip_data = await zip.generateAsync({ type: 'nodebuffer' });
+    res.set('Content-Type', 'application/zip')
+    res.set('Content-Disposition', 'attachment; filename="data.zip"')
+    res.send(Zip_data)
+    }else{
+      console.error('Es wurden noch keine Polygone eingezeichnet', error)
+    }
+
+  }
+  catch{
+    res.status(500).send({message: 'Fehler beim herunterladen der ZIP-Datei'})
+  }
+})
+
+
+
+app.post('/reset-data', (req, res) => {
+  const featureCollection_reset = { "type": "FeatureCollection", "features": []}
+
+  fs.writeFileSync('data_geojson.json', JSON.stringify(featureCollection_reset), err => {
+    if(err){
+      console.error(err)
+      return res.status(500).send({message: 'Fehler beim zurücksetzen'})
+    }
+  })
+
+  fs.writeFileSync('area_of_Training.json', JSON.stringify(featureCollection_reset), err => {
+    if(err){
+      console.error(err)
+      return res.status(500).send({message: 'Fehler beim zurücksetzen'})
+    }
+  })
+})
+
+
+
+
+
+
+
+
+
+
 
 
 //Listener
