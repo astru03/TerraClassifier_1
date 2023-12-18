@@ -176,7 +176,6 @@ function satelliteImages(coordinates) {
           console.log(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput)
           getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
         } else if (selectedDate === null) {
-          //console.log('Please select a date.');
           $('#popup_sat').modal('hide');
           $('#popup_NoDate').modal('show');
         } else if (cloudCoverInput === null) {
@@ -256,19 +255,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
           // Show the geotiff in the leaflet map
           for (var i = 0; i < URLlist.length; i++){
             if (selectedID === URLlist[i].ID) {
-              let imageBound = URLlist[i].IB
-              let minY = imageBound[0][1][1];
-              //console.log(minY);
-              let minX = imageBound[0][0][0];
-              //console.log(minX);
-              let maxY = imageBound[0][3][1];
-              //console.log(maxY);
-              let maxX = imageBound[0][2][0];
-              //console.log(maxX);
               let geoTiffURL = URLlist[i].URL;
-              console.log(geoTiffURL)
-              let imageBounds = [[minY, minX], [maxY, maxX]];
-              console.log(imageBounds);
 
               // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
                 parseGeoraster(geoTiffURL).then(georaster => {
@@ -457,10 +444,10 @@ function closePopup(ID_Popup) {
 function showPopupNoRectangle() {
   $('#popup_NoRectangle').modal('show');
 }
-function firstSelectRectangle() {
-  var popup = document.getElementById('popup_NoRectangle');
-  popup.style.display = 'none';
-}
+//function firstSelectRectangle() {
+//  var popup = document.getElementById('popup_NoRectangle');
+//  popup.style.display = 'none';
+//}
 
 function reset_AOI(){
   if(previousRectangle){

@@ -127,7 +127,7 @@ app.post('/satellite', (req, res) => {
       lte: receivedCCI
     }}
   };
-
+  console.log(searchBody);
   // Fetch the STAC API to get the geotiff of the satellite images
   fetch(`${api_url}/search`, {
     method: 'POST',
