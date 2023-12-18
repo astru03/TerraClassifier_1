@@ -1,7 +1,7 @@
 # @title: Machine Learning in R - Rasterdata from Münster and Dortmund (Germany)
 # @author: Andreas Struffert-Froböse, Dominik Zubel, Jonas Starke, Kieran Galbraith, Lena Lac-Nhien Long, Philip Dyckhof # nolint
 # @date: 2023-11-22
-# @version: 0.5
+# @version: 0.9
 # @description: This script is part of the project "Terra Classifier" of the course "Geosoftware 2" at the University of Münster. # nolint
 # @encoding: UTF-8
 # @language: en
@@ -26,73 +26,70 @@ library(rstac)
 library(rgdal)
 
 # set necessary parameters, variables and other stuff #
+aoi <- c(394861, 420134, 5746419, 5767397) # bbox for area of interest
+aot <- c(368285, 418831, 5687228, 5729184) # bbox for area of training
+temp1 <- "2021-06-01"
+temp2 <- "2021-06-30"
+temp <- c(temp1, temp2)
 
-# enables gdalcube to use 8 cores from CPU simultaneously
-gdalcubes_options(parallel = 4)
+# connect to openEOcubes on AWS
+con <- connect("http://54.185.59.127:8000/")
+login(user = "k_galb01",
+      password = "password")
 
-# date range for datacube, should be more dynamic in final version
-date <- "2021-06-01/2021-06-30"
+# load openeo processes
+p <- processes()
 
-# bounding box for datacube, should be more dynamic in final version
-bbox <- c(7.466846, 51.858571, 7.835575, 52.047204)
+# fetch data for AoI through openEOcubes
+aoi_collection <- p$load_collection(id = "sentinel-s2-l2a-cogs",
+                                    spatial_extent = list(west = aoi[1],
+                                                          south = aoi[3],
+                                                          east = aoi[2],
+                                                          north = aoi[4]),
+                                    crs = 25832,
+                                    temporal_extent = temp)
 
-# set extent of Datacube for proper cropping
+# filter the AoI data cube for the desired bands
+aoi_bands <- p$filter_bands(data = aoi_collection,
+                            bands = c("B02", "B03", "B04", "B08"))
 
-extent_to_crop <- list(left = 394861, right = 420134,
-                      bottom = 5746419, top = 5767397,
-                      t0 = "2021-06", t1 = "2021-06")
 
-# fetch data from AWS through rstac
-s <- stac("https://earth-search.aws.element84.com/v0") # API endpoint
+# initialize temporary file for the download of the data
+temp_file <- tempfile(fileext = ".tif")
 
-items <- s |>
-  stac_search(collections = "sentinel-s2-l2a-cogs",
-              bbox = bbox,
-              datetime = date,
-              limit = 3) |>
-  post_request() |>
-  items_fetch(progress = FALSE)
+# initialize variable to save AoI the data
+formats <- list_file_formats()
+result <- p$save_result(data = aoi_bands, format = formats$output$GTiff)
 
-# create image collection from found items
-assets <- c("B01", "B02", "B03", "B04", "B05",
-            "B06", "B07", "B08", "B8A",
-            "B09", "B11", "SCL") # names for Sentinel-2 bands
+# save the AoI data and load it into the environment
+compute_result(graph = result, output_file = temp_file)
+s2_aoi <- raster::stack(temp_file)
 
-s2_collection <- stac_image_collection(items$features, asset_names = assets, property_filter = function(x) {x[["eo:cloud_cover"]] < 10}) # nolint
 
-# create geometry for datacube from image collection
-s2_geom <- cube_view(srs = "EPSG:25832", dx = 100, dy = 100, dt = "P1M",
-                     aggregation = "median", resampling = "bilinear",
-                     extent = s2_collection)
+# repeat the process for the AoT #
+# fetch data for AoT through openEOcubes
+aot_collection <- p$load_collection(id = "sentinel-s2-l2a-cogs",
+                                    spatial_extent = list(west = aot[1],
+                                                          south = aot[3],
+                                                          east = aot[2],
+                                                          north = aot[4]),
+                                    crs = 25832,
+                                    temporal_extent = temp)
 
-# create datacube from image collection, geometry and mask
-clear_mask <- image_mask("SCL", values = c(3, 8, 9))
+# filter the AoT data cube for the desired bands
+aot_bands <- p$filter_bands(data = aot_collection,
+                            bands = c("B02", "B03", "B04", "B08"))
 
-s2_cube <- raster_cube(s2_collection, s2_geom, mask = clear_mask) |>
-  select_bands(c("B02", "B03", "B04", "B08")) |>
-  apply_pixel("(B08-B04)/(B08+B04)", "NDVI", keep_bands = TRUE)
 
-# crop datacube to given extent of area of interest
-s2_cube_cropped <- crop(s2_cube, extent = extent_to_crop, snap = "near")
+# initialize temporary file for the download of the data
+temp_file_2 <- tempfile(fileext = ".tif")
 
-# plot the datacube, this step is optional
-plot(s2_cube_cropped, rgb = 3:1, zlim = c(0, 2500))
+# initialize variable to save the data
+result <- p$save_result(data = aot_bands, format = formats$output$GTiff)
 
-# convert datacube to temporary Rasterdata, this step may take a while
-s2_raster <- raster::brick(
-  write_tif(
-    select_bands(
-      s2_cube_cropped,
-      c("B02", "B03", "B04", "B08", "NDVI")
-    )
-  )
-)
-
-# crop Data to AoI and AoT
-# münster
-s2_aoi <- raster::crop(s2_raster, c(394861, 420134, 5746419, 5767397))
-# dortmund
-s2_aot <- raster::crop(s2_raster, c(368285, 418831, 5687228, 5729184))
+# save the AoT data and load it into the environment
+compute_result(graph = result, output_file = temp_file_2)
+s2_aot <- raster::stack(temp_file_2)
 
 # write Raster to a file, this step is optional
 writeRaster(s2_aoi, "s2_aoi.grd", overwrite = TRUE)
@@ -108,6 +105,7 @@ extraction <- merge(extraction, trainingsdata, by.x = "ID", by.y = "PolyID")
 
 # prepare the model
 predictors <- names(s2_aoi)
+
 train_ids <- createDataPartition(extraction$ID, p = 0.1, list = FALSE)
 train_dat <- extraction[train_ids, ]
 train_dat <- train_dat[complete.cases(train_dat[, predictors]), ]
@@ -140,5 +138,23 @@ spplot(deratify(prediction), maxpixels = ncell(prediction) * 0.4,
        col.regions = cols)
 dev.off()
 
-# connect to openeocubes on aws
-con <- connect("http://ec2-54-185-59-127.us-west-2.compute.amazonaws.com:8000/")
+# tests #
+
+# test with Lat/Long coords
+s2_collection <- p$load_collection(id = "sentinel-s2-l2a-cogs",
+                                   spatial_extent = list(west = 7.466846,
+                                                         south = 51.858571,
+                                                         east = 7.835575,
+                                                         north = 52.047204),
+                                   crs = 4326,
+                                   temporal_extent = c("2021-06-01", "2021-06-30"))# nolint
+
+# stac test
+# p$load_stac takes URL, spatial_extent, temporal_extent, bands and properties
+s2_stac = p$load_stac("https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a", # nolint
+                      spatial_extent = list(west = 7.47,
+                                            south = 52.05,
+                                            east = 7.84,
+                                            north = 51.86),
+                      temporal_extent = c("2021-06-01", "2021-06-30"),
+                      bands = c("B02", "B03", "B04", "B08"))
