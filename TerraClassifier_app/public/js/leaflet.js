@@ -381,6 +381,7 @@ function trainingData() {
 }
 
 function algorithm() {
+    let algorithem = null;
     $('#popup_algo').modal('show');
     $('#confirmSelectionAlg').on('click', function() {
       var algorithmMD = document.getElementById('algorithm1').checked;
@@ -389,13 +390,15 @@ function algorithm() {
         $('#popup_NoAlgorithm').modal('show');
       } else {
         if (algorithmMD) {
-          let MinimumDistanc = 'Minimum Distanz';
-          console.log(MinimumDistanc);
+          algorithem = 'MD';  // MD = Minimum Distance
         } else {
-          let RandomForest = 'Random Forest';
-          console.log(RandomForest);
+          algorithem = 'RF';  // RF = Random Forest
         }
-      $('#popup_algo').modal('hide');
+        let AlgoJSON = {
+          "Algorithm": algorithem
+        };
+        console.log(AlgoJSON);
+        $('#popup_algo').modal('hide');
     }})
 }
 
