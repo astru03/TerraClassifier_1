@@ -357,7 +357,7 @@ $(document).ready(function(){
     } else {
       console.log("Es wurde kein Rechteck gezeichnet!");
       $('#popup_TrainingDataChoice').modal('hide')
-      showPopupNoRectangle();
+      $('#popup_NoRectangleForAOT').modal('show')
     }
   })
   $('#drawDataChoice').click(function(){
@@ -428,6 +428,8 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_CloudCoverNotOver100') {
     $('#popup_CloudCoverNotOver100').modal('hide');
     $('#popup_sat').modal('show');
+  }  else if (ID_Popup == 'popup_NoRectangleForAOT') {
+    $('#popup_NoRectangleForAOT').modal('hide');
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {

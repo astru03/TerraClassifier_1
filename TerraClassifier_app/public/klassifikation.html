@@ -150,7 +150,7 @@
                   <!-- Modal Footer -->
                   <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_select_sat')">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="confirmSelectionBtn">OK</button>
+                    <button type="button" class="btn btn-success" id="confirmSelectionBtn">OK</button>
                   </div>
                 </div>
               </div>
@@ -168,7 +168,7 @@
                     </div>
                     <!-- Modal Body -->
                     <div class="modal-body">
-                        Bitte zeichnen Sie zuerst ein Rechteck auf die Karte und definieren somit ein Area of Intrest (AOI).
+                        Bitte zeichnen Sie zuerst ein Rechteck auf die Karte und definieren somit für welchen Bereich Sentinel-2 Bilder geladen werden sollen.
                     </div>
                     <!-- Modal Footer -->
                     <div class="modal-footer">
@@ -305,6 +305,25 @@
             </div>
           </div>
 
+          <!-- If no rectangle was selected for AOT, corresponding popup opens -->
+          <div class="modal fade" id="popup_NoRectangleForAOT" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    Bitte zeichnen Sie zuerst ein Rechteck auf die Karte und definieren somit ein AOT (Area of Training).
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-info" onclick="closePopup('popup_NoRectangleForAOT')">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- Pop-up window for selection the algorithm -->
             <div class="modal" id="popup_algo">
@@ -332,7 +351,7 @@
                   <!-- Modal Footer -->
                   <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_algo')">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="confirmSelectionAlg">OK</button>
+                    <button type="button" class="btn btn-success" id="confirmSelectionAlg">OK</button>
                   </div>
                   
                 </div>
