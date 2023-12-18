@@ -1,3 +1,4 @@
+
 // create a variable for the map
 var map = L.map('map').setView([51.975, 7.61], 12);
 
@@ -127,7 +128,6 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 //-----------------------------------------------------------------------------------
 // Funktionen für die Aktionen des Menüs
 
-let URLlist = []; //Die leere URL liste, aus der der user nachher das Satellitenbild auswahlen kann, was er klassifiezieren möchte
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   //console.log(NorthEastCoordinates);
@@ -150,26 +150,49 @@ function satelliteImages(coordinates) {
     });
 
     $('#saveChangesBtn').on('click', function() {
-        if(selectedDate !== null) {
-            var day = selectedDate.getDate(); // Tag auswählen
-            var month = selectedDate.getMonth() + 1; // Monat auswählen (Monate beginnen bei 0)
-            var year = selectedDate.getFullYear(); // Jahr auswählen
-
-            let datum = day +"."+ month + "." + year
-            getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates); // Über die Funktion werden die Werte weitergeleitet an das Backend, was ide Images holt und die ImageURL und die imageBound zurückgibt
-          
-          } else {
-            console.log('Please select a date.');
-        }
+      let cloudCoverInput = document.getElementById('cloudCoverInput').value;
+      if (cloudCoverInput === ''){
+        cloudCoverInput = null;
+      } else if (cloudCoverInput > 100 || cloudCoverInput < 0) {
+        cloudCoverInput = 'overHundred';
+      }
+      
+      let selectedDateNull = document.getElementById('fromDate').value;
+      console.log(selectedDateNull);
+      if (selectedDateNull === '' ){
+        selectedDate = null;
+      } else {
+        selectedDate = document.getElementById('fromDate').value;
+      }
+      if(selectedDate !== null && cloudCoverInput !== null && cloudCoverInput !== 'overHundred') {
+          let dateParts = selectedDate.split('/');
+          let day = parseInt(dateParts[0], 10); // Day of the selected date
+          let month = parseInt(dateParts[1], 10); // Month of the selected date
+          let year = parseInt(dateParts[2], 10); // Year of the selected date
+          let datum = day +"."+ month + "." + year
+          let cloudCoverInput = document.getElementById('cloudCoverInput').value;
+          // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
+          getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
+        } else if (selectedDate === null) {
+          //console.log('Please select a date.');
+          $('#popup_sat').modal('hide');
+          $('#popup_NoDate').modal('show');
+        } else if (cloudCoverInput === null) {
+          $('#popup_sat').modal('hide');
+          $('#popup_NoCloudCover').modal('show');
+      } else if (cloudCoverInput === 'overHundred') {
+        $('#popup_sat').modal('hide');
+        $('#popup_CloudCoverNotOver100').modal('show');
+      }
     });
   });
 }
 
 
-async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates) {
-  URLlist = []; //Wenn ein neues Datum gewählt wurde dann muss die liste wieder geleert werden, damit die nicht immer wieder neu befüllt wird
+async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
+  let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
   try {
-    const response = await fetch('http://localhost:8080/satellite', {
+    const response = await fetch('http://localhost:8080/satellite', {  // Calling the backend
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -177,18 +200,18 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         body: JSON.stringify({
           Date: datum,
           NEC: NorthEastCoordinates,
-          SWC: SouthwestCoordinates})
+          SWC: SouthwestCoordinates,
+          CCI: cloudCoverInput})
       }) 
-
+      // If response is not returned properly, returns errors
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
-      // Interpretiere die Antwort des Microservices im Frontend. Rückgabewert des Backends
+      // Interpret the microservice's response in the frontend. Return value of the backend
       const data = await response.json();
-      //console.log(data)
 
-      if (Object.keys(data).length >= 2 ) { //Wenn mehr als 2 Objekte gefunden wurden, dann werden die id und die url in ein Objekt geschrieben URLlist
+      if (Object.keys(data).length >= 1 ) { // If more than objects were found, then the id and the url are written into one object URLlist
         for (var index = 0; index < Object.keys(data).length; index ++){
           var key = 'item_' + index;
           if(data.hasOwnProperty(key)){
@@ -205,33 +228,74 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
           }  
         }
       }
-
+      // The selected ID from the selection list where the satellite images can be selected
       let selectionContent = $('#objectSelect');
-      selectionContent.empty(); // Leere den Inhalt des Modal-Bodies
-      // Erstellt die Auswahlliste im zweiten Popup
-      URLlist.forEach(function (item) {
-        selectionContent.append($('<option>', {
-          text: item.ID
-        }));
-      });
+      selectionContent.empty(); // Empty the contents of the modal body
+      console.log(URLlist);
 
-      $('#popup_select_sat').modal('show'); // Öffne das Auswahllisten-Popup
+      if (URLlist-length === 0) {
+        $('#popup_select_sat').modal('hide');
+        $('#popup_NoData').modal('show');
+      } else {
+        // Creates the selection list in the pop-up window where the satellite images can be selected
+        URLlist.forEach(function (item) {
+          selectionContent.append($('<option>', {
+            text: item.ID
+          }));
+        });
 
-      $('#confirmSelectionBtn').on('click', function() {
-        let selectedID = $('#objectSelect').val();
-        console.log(selectedID)
-        //zum anzeigen des images
-        for (var i = 0; i < URLlist.length; i++){
-          if (selectedID === URLlist[i].ID) {
-            console.log(URLlist[i].URL)
-            console.log(URLlist[i].IB)
-            let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
-            let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
-            imageOverlay.addTo(map);
+        $('#popup_select_sat').modal('show'); // Open the pop-up window with the satellite image selection list
+
+        // when a satellite image has been selected and confirmed with the “ok” button
+        $('#confirmSelectionBtn').on('click', function() {
+          let selectedID = $('#objectSelect').val();
+          console.log(selectedID)
+          // Show the geotiff in the leaflet map
+          for (var i = 0; i < URLlist.length; i++){
+            if (selectedID === URLlist[i].ID) {
+              let imageBound = URLlist[i].IB
+              let minY = imageBound[0][1][1];
+              //console.log(minY);
+              let minX = imageBound[0][0][0];
+              //console.log(minX);
+              let maxY = imageBound[0][3][1];
+              //console.log(maxY);
+              let maxX = imageBound[0][2][0];
+              //console.log(maxX);
+              let geoTiffURL = URLlist[i].URL;
+              console.log(geoTiffURL)
+              let imageBounds = [[minY, minX], [maxY, maxX]];
+              console.log(imageBounds);
+
+              // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
+                parseGeoraster(geoTiffURL).then(georaster => {
+                console.log("georaster:", georaster);
+                  /*
+                      GeoRasterLayer is an extension of GridLayer,
+                      which means can use GridLayer options like opacity.
+                      Just make sure to include the georaster option!
+                      http://leafletjs.com/reference-1.2.0.html#gridlayer
+                  */
+                var layer = new GeoRasterLayer({
+                  useWebWorkers: true,
+                  attribution: "earth-search.aws.element84.com",
+                  georaster: georaster,
+                  resolution: 128,
+                  keepBuffer: 8
+                  });
+                  layer.addTo(map);
+              }); 
+
+              // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
+              //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
+              //console.log(leafletImageBounds);
+              //let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
+              //imageOverlay.addTo(map);
+            }
           }
-        }
-        $('#popup_select_sat').modal('hide'); // Schließe das Auswahllisten-Popup nach Bestätigung
-      }); 
+          $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
+        });         
+      }
 
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
@@ -250,9 +314,12 @@ if (drawPolygone === null) {
 console.log(localStorage.getItem('drawPolygone'))
 
 
+
 function initial_drawing(){
   var value = localStorage.getItem('drawPolygone')
   console.log(value)
+  
+
   if(value === null){
     drawPolygone = false
     localStorage.setItem('drawPolygone', 'false')
@@ -263,6 +330,13 @@ function initial_drawing(){
   }
   update_drawing()
   }
+ 
+
+
+
+  
+
+
 
 function update_drawing(){
   map.removeControl(drawControl)
@@ -282,10 +356,7 @@ function update_drawing(){
     console.log(drawPolygone)
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-  initial_drawing()
-  check_map()
-});
+
 
 
 $(document).ready(function(){
@@ -343,20 +414,32 @@ function classification() {
 }
 
 function closePopup(ID_Popup) {
-    console.log(ID_Popup);
-    if (ID_Popup == 'popup_sat') {
-      $('#popup_sat').modal('hide');
-    } else if (ID_Popup == 'popup_algo') {
-      $('#popup_algo').modal('hide');
-    } else if (ID_Popup == 'popup_NoRectangle') {
-      $('#popup_NoRectangle').modal('hide');
-    } else if (ID_Popup == 'popup_NoAlgorithm') {
-      $('#popup_NoAlgorithm').modal('hide');
-    } else if (ID_Popup == 'popup_select_sat') {
-      $('#popup_select_sat').modal('hide');
-      URLlist = []; //Hiermit wird die liste geleert wenn im Popup-fenster für die selektion auf abbrechen gedrückt wird
+  console.log(ID_Popup);
+  if (ID_Popup == 'popup_sat') {
+    $('#popup_sat').modal('hide');
+  } else if (ID_Popup == 'popup_algo') {
+    $('#popup_algo').modal('hide');
+  } else if (ID_Popup == 'popup_NoRectangle') {
+    $('#popup_NoRectangle').modal('hide');
+  } else if (ID_Popup == 'popup_NoDate') {
+      $('#popup_NoDate').modal('hide');
       $('#popup_sat').modal('show');
-    }
+  } else if (ID_Popup == 'popup_NoCloudCover') {
+    $('#popup_NoCloudCover').modal('hide');
+    $('#popup_sat').modal('show');
+  } else if (ID_Popup == 'popup_NoData') {
+    $('#popup_NoData').modal('hide');
+    $('#popup_sat').modal('show');
+  } else if (ID_Popup == 'popup_CloudCoverNotOver100') {
+    $('#popup_CloudCoverNotOver100').modal('hide');
+    $('#popup_sat').modal('show');
+  } else if (ID_Popup == 'popup_NoAlgorithm') {
+    $('#popup_NoAlgorithm').modal('hide');
+  } else if (ID_Popup == 'popup_select_sat') {
+    $('#popup_select_sat').modal('hide');
+    URLlist = []; //The URLlist is emptied when the popup window is closed using cancel ("Abbrechen")
+    $('#popup_sat').modal('show');
+  }
 }
 
 function showPopupNoRectangle() {
@@ -392,7 +475,9 @@ var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/
 
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
 var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
-var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
+var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', function(){
+  r_communication()
+}, 'Klassifikation');
     
 // Erstelle den Haupt-Button (Burgermenü-Button)
 var toggleMenuButton = L.easyButton({
@@ -676,8 +761,10 @@ function send_feature(features) {
     body: JSON.stringify(features)
   })
   .then(response => response.json())
-  .then(data => console.log("Serverantwort:", data))
-  .catch(error => console.error('Fehler beim Senden der Daten:', error));
+  .then(data => {console.log("Serverantwort:", data) 
+    update_drawing()
+})
+  .catch(error => console.error('Fehler beim Senden der Daten:', error))
 }
 
 function area_of_Training_save(features){
@@ -700,15 +787,6 @@ function load_area_of_Training() {
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      var r = L.geoJSON(data, {
-         onEachFeature: function(feature, layer){
-           drawnFeatures.addLayer(layer)
-           setStyle(layer, 'rectangle')
-         }
-
-      })
-      .addTo(map); 
-      rectangleCoordinates = r.getBounds()
     })
     .catch(error => console.error('Fehler beim Laden der Area of Training Daten:', error));
 }
@@ -721,22 +799,7 @@ function load_data() {
   fetch('http://localhost:8080/get-geojson')
       .then(response => response.json())
       .then(data => {
-          if (data && data.type === "FeatureCollection") {
-              
-              data.features.forEach(feature => {
-                 addFeature(feature)
-              });
-              L.geoJSON(allDrawnFeatures, {
-                onEachFeature: function(feature, layer) {
-                  drawnFeatures.addLayer(layer)
-                  addPopup(layer)
-                }
-              }).addTo(map)
-              console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(allDrawnFeatures));
-
-          } else {
-              console.error('Geladene Daten haben nicht die Struktur einer FeatureCollection');
-          }
+          console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(allDrawnFeatures));  
       })
       .catch(error => console.error('Fehler beim Laden der GeoJSON-Daten:', error));
 }
@@ -761,7 +824,7 @@ async function check_map()
     load_area_of_Training()
   }else{
     console.log('Server ist noch nicht bereit!')
-    //location.reload()
+    location.reload()
 
   }
 }
@@ -801,3 +864,34 @@ function download_data(){
   window.open('http://localhost:8080/download', '_blank')
 
 }
+
+
+
+function reset_Server(){
+  fetch('http://localhost:8080/reset-data', {
+    method: 'POST'
+  })
+  .then(data => {
+    console.log('data', data)
+  })
+  .catch(error => {
+    console.error('Fehler', error)
+  })
+}
+
+window.addEventListener('beforeunload', function (e) {
+  // Setzen Sie hier den Wert von drawPolygone auf false und speichern Sie ihn im localStorage
+  localStorage.setItem('drawPolygone', 'false');
+
+  // Optional: Eine Bestätigungsnachricht für den Benutzer (nicht immer unterstützt/angezeigt)
+  e.returnValue = 'Möchten Sie die Seite wirklich verlassen?';
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+  //initial_drawing()
+  reset_Server
+  initial_drawing()
+  check_map()
+});
+
+
