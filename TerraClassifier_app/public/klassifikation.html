@@ -44,15 +44,15 @@
        
         <!--Bootstrap Datepicker JS-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
-        
+
         <!--georaster-layer-for-leaflet JS-->
         <script src=" https://cdn.jsdelivr.net/npm/georaster-layer-for-leaflet@3.10.0/dist/v3/webpack/bundle/georaster-layer-for-leaflet.min.js "></script> 
-        
+
         <!-- openEO_Client  ???????-->
-        <!-- <script src="https://cdn.jsdelivr.net/npm/axios@0.21/dist/axios.min.js"></script> -->
-        <!-- <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> --> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
-        <!-- <script src="https://cdn.jsdelivr.net/npm/multihashes@3/src/index.min.js"></script> --> <!-- Only required if you have checksums in the STAC metadata -->
-        <!-- <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/axios@0.21/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
+        <script src="https://cdn.jsdelivr.net/npm/multihashes@3/src/index.min.js"></script> <!-- Only required if you have checksums in the STAC metadata -->
+        <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
     </head>
     <body>
         <header> 
@@ -63,6 +63,8 @@
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
+                        <input type="file" id="fileInput" style="display: none;" accept=".json,.geojson,.gpkg" />
+
                     <!-- add a collapsible section -->
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <div class="navbar-nav">
@@ -130,7 +132,7 @@
                   </div>
                 </div>
               </div>
-
+             
           <!-- Pop-up window for selection when multiple satellite images are available -->
             <div class="modal fade" id="popup_select_sat" tabindex="-1" role="dialog" aria-labelledby="secondPopupModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
@@ -147,12 +149,14 @@
                   </div>
                   <!-- Modal Footer -->
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closePopup('popup_select_sat')">Abbrechen</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_select_sat')">Abbrechen</button>
                     <button type="button" class="btn btn-primary" id="confirmSelectionBtn">OK</button>
                   </div>
                 </div>
               </div>
             </div>
+
+
 
           <!-- If no rectangle was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoRectangle" role="dialog" aria-labelledby="myModalLabel">
@@ -173,8 +177,8 @@
                   </div>
                 </div>
             </div>
-
-          <!-- If no Date was selected, corresponding popup opens -->
+           
+            <!-- If no Date was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoDate" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -194,7 +198,7 @@
               </div>
             </div>
 
-          <!-- If no Date was selected, corresponding popup opens -->
+            <!-- If no Cloud Cover was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoCloudCover" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -214,7 +218,7 @@
               </div>
             </div>
 
-          <!-- If no Date was selected, corresponding popup opens -->
+            <!-- If Cloud Cover is over 100 %, corresponding popup opens -->
             <div class="modal fade" id="popup_CloudCoverNotOver100" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -234,7 +238,7 @@
               </div>
             </div>
 
-          <!-- If no Date was found for the corresponding filter query -->
+            <!-- If no Data was found for the corresponding filter query -->
             <div class="modal fade" id="popup_NoData" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -254,6 +258,53 @@
                 </div>
               </div>
             </div>
+
+
+
+
+
+           <!-- Pup-up window for selection upload or drawing-->
+           <div class="modal fade" id="popup_TrainingDataChoice" tabindex="-1" role="dialog" aria-labelledby="TrainingDataChoiceLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header-->
+                <div class="modal-header">
+                  <h5 class="modal-title" id="TrainingDataChoiceLabel">Trainingsdaten</h5>
+                </div>
+                <!-- Modal Body-->
+                <div class="modal-body">
+                  Wollen sie Trainingsdaten hochladen oder selber zeichnen?
+                </div>
+                <!-- Modal Footer-->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_TrainingDataChoice')">Abbrechen</button>
+                  <button type="button" class="btn btn-primary" id="uploadFileChoice">Datei-Upload</button>
+                  <button type="button" class="btn btn-primary" id="drawDataChoice">Zeichnen sie selber Trainingsdaten</button>
+                </div>
+              </div>
+            </div>
+          </div>  
+
+          <!-- If polygon is not drawn in AOT, corresponding popup opens -->
+          <div class="modal fade" id="popup_NotInAOT" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    Das Polygon für das Trainigsgebiet muss innerhalb der AOT (Area of Trainig) gezeichnet werden.
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-info" onclick="closePopup('popup_NotInAOT')">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
           <!-- Pop-up window for selection the algorithm -->
             <div class="modal" id="popup_algo">
@@ -280,8 +331,8 @@
                   </div>
                   <!-- Modal Footer -->
                   <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_algo')">Abbrechen</button>
                     <button type="button" class="btn btn-primary" id="confirmSelectionAlg">OK</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closePopup('popup_algo')">Abbrechen</button>
                   </div>
                   
                 </div>
@@ -323,11 +374,11 @@
                 </p>  
         </footer>
 
-        <!-- Utilities -->    
+        <!-- Utilities -->
         <link rel="stylesheet" type="text/css" href="/css/klassifikation.css">
         <script src="https://unpkg.com/georaster"></script>
         <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
         <script type="text/javascript" src="/js/leaflet.js"></script>
-        <!-- <script type="module" src="/js/leaflet.js"></script> --> 
+
     </body>
 </html>

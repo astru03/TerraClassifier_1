@@ -4,12 +4,56 @@ const port = process.env.PORT || 8080
 const fetch = require('node-fetch');
 
 
+const fs = require('fs');
+const multer = require('multer')
+const { GeoPackageAPI } = require('@ngageoint/geopackage');
+const JSZIP = require('jszip');
+const cors = require('cors');
+var R = require('r-script');
+
+const corsOptions = {
+  origin: 'http://localhost:3000', // Erlaubt Anfragen von Ihrem Frontend
+  optionsSuccessStatus: 200 // Für ältere Browser, die nicht standardmäßig 204 senden
+};
+
+app.use(cors(corsOptions));
+
+app.get('/status', (req, res) => {
+  res.send({status: 'ready'});
+})
+
+const uploadPath = 'upload/';
+
+// Überprüfen, ob der Ordner existiert. Wenn nicht, erstellen Sie ihn
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+
+
+
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-// Enable middleware for CORS
+/**
+ * https://github.com/expressjs/multer
+ */
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'upload/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname) // Beibehalten des ursprünglichen Dateinamens
+  }
+})
+
+const upload = multer({ storage: storage })
+
+
+// Middleware für CORS aktivieren
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // The permitted origin domains can be specified here
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Hier können die erlaubten Origin-Domains spezifiziert werden
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
@@ -83,7 +127,7 @@ app.post('/satellite', (req, res) => {
       lte: receivedCCI
     }}
   };
-
+  console.log(searchBody);
   // Fetch the STAC API to get the geotiff of the satellite images
   fetch(`${api_url}/search`, {
     method: 'POST',
@@ -131,7 +175,155 @@ app.post('/satellite', (req, res) => {
 });
 
 
-// Listener
+//post
+app.post('/geojson-save', (req, res) => {
+  const data_geojson = req.body;
+  fs.writeFile('data_geojson.json', JSON.stringify(data_geojson), (err) => {
+    if (err) {
+      res.status(500).send({ message: 'Fehler beim Speichern der GeoJSON-Daten' });
+    } else {
+      res.send({ message: 'Daten erfolgreich gespeichert' });
+    }
+  });
+});
+
+app.post('/area_of_Training', (req, res) =>{
+  const area_geojson = req.body;
+  fs.writeFile('area_of_Training.json', JSON.stringify(area_geojson), (err) => {
+    if(err){
+      res.status(500).send({message: 'Fehler'})
+    }else{
+      res.send({message: 'Area of Training erfolgreich gespeichert und steht zum abruf bereit!'})
+    }
+  })
+})
+
+
+
+//löschen alles, nicht einzeln!
+
+app.post('/delete', (req, res) => {
+  //Trainingsdaten zurücksetzen
+  fs.writeFile('data_geojson.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
+    if(err){
+      console.error(err)
+      return res.status(500).send({message: 'Fehler beim Zurücksetzen der area_of_Training.json'})
+    }
+  //Area of Training  
+  fs.writeFile('area_of_Training.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
+        if(err){
+          console.error(err)
+          return res.status(500).send({message: 'Fehler beim Löschen der Daten'})
+        }
+        res.send({message: 'Alle Daten erfolgreich gelöscht und zurückgesetzt!'})
+      })
+    
+  })
+})
+
+app.get('/get-geojson', (req, res) => {
+  res.send({type: "FeatureCollection", features: []})  
+})
+  
+  
+
+  
+
+
+app.get('/get_area_of_Training', (req,res) => {
+  
+    res.send({type: "FeatureCollection", features: []})  
+})
+
+
+/**
+ * https://www.npmjs.com/package/@ngageoint/geopackage
+ * https://github.com/ngageoint/geopackage-js
+ */
+app.post('/upload', upload.single('file'), async(req, res) => {
+  try {
+    const file = req.file.path;
+    const geoPackage = await GeoPackageAPI.open(file);
+    const feature = geoPackage.getFeatureTables();
+
+    const layers = {};
+
+    for (const table of feature) {
+      // Abfrage aller Features als GeoJSON
+      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
+
+      layers[table] = {
+        type: 'FeatureCollection',
+        features: geojsonFeatures
+      };
+    }
+
+    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
+  } catch (error) {
+    console.error('Fehler beim Verarbeiten der GeoPackage-Datei:', error);
+    res.status(500).send({ message: 'Fehler beim Verarbeiten der GeoPackage-Datei: ' + error.message });
+  }
+});
+
+//https://github.com/Stuk/jszip
+
+app.get('/download', async (req, res) => {
+  try{
+    if(fs.existsSync('data_geojson.json')){
+      const geojsonData = JSON.parse(fs.readFileSync('data_geojson.json', 'utf-8'))
+
+    //ZIP-Erstellen
+
+    const zip = new JSZIP();
+    zip.file('data_geojson', JSON.stringify(geojsonData))
+
+    //ZIP-Datei generieren
+    const Zip_data = await zip.generateAsync({ type: 'nodebuffer' });
+    res.set('Content-Type', 'application/zip')
+    res.set('Content-Disposition', 'attachment; filename="data.zip"')
+    res.send(Zip_data)
+    }else{
+      console.error('Es wurden noch keine Polygone eingezeichnet', error)
+    }
+
+  }
+  catch{
+    res.status(500).send({message: 'Fehler beim herunterladen der ZIP-Datei'})
+  }
+})
+
+
+
+app.post('/reset-data', (req, res) => {
+  const featureCollection_reset = { "type": "FeatureCollection", "features": []}
+
+  fs.writeFileSync('data_geojson.json', JSON.stringify(featureCollection_reset), err => {
+    if(err){
+      console.error(err)
+      return res.status(500).send({message: 'Fehler beim zurücksetzen'})
+    }
+  })
+
+  fs.writeFileSync('area_of_Training.json', JSON.stringify(featureCollection_reset), err => {
+    if(err){
+      console.error(err)
+      return res.status(500).send({message: 'Fehler beim zurücksetzen'})
+    }
+  })
+})
+
+
+
+
+
+
+
+
+
+
+
+
+//Listener
 app.listen(port, () => {
     console.log(`Backend Service listening at http://localhost:${port}`)
   });
