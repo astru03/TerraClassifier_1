@@ -198,7 +198,7 @@
               </div>
             </div>
 
-            <!-- If no Date was selected, corresponding popup opens -->
+            <!-- If no Cloud Cover was selected, corresponding popup opens -->
             <div class="modal fade" id="popup_NoCloudCover" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -218,7 +218,7 @@
               </div>
             </div>
 
-            <!-- If no Date was selected, corresponding popup opens -->
+            <!-- If Cloud Cover is over 100 %, corresponding popup opens -->
             <div class="modal fade" id="popup_CloudCoverNotOver100" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -238,7 +238,7 @@
               </div>
             </div>
 
-            <!-- If no Date was found for the corresponding filter query -->
+            <!-- If no Data was found for the corresponding filter query -->
             <div class="modal fade" id="popup_NoData" role="dialog" aria-labelledby="myModalLabel">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -311,8 +311,8 @@
                   </div>
                   <!-- Modal Footer -->
                   <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_algo')">Abbrechen</button>
                     <button type="button" class="btn btn-primary" id="confirmSelectionAlg">OK</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closePopup('popup_algo')">Abbrechen</button>
                   </div>
                   
                 </div>
