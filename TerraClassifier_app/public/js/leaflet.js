@@ -98,12 +98,6 @@ function satelliteImages(coordinates) {
         selectedDate = selected.date;
     });
 
-    // Value for the cloud cover
-    //let cloudCoverInput = document.getElementById('cloudCoverInput').value;
-    //if (cloudCoverInput === '' ){
-    //  cloudCoverInput = null;
-    //}
-
     // When the "ok" button is clicked, the coordinates, date and cloud cover are passed to the getSatelliteImages function
     $('#saveChangesBtn').on('click', function() {
         let cloudCoverInput = document.getElementById('cloudCoverInput').value;
