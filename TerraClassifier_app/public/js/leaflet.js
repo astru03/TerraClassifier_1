@@ -91,7 +91,8 @@ map.on("draw:created", function(event){
       addPopup(layer)
 
     }else{
-      alert('Polygone müssen sich innerhalb')
+      //alert('Polygone müssen sich innerhalb')
+      $('#popup_NotInAOT').modal('show');
     }
     
   }
@@ -437,6 +438,8 @@ function closePopup(ID_Popup) {
     $('#popup_NoAlgorithm').modal('hide');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
+  } else if (ID_Popup == 'popup_NotInAOT') {
+    $('#popup_NotInAOT').modal('hide');
   } else if (ID_Popup == 'popup_select_sat') {
     $('#popup_select_sat').modal('hide');
     URLlist = []; //The URLlist is emptied when the popup window is closed using cancel ("Abbrechen")

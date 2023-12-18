@@ -285,6 +285,26 @@
             </div>
           </div>  
 
+          <!-- If polygon is not drawn in AOT, corresponding popup opens -->
+          <div class="modal fade" id="popup_NotInAOT" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    Das Polygon für das Trainigsgebiet muss innerhalb der AOT (Area of Trainig) gezeichnet werden.
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-info" onclick="closePopup('popup_NotInAOT')">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
           <!-- Pop-up window for selection the algorithm -->
             <div class="modal" id="popup_algo">
