@@ -249,6 +249,10 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
         // when a satellite image has been selected and confirmed with the “ok” button
         $('#confirmSelectionBtn').on('click', function() {
+          if (previousRectangle) { // Wenn Button confirmSelectionBtn gedückt wird, 
+            drawnFeatures.removeLayer(previousRectangle);  // dann wird das zuvor gezeichnete Rechteckt von der LEafletkarte entfernt
+            rectangleCoordinates = null; // und die Variable mit den Rechtecken auch auf null gesetzt. 
+          }
           let selectedID = $('#objectSelect').val();
           console.log(selectedID)
           // Show the geotiff in the leaflet map
