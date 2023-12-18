@@ -879,19 +879,19 @@ function reset_Server(){
   })
 }
 
-window.addEventListener('beforeunload', function (e) {
-  // Setzen Sie hier den Wert von drawPolygone auf false und speichern Sie ihn im localStorage
-  localStorage.setItem('drawPolygone', 'false');
 
-  // Optional: Eine Bestätigungsnachricht für den Benutzer (nicht immer unterstützt/angezeigt)
-  e.returnValue = 'Möchten Sie die Seite wirklich verlassen?';
-});
 
 document.addEventListener('DOMContentLoaded', function(){
   //initial_drawing()
   reset_Server
   initial_drawing()
   check_map()
+});
+
+window.addEventListener('beforeunload', function (e) {
+  localStorage.setItem('drawPolygone', 'false');
+
+  
 });
 
 
