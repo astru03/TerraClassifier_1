@@ -173,6 +173,7 @@ function satelliteImages(coordinates) {
           let datum = day +"."+ month + "." + year
           let cloudCoverInput = document.getElementById('cloudCoverInput').value;
           // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
+          console.log(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput)
           getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
         } else if (selectedDate === null) {
           //console.log('Please select a date.');
@@ -249,10 +250,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
         // when a satellite image has been selected and confirmed with the “ok” button
         $('#confirmSelectionBtn').on('click', function() {
-          if (previousRectangle) { // Wenn Button confirmSelectionBtn gedückt wird, 
-            drawnFeatures.removeLayer(previousRectangle);  // dann wird das zuvor gezeichnete Rechteckt von der LEafletkarte entfernt
-            rectangleCoordinates = null; // und die Variable mit den Rechtecken auch auf null gesetzt. 
-          }
+          reset_AOI()  //Wenn Button confirmSelectionBtn gedückt wird, dann wird das zuvor gezeichnete Rechteckt von der Leafletkarte entfernt
           let selectedID = $('#objectSelect').val();
           console.log(selectedID)
           // Show the geotiff in the leaflet map
@@ -366,9 +364,14 @@ function update_drawing(){
 
 $(document).ready(function(){
   $('#uploadFileChoice').click(function(){
-    $('#popup_TrainingDataChoice').modal('hide')
-    document.getElementById('fileInput').click()
-
+    if(rectangleCoordinates) {
+      $('#popup_TrainingDataChoice').modal('hide')
+      document.getElementById('fileInput').click()
+    } else {
+      console.log("Es wurde kein Rechteck gezeichnet!");
+      $('#popup_TrainingDataChoice').modal('hide')
+      showPopupNoRectangle();
+    }
   })
   $('#drawDataChoice').click(function(){
     $('#popup_TrainingDataChoice').modal('hide')
@@ -479,8 +482,8 @@ var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/
 }, 'Sentinal-2');
   
 var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">',function(){
-  $('#popup_TrainingDataChoice').modal('show');
-});
+$('#popup_TrainingDataChoice').modal('show');
+}, 'Trainigsdaten');
 
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
 var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
