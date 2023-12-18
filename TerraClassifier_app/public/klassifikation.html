@@ -111,21 +111,19 @@
                           <!-- </div> -->
                         <!-- </div> -->
                       </div>
+                      <div class="mb-3">
+                        <label for="cloudCoverInput" class="form-label">Wolkenbedeckung in %:</label>
+                        <input type="number" step="0.01" class="form-control" id="cloudCoverInput" onkeypress="return checkEntry(event)" onpaste="return checkEntry(event)" onchange="return checkEntry(event)" placeholder="Gleitkommazahl eingeben" required>
+                        <!-- Script that prohibits the use of special characters -->
+                        <script>
+                          function checkEntry(e) {
+                            var k;
+                            document.all ? k = e.keyCode : k = e.which;
+                            return (k == 8 || (k >= 48 && k <= 57));
+                            }
+                        </script>
+                      </div>
                     </div>
-                    <div class="mb-3">
-                      <label for="cloudCoverInput" class="form-label">Wolkenbedeckung in %:</label>
-                      <input type="number" step="0.01" class="form-control" id="cloudCoverInput" onkeypress="return checkEntry(event)" onpaste="return checkEntry(event)" onchange="return checkEntry(event)" placeholder="Gleitkommazahl eingeben" required>
-                      <!-- Script that prohibits the use of special characters -->
-                      <script>
-                        function checkEntry(e) {
-                          var k;
-                          document.all ? k = e.keyCode : k = e.which;
-                          return (k == 8 || (k >= 48 && k <= 57));
-                          }
-                      </script>
-                    </div>
-                  </div>
-                    
                     <!-- Modal Footer -->
                     <div class="modal-footer">
                       <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="closePopup('popup_sat')">Abbrechen</button>
@@ -279,7 +277,7 @@
                 </div>
                 <!-- Modal Footer-->
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_TrainingDataChoice')">Abbrechen</button>
                   <button type="button" class="btn btn-primary" id="uploadFileChoice">Datei-Upload</button>
                   <button type="button" class="btn btn-primary" id="drawDataChoice">Zeichnen sie selber Trainingsdaten</button>
                 </div>
