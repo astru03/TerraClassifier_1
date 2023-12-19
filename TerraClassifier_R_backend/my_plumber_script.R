@@ -1,18 +1,25 @@
-# Beispiel Plumber-R-Skript
-
-# Installiere zuerst das Paket, wenn es nicht bereits installiert ist
-# install.packages("plumber")
-
 library(plumber)
 
-#* @post /process_json
-#* @param data:json
+#' @filter cors
+cors <- function(req, res) {
+  res$setHeader("Access-Control-Allow-Origin", "*")
+  
+  if (req$REQUEST_METHOD == "OPTIONS") {
+    res$setHeader("Access-Control-Allow-Methods","*")
+    res$setHeader("Access-Control-Allow-Headers", req$HTTP_ACCESS_CONTROL_REQUEST_HEADERS)
+    res$status <- 200 
+    return(list())
+  } else {
+    plumber::forward()
+  }
+}
+
+#' @post /process_json
+#' @param data:json
 function(req) {
+
   data <- req$postBody
-  # Verarbeite die Daten hier, führe deine R-Berechnungen durch, und gib eine Antwort zurück
-  # Beispiel: Gib die empfangenen Daten zurück
+  print(data)
   return(list(status = "Success", received_data = data))
 }
 
-# Starte den Plumber-Server
-plumber::plumb("my_plumber_script.R")$run(port = 8000, host = "0.0.0.0")

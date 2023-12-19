@@ -398,10 +398,35 @@ function algorithm() {
           "Algorithm": algorithem
         };
         console.log(AlgoJSON);
+
+        // Sende AlgoJSON an das Plumber-Backend über eine Funktion
+        sendDataToPlumber (AlgoJSON);
+       
         $('#popup_algo').modal('hide');
     }})
 }
 
+async function sendDataToPlumber (AlgoJSON) {
+  try {
+    const response = await fetch('http://localhost:8000/process_json', {  // Calling the backend
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(AlgoJSON),
+      });
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        console.log(jsonResponse);
+        console.log(jsonResponse.status[0]); //Gibt "Success" aus
+        console.log(jsonResponse.received_data[0]); // Gibt "{"Algorithm":"MD"}" aus
+      } else {
+        throw new Error('Network response was not ok.');
+      }
+    } catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+    }
+};
 
 
 function modelTraining() {
