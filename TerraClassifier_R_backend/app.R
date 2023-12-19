@@ -25,20 +25,23 @@ library(gdalcubes)
 library(rstac)
 library(rgdal)
 
-# set necessary parameters, variables and other stuff #
-aoi <- c(394861, 420134, 5746419, 5767397) # bbox for area of interest
-aot <- c(368285, 418831, 5687228, 5729184) # bbox for area of training
-temp1 <- "2021-06-01"
-temp2 <- "2021-06-30"
-temp <- c(temp1, temp2)
-
 # connect to openEOcubes on AWS
 con <- connect("http://54.185.59.127:8000/")
 login(user = "k_galb01",
       password = "password")
 
+# set necessary parameters, variables and other stuff
+# this part will be more dynamic in the future
+aoi <- c(394861, 420134, 5746419, 5767397) # bbox for area of interest
+aot <- c(368285, 418831, 5687228, 5729184) # bbox for area of training
+temp1 <- "2021-06-01"
+temp2 <- "2021-06-30" # 14 Tage, kann aus T1 berechnet werden
+algo <- "knn"
+
 # load openeo processes
 p <- processes()
+
+temp <- c(temp1, temp2)
 
 # fetch data for AoI through openEOcubes
 aoi_collection <- p$load_collection(id = "sentinel-s2-l2a-cogs",
@@ -52,7 +55,6 @@ aoi_collection <- p$load_collection(id = "sentinel-s2-l2a-cogs",
 # filter the AoI data cube for the desired bands
 aoi_bands <- p$filter_bands(data = aoi_collection,
                             bands = c("B02", "B03", "B04", "B08"))
-
 
 # initialize temporary file for the download of the data
 temp_file <- tempfile(fileext = ".tif")
@@ -96,7 +98,7 @@ writeRaster(s2_aoi, "s2_aoi.grd", overwrite = TRUE)
 writeRaster(s2_aot, "s2_aot.grd", overwrite = TRUE)
 
 # read training data from geopackage (or GeoJSON)
-trainingsdata <- st_read("Trainingspolygone_Dortmund.gpkg")
+trainingsdata <- st_read("Trainingspolygone_Dortmund.geojson")
 
 # combine the raster data with the trainingsdata
 extraction <- extract(s2_aot, trainingsdata, df = TRUE)
@@ -111,10 +113,20 @@ train_dat <- extraction[train_ids, ]
 train_dat <- train_dat[complete.cases(train_dat[, predictors]), ]
 
 # train the model with knn (k-nearest neighbor)
-model <- train(train_dat[, predictors],
-               train_dat$Label,
-               method = "knn",
-               tuneLength = 10)
+if (algo == "knn") {
+  model <- train(train_dat[, predictors],
+                 train_dat$Label,
+                 method = "knn",
+                 tuneLength = 10)
+print("knn")
+} else {
+  model <- train(train_dat[,predictors],
+                 train_dat$Label,
+                 method = "rf",
+                 importance = TRUE,
+                 ntree = 500)
+print("rf")
+}
 
 # save the created data and the model, this step is optional
 saveRDS(extraction, "trainingsdata.rds")
@@ -148,13 +160,3 @@ s2_collection <- p$load_collection(id = "sentinel-s2-l2a-cogs",
                                                          north = 52.047204),
                                    crs = 4326,
                                    temporal_extent = c("2021-06-01", "2021-06-30"))# nolint
-
-# stac test
-# p$load_stac takes URL, spatial_extent, temporal_extent, bands and properties
-s2_stac = p$load_stac("https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a", # nolint
-                      spatial_extent = list(west = 7.47,
-                                            south = 52.05,
-                                            east = 7.84,
-                                            north = 51.86),
-                      temporal_extent = c("2021-06-01", "2021-06-30"),
-                      bands = c("B02", "B03", "B04", "B08"))
