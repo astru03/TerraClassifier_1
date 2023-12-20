@@ -202,7 +202,7 @@ app.listen(port, () => {
 
 
 //-----------AWS einbinden--------------------------------------------
-
+// dazu noch npm install aws-sdk
 
 // Konfiguration mit deinen AWS-Zugangsdaten
 // AWS.config.update({
@@ -214,11 +214,27 @@ app.listen(port, () => {
 // Erstelle eine Instanz von AWS S3
 const s3 = new AWS.S3();
 
+// Beispiel: Erstelle einen S3-Bucket
+const bucketParams = {
+  Bucket: 'TerraClassifier_bucket',
+  // ACL: 'private', // Berechtigungen für den Bucket (optional)
+};
+
+s3.createBucket(bucketParams, (err, data) => {
+  if (err) {
+    console.error('Fehler beim Erstellen des Buckets:', err);
+  } else {
+    console.log('Bucket erfolgreich erstellt:', data.Location);
+  }
+});
+
+
+
 // Konfiguration von Multer für Datei-Uploads
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: 'DEIN_BUCKET_NAME',
+    bucket: 'Frontend_terraClassifier',
     acl: 'public-read', // Zugriffssteuerung für hochgeladene Dateien
     metadata: function (req, file, cb) {
       cb(null, {fieldName: file.fieldname});
@@ -239,3 +255,14 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server läuft auf Port ${PORT}`);
 });
+
+
+// Beispiel: Liste alle Buckets
+s3.listBuckets((err, data) => {
+  if (err) {
+    console.error('Fehler beim Auflisten der Buckets:', err);
+  } else {
+    console.log('Buckets:', data.Buckets);
+  }
+});
+
