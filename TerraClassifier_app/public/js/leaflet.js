@@ -475,8 +475,9 @@ $('#popup_TrainingDataChoice').modal('show');
 }, 'Trainigsdaten');
 
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
-var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
-var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', function(){
+var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', areaOfIntrest, 'AOI');
+var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
+var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', function(){
   r_communication()
 }, 'Klassifikation');
     
@@ -494,6 +495,7 @@ var toggleMenuButton = L.easyButton({
       button3.addTo(map).setPosition('topright');
       button4.addTo(map).setPosition('topright');
       button5.addTo(map).setPosition('topright');
+      button6.addTo(map).setPosition('topright');
     }
   }, {
     stateName: 'open',
@@ -504,8 +506,9 @@ var toggleMenuButton = L.easyButton({
       button1.remove();
       button2.remove();
       button3.remove();
-      button4.remove()
-      button5.remove()
+      button4.remove();
+      button5.remove();
+      button6.remove()
     }
   }]
 });
