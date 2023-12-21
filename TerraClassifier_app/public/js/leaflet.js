@@ -50,6 +50,7 @@ var rectangleCoordinates = null;
 var previousRectangle = null;
 // Event-Handler for drawing polygons
 map.on("draw:created", function(event){
+  
   var layer = event.layer;
   var type = event.layerType;
   var newFeature = event.layer.toGeoJSON();
@@ -62,6 +63,8 @@ map.on("draw:created", function(event){
     }
     //rectangleCoordinates = layer.getBounds().toBBoxString();
     rectangleCoordinates = layer.getBounds();
+    //Check Condition um easybutton 5 zu aktivieren
+    checkConditionButton5();
     console.log(rectangleCoordinates)
     console.log('Koordinaten: ', newFeature);
     node_rectangle(newFeature)
@@ -89,12 +92,13 @@ map.on("draw:created", function(event){
       node_polygon(newFeature);
       drawnFeatures.addLayer(layer);
       addPopup(layer)
-
+      checkConditionButton3();
     }else{
       //alert('Polygone müssen sich innerhalb')
       $('#popup_NotInAOT').modal('show');
     }
     
+
   }
 })
 
@@ -352,8 +356,11 @@ function update_drawing(){
 $(document).ready(function(){
   $('#uploadFileChoice').click(function(){
     if(rectangleCoordinates) {
+      trainigBooelan = true;
+      console.log(trainigBooelan);
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
+      checkConditionButton3();
     } else {
       console.log("Es wurde kein Rechteck gezeichnet!");
       $('#popup_TrainingDataChoice').modal('hide')
@@ -361,10 +368,13 @@ $(document).ready(function(){
     }
   })
   $('#drawDataChoice').click(function(){
+    trainigBooelan = true;
+    console.log(trainigBooelan);
     $('#popup_TrainingDataChoice').modal('hide')
     reset_AOI()
     drawPolygone = true
     localStorage.setItem('drawPolygone', 'true')
+    //checkConditionButton3();
     update_drawing()
   })
 })
@@ -373,12 +383,20 @@ $(document).ready(function(){
 var fileInput = document.getElementById('fileInput');
 fileInput.addEventListener('change', handleFileUpload);
 
-function trainingData() {
-  fileInput.click()
+function sentinel2 () {
+  if(rectangleCoordinates) {
+    satelliteImages(rectangleCoordinates)
+  } else {
+    showPopupNoRectangle();
+  }
+}
+
+//function trainingData() {
+//  fileInput.click()
   //document.getElementById('fileInput').click();
   //document.getElementById('fileInput').addEventListener('change', handleFileUpload);
   //fileInput.click()
-}
+//}
 
 function algorithm() {
     $('#popup_algo').modal('show');
@@ -395,17 +413,32 @@ function algorithm() {
           let RandomForest = 'Random Forest';
           console.log(RandomForest);
         }
-      $('#popup_algo').modal('hide');
+        algoBoolean = true;
+        console.log(algoBoolean);
+        checkConditionButton4()
+        $('#popup_algo').modal('hide');
     }})
 }
 
-
 function areaOfIntrest() {
-  alert('Option 4 wurde geklickt!');
+  reset_AOI()
+  drawPolygone = false
+  localStorage.setItem('drawPolygone', 'false') 
+  update_drawing() 
+  aoiBoolean = true
+  console.log(aoiBoolean)
 }
+
 function modelTraining() {
-  alert('Option 5 wurde geklickt!');
+  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+    console.log("Erfolg");
+    modelBoolean = true;
+    checkConditionButton6();
+  } else {
+    console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
+  }
 }
+
 function classification() {
   alert('Option 6 wurde geklickt!');
 }
@@ -463,26 +496,69 @@ function reset_AOI(){
 }
 
 // Erstelle EasyButtons für die Aktionen des Menüs
-var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', function() {
-  if(rectangleCoordinates) {
-    satelliteImages(rectangleCoordinates)
-  } else {
-    console.log("Es wurde kein Rechteck gezeichnet!");
-    showPopupNoRectangle();
-  }
-}, 'Sentinal-2');
-  
-var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">',function(){
+let trainigBooelan = false;
+let algoBoolean = false;
+let aoiBoolean = false;
+let modelBoolean = false;
+
+// Button Sentinel-2 Daten
+var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
+
+// Button Trainigsdaten
+var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', function(){
 $('#popup_TrainingDataChoice').modal('show');
 }, 'Trainigsdaten');
 
+// Button Algorithem
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
+button3.disable(); //Standardmäßig ist der button deaktiviert
+//Erst anklickbar, wenn variable trainigBooelan = true, algoBoolean = true und aoiBoolean = true ist und ein Rechteck gezeichnet wurde,
+function checkConditionButton3() {
+  if(trainigBooelan === true){
+    button3.enable(); // Aktiviere den Button
+  } else {
+    button3.disable(); // Deaktiviere den Button
+  }
+}
+
+// Button Area of Intrest
 var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', areaOfIntrest, 'AOI');
+button4.disable(); //Standardmäßig ist der button deaktiviert
+//Erst anklickbar, wenn variable trainigBooelan = true und algoBoolean = true ist.
+function checkConditionButton4() {
+  if(trainigBooelan === true && algoBoolean === true){
+    button4.enable(); // Aktiviere den Button
+  } else {
+    button4.disable(); // Deaktiviere den Button
+  }
+}
+
+// Button Modeltrainig
 var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
-var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', function(){
-  r_communication()
-}, 'Klassifikation');
-    
+button5.disable(); //Standardmäßig ist der button deaktiviert
+//Erst anklickbar, wenn variable trainigBooelan = true, algoBoolean = true und aoiBoolean = true ist und ein Rechteck gezeichnet wurde.
+function checkConditionButton5() {
+  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates){
+    button5.enable(); // Aktiviere den Button
+  } else {
+    button5.disable(); // Deaktiviere den Button
+  }
+}
+
+
+// Button classification
+var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
+button6.disable(); //Standardmäßig ist der button deaktiviert
+//Erst anklickbar, wenn variable trainigBooelan = true, algoBoolean = true, aoiBoolean = true und modelBoolean = true ist und ein Rechteck gezeichnet wurde.
+function checkConditionButton6() {
+  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates){
+    button6.enable(); // Aktiviere den Button
+  } else {
+    button6.disable(); // Deaktiviere den Button
+  }
+}
+
+
 // Erstelle den Haupt-Button (Burgermenü-Button)
 var toggleMenuButton = L.easyButton({
   position: 'topright',
@@ -593,7 +669,7 @@ function isUploadinRectangle(feature, rectangleCoordinates){
 
 
 /**
- * Diese asynchrone Funktion ermöglicht das hcohladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
+ * Diese asynchrone Funktion ermöglicht das hochladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
  * @returns 
  */
 async function handleFileUpload() {
