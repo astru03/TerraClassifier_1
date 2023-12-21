@@ -400,12 +400,14 @@ function algorithm() {
 }
 
 
-
-function modelTraining() {
+function areaOfIntrest() {
   alert('Option 4 wurde geklickt!');
 }
-function classification() {
+function modelTraining() {
   alert('Option 5 wurde geklickt!');
+}
+function classification() {
+  alert('Option 6 wurde geklickt!');
 }
 
 function closePopup(ID_Popup) {
