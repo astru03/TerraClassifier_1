@@ -762,7 +762,7 @@ function send_feature(features) {
     body: JSON.stringify(features)
   })
   .then(response => response.json())
-  .then(data => {console.log("Serverantwort:", data) 
+  .then(data => {console.log("Serverantwort:", JSON.stringify(allDrawnFeatures)) 
     update_drawing()
 })
   .catch(error => console.error('Fehler beim Senden der Daten:', error))
