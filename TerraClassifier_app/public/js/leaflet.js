@@ -463,7 +463,7 @@ function reset_AOI(){
 }
 
 // Erstelle EasyButtons für die Aktionen des Menüs
-var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', function() {
+var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', function() {
   if(rectangleCoordinates) {
     satelliteImages(rectangleCoordinates)
   } else {
@@ -472,14 +472,14 @@ var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/
   }
 }, 'Sentinal-2');
   
-var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">',function(){
+var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">',function(){
 $('#popup_TrainingDataChoice').modal('show');
 }, 'Trainigsdaten');
 
-var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
-var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', areaOfIntrest, 'AOI');
-var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
-var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', function(){
+var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
+var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', areaOfIntrest, 'AOI');
+var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
+var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', function(){
   r_communication()
 }, 'Klassifikation');
     
@@ -488,7 +488,7 @@ var toggleMenuButton = L.easyButton({
   position: 'topright',
   states: [{
     stateName: 'closed',
-    icon: '<img src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/menu_icon.png" style="width: 20px; height: 20px;">',
+    icon: '<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/menu_icon.png" style="width: 20px; height: 20px;">',
     title: 'Öffne Menü',
     onClick: function (btn, map) {
       btn.state('open');
