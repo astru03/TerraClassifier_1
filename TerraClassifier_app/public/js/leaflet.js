@@ -48,7 +48,7 @@ function setStyle(layer, layerType) {
 
 var rectangleCoordinates = null;  // Variable definition
 var previousRectangle = null; // Variable definition
-
+let AOICOORD;
 // Event-Handler for drawing polygons
 map.on("draw:created", function(event) {
   var layer = event.layer;
@@ -63,7 +63,13 @@ map.on("draw:created", function(event) {
     // rectangleCoordinates = layer.getBounds().toBBoxString(); // only important if a string is required for the coordinates
     rectangleCoordinates = layer.getBounds();
     checkConditionButton5(); // Check Condition to activate easybutton 5 (modeltraining)
-    // console.log(rectangleCoordinates)
+    //console.log(rectangleCoordinates)
+    
+    // Only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
+    if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+      AOICOORD = rectangleCoordinates;
+    } 
+
     // console.log('Koordinaten: ', newFeature);
     node_rectangle(newFeature)
     drawnFeatures.addLayer(layer);
@@ -127,6 +133,7 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
  * Function to obtain the Sentinel-2 satellite images
  * @param {*} coordinates
  */
+var datum;
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   let SouthwestCoordinates = coordinates.getSouthWest().lng + ', ' + coordinates.getSouthWest().lat;
@@ -165,7 +172,7 @@ function satelliteImages(coordinates) {
           let day = parseInt(dateParts[0], 10); // Day of the selected date
           let month = parseInt(dateParts[1], 10); // Month of the selected date
           let year = parseInt(dateParts[2], 10); // Year of the selected date
-          let datum = day +"."+ month + "." + year
+          datum = day +"."+ month + "." + year
           let cloudCoverInput = document.getElementById('cloudCoverInput').value;
           // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
           getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
@@ -333,15 +340,21 @@ function update_drawing() {
     console.log(drawPolygone)
 }
 
-
+let AOTCOORD;
 $(document).ready(function(){
   $('#uploadFileChoice').click(function(){
+    
     if(rectangleCoordinates) {
       trainigBooelan = true;
       console.log(trainigBooelan);
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
       checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
+      // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+      if (trainigBooelan === true && rectangleCoordinates) {
+        AOTCOORD = rectangleCoordinates
+        console.log(AOTCOORD);
+      }
     } else {
       console.log("Es wurde kein Rechteck gezeichnet!");
       $('#popup_TrainingDataChoice').modal('hide')
@@ -356,7 +369,13 @@ $(document).ready(function(){
     drawPolygone = true
     localStorage.setItem('drawPolygone', 'true')
     update_drawing()
+    // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+    if (trainigBooelan === true && rectangleCoordinates) {
+      AOTCOORD = rectangleCoordinates
+      console.log(AOTCOORD);
+    }
   })
+  
 })
 
 
@@ -413,7 +432,7 @@ function areaOfIntrest() {
   reset_AOI()
   drawPolygone = false
   localStorage.setItem('drawPolygone', 'false') 
-  update_drawing() 
+  update_drawing()
   aoiBoolean = true
   console.log(aoiBoolean)
 }
@@ -429,6 +448,26 @@ function modelTraining() {
   } else {
     console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
   }
+  //End date
+  let dateParts = datum.split('.') // Splitting the old date format
+  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
+  let year = newDate.getFullYear();
+  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
+  let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
+  let NewStartDate = `${year}-${month}-${day}`;
+
+  let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
+  startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+  let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+  console.log(endDate);
+  
+  let DATAJSON = {
+    "AOI": AOICOORD,
+    "AOT": AOTCOORD,
+    "StartDate": NewStartDate,
+    "Enddate": endDate
+  };
+  console.log(DATAJSON);
 }
 
 /**
