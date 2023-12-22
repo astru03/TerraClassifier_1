@@ -68,7 +68,11 @@ map.on("draw:created", function(event) {
     // Only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
     if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       AOICOORD = rectangleCoordinates;
-    } 
+    // Only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+    // for drawing in training data yourself
+    } else if (trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
+      AOTCOORD = rectangleCoordinates;
+    }
 
     // console.log('Koordinaten: ', newFeature);
     node_rectangle(newFeature)
@@ -341,6 +345,7 @@ function update_drawing() {
 }
 
 let AOTCOORD;
+let drawDataChoiceBoolean;
 $(document).ready(function(){
   $('#uploadFileChoice').click(function(){
     
@@ -350,8 +355,9 @@ $(document).ready(function(){
       document.getElementById('fileInput').click()
       checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
       // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+      // If the training data should be uploaded
       if (trainigBooelan === true && rectangleCoordinates) {
-        AOTCOORD = rectangleCoordinates
+        AOTCOORD = rectangleCoordinates;
       }
     } else {
       console.log("Es wurde kein Rechteck gezeichnet!");
@@ -366,12 +372,9 @@ $(document).ready(function(){
     drawPolygone = true
     localStorage.setItem('drawPolygone', 'true')
     update_drawing()
-    // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
-    if (trainigBooelan === true && rectangleCoordinates) {
-      AOTCOORD = rectangleCoordinates
-    }
+    // set d to true so that the coordinates are preserved when drawing the rectangle for the AOT (for drawing in training data yourself)
+    drawDataChoiceBoolean = true;
   })
-  
 })
 
 
