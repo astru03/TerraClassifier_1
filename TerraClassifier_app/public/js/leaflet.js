@@ -49,6 +49,8 @@ function setStyle(layer, layerType) {
 var rectangleCoordinates = null;  // Variable definition
 var previousRectangle = null; // Variable definition
 let AOICOORD;
+let classID;
+let objectName;
 // Event-Handler for drawing polygons
 map.on("draw:created", function(event) {
   var layer = event.layer;
@@ -80,17 +82,31 @@ map.on("draw:created", function(event) {
     previousRectangle = layer;
   } else if(type === 'polygon') {
     if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
-      var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
-      var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
-      classID = parseInt(classID);
-        if(isNaN(classID)){
-        alert('ObjektID muss eine Ganzzahl sein!')
-        classID=undefined;
-    }
+      $('#popup_EnterObjektID').modal('show');
+      $('#saveObjektID').on('click', function() { 
+        classID = document.getElementById('objectIdInput').value;
+        console.log(classID);
+        $('#popup_EnterObjektID').modal('hide');
+        $('#popup_ObjectName').modal('show');
+        $('#saveObjektName').on('click', function() {
+          objectName = document.getElementById('objectNameInput').value;
+          console.log(objectName);
+          $('#popup_ObjectName').modal('hide');
+        })
+        
+      })
+      //var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
+      //console.log(classID);
+      //var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
+      //classID = parseInt(classID);
+        //if(isNaN(classID)){
+        //alert('ObjektID muss eine Ganzzahl sein!')
+        //classID=undefined;
+    //}
       // Add the data to the feature
       newFeature.properties = {
       classID: classID,
-      name: name
+      name: objectName
     };
       polygonToGeoJSON(newFeature);
       node_polygon(newFeature);
@@ -506,6 +522,10 @@ function closePopup(ID_Popup) {
     $('#popup_NoAlgorithm').modal('hide');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
+  } else if (ID_Popup == 'popup_EnterObjektID') {
+    $('#popup_EnterObjektID').modal('hide');
+  }  else if (ID_Popup == 'popup_ObjectName') {
+    $('#popup_ObjectName').modal('hide');
   } else if (ID_Popup == 'popup_NotInAOT') {
     $('#popup_NotInAOT').modal('hide');
   } else if (ID_Popup == 'popup_select_sat') {

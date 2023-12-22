@@ -103,7 +103,7 @@
                         <!-- <div class="row"> -->
                           <!-- <div class="col"> -->
                             <!-- <label for="fromDate">Von:</label> -->
-                            <input type="text" class="form-control" id="fromDate">
+                            <input type="text" class="form-control" id="fromDate" placeholder="Datum auswählen">
                           <!-- </div> -->
                           <!-- <div class="col"> -->
                             <!-- <label for="toDate">Bis:</label> -->
@@ -300,6 +300,62 @@
                 <!-- Modal Footer -->
                 <div class="modal-footer">
                   <button type="button" class="btn btn-info" onclick="closePopup('popup_NotInAOT')">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enter ObjectID for the training data polygon -->
+          <div class="modal fade" id="popup_EnterObjektID" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">ObjektID</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="objectIdInput" class="form-label">Bitte für das Polygon die passende ObjektID eingeben.</label>
+                    <input type="number" step="1" class="form-control" id="objectIdInput" onkeypress="return checkEntry(event)" onpaste="return checkEntry(event)" onchange="return checkEntry(event)" placeholder="ObjektID eingeben" required>
+                    <!-- Script that prohibits the use of special characters -->
+                    <script>
+                      function checkEntry(e) {
+                        var k;
+                        document.all ? k = e.keyCode : k = e.which;
+                        return (k == 8 || (k >= 48 && k <= 57));
+                        }
+                    </script>
+                  </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_EnterObjektID')">Abbrechen</button>
+                  <button type="button" class="btn btn-success" id="saveObjektID">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enter ObjectName for the training data polygon -->
+          <div class="modal fade" id="popup_ObjectName" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">ObjektName</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="objectNameInput" class="form-label">Bitte für das Polygon die passende Namen eingeben.</label>
+                    <input type="text" class="form-control" id="objectNameInput" placeholder="Objektname eingeben" required>
+                  </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_ObjectName')">Abbrechen</button>
+                  <button type="button" class="btn btn-success" id="saveObjektName">Ok</button>
                 </div>
               </div>
             </div>
