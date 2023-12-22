@@ -138,6 +138,7 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
  * @param {*} coordinates
  */
 var datum;
+
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   let SouthwestCoordinates = coordinates.getSouthWest().lng + ', ' + coordinates.getSouthWest().lat;
@@ -201,6 +202,7 @@ function satelliteImages(coordinates) {
  * @param {*} SouthwestCoordinates
  * @param {*} cloudCoverInput
  */
+let sentinelBooelan;
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
   let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
   try {
@@ -287,6 +289,8 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
               //imageOverlay.addTo(map);
             }
           }
+          sentinelBooelan = true;
+          checkConditionButton2();
           $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
         });         
       }
@@ -384,7 +388,7 @@ fileInput.addEventListener('change', handleFileUpload);
 /**
  * Function sentinel2 from easyButton1
  */
-function sentinel2 () {
+function sentinel2() {
   if(rectangleCoordinates) {
     satelliteImages(rectangleCoordinates)
   } else {
@@ -392,12 +396,13 @@ function sentinel2 () {
   }
 }
 
-//function trainingData() {
-//  fileInput.click()
+function trainingData() {
+  $('#popup_TrainingDataChoice').modal('show');
+  //fileInput.click()
   //document.getElementById('fileInput').click();
   //document.getElementById('fileInput').addEventListener('change', handleFileUpload);
   //fileInput.click()
-//}
+}
 
 /**
  * Function algorithm from easyButton3
@@ -544,9 +549,22 @@ let modelBoolean = false;
 var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
 
 // Button Trainigsdata -----------------------------
-var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', function(){
-$('#popup_TrainingDataChoice').modal('show');
-}, 'Trainigsdaten');
+var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
+button2.disable(); // By default the button is disabled
+/**
+ * Function checkConditionButton2
+ * Only active when variable trainigBooelan = true
+ */
+function checkConditionButton2() {
+  if(sentinelBooelan === true) {
+    button2.enable();
+  } else {
+    button2.disable();
+  }
+}
+//function(){
+//$('#popup_TrainingDataChoice').modal('show');
+//}, 'Trainigsdaten');
 
 // Button algorithem -----------------------------
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
