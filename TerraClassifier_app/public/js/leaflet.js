@@ -346,14 +346,12 @@ $(document).ready(function(){
     
     if(rectangleCoordinates) {
       trainigBooelan = true;
-      console.log(trainigBooelan);
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
       checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
       // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
       if (trainigBooelan === true && rectangleCoordinates) {
         AOTCOORD = rectangleCoordinates
-        console.log(AOTCOORD);
       }
     } else {
       console.log("Es wurde kein Rechteck gezeichnet!");
@@ -363,7 +361,6 @@ $(document).ready(function(){
   })
   $('#drawDataChoice').click(function(){
     trainigBooelan = true;
-    console.log(trainigBooelan);
     $('#popup_TrainingDataChoice').modal('hide')
     reset_AOI()
     drawPolygone = true
@@ -372,7 +369,6 @@ $(document).ready(function(){
     // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
     if (trainigBooelan === true && rectangleCoordinates) {
       AOTCOORD = rectangleCoordinates
-      console.log(AOTCOORD);
     }
   })
   
@@ -403,6 +399,7 @@ function sentinel2 () {
 /**
  * Function algorithm from easyButton3
  */
+let algorithem;
 function algorithm() {
     $('#popup_algo').modal('show');
     $('#confirmSelectionAlg').on('click', function() {
@@ -412,14 +409,11 @@ function algorithm() {
         $('#popup_NoAlgorithm').modal('show');
       } else {
         if (algorithmMD) {
-          let MinimumDistanc = 'Minimum Distanz';
-          console.log(MinimumDistanc);
+          algorithem = 'MD';
         } else {
-          let RandomForest = 'Random Forest';
-          console.log(RandomForest);
+          algorithem = 'RF';
         }
         algoBoolean = true;
-        console.log(algoBoolean);
         checkConditionButton4() // Check Condition to activate easybutton 4 (areaOfIntrest)
         $('#popup_algo').modal('hide');
     }})
@@ -434,7 +428,6 @@ function areaOfIntrest() {
   localStorage.setItem('drawPolygone', 'false') 
   update_drawing()
   aoiBoolean = true
-  console.log(aoiBoolean)
 }
 
 /**
@@ -442,7 +435,6 @@ function areaOfIntrest() {
  */
 function modelTraining() {
   if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
-    console.log("Erfolg");
     modelBoolean = true;
     checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
   } else {
@@ -459,13 +451,13 @@ function modelTraining() {
   let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
   startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
   let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
-  console.log(endDate);
   
   let DATAJSON = {
     "AOI": AOICOORD,
     "AOT": AOTCOORD,
     "StartDate": NewStartDate,
-    "Enddate": endDate
+    "Enddate": endDate,
+    "algorithm": algorithem
   };
   console.log(DATAJSON);
 }
@@ -482,7 +474,6 @@ function classification() {
  * @param {*} ID_Popup
  */
 function closePopup(ID_Popup) {
-  console.log(ID_Popup);
   if (ID_Popup == 'popup_sat') {
     $('#popup_sat').modal('hide');
   } else if (ID_Popup == 'popup_algo') {
