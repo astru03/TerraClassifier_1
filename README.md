@@ -38,3 +38,6 @@ Der Reiter "Beispiel" soll zukünftig ein "one-Click" Beispiel einer überwachte
 Im Reiter "Dokumentation" findet der User später eine ausführliche Dokumentation zur Webanwendung.
 Im Reiter "Impressum" befinden sich die Kontaktdaten.
 
+Lizensierung:
+Als Lizenz wird die GNU Affero General Public License version 3 verwendet.
+https://opensource.org/license/agpl-v3/
