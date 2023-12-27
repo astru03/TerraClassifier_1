@@ -76,7 +76,7 @@ map.on("draw:created", function(event) {
       AOTCOORD = rectangleCoordinates;
     }
 
-    // console.log('Koordinaten: ', newFeature);
+    console.log('Koordinaten: ', newFeature);
     node_rectangle(newFeature)
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
@@ -92,6 +92,19 @@ map.on("draw:created", function(event) {
           objectName = document.getElementById('objectNameInput').value;
           console.log(objectName);
           $('#popup_ObjectName').modal('hide');
+
+            // Add the data to the feature
+            newFeature.properties = {
+            classID: classID,
+            name: objectName
+            };
+            
+            console.log(newFeature);
+            polygonToGeoJSON(newFeature);
+            node_polygon(newFeature);
+            drawnFeatures.addLayer(layer);
+            addPopup(layer)
+            checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
         })
         
       })
@@ -103,16 +116,7 @@ map.on("draw:created", function(event) {
         //alert('ObjektID muss eine Ganzzahl sein!')
         //classID=undefined;
     //}
-      // Add the data to the feature
-      newFeature.properties = {
-      classID: classID,
-      name: objectName
-    };
-      polygonToGeoJSON(newFeature);
-      node_polygon(newFeature);
-      drawnFeatures.addLayer(layer);
-      addPopup(layer)
-      checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
+      
     } else {
       $('#popup_NotInAOT').modal('show');
     }
@@ -148,6 +152,14 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 
 //----------------------------------------------------------------------------------------------
 // Functions for the actions of the menu
+
+
+// globale Variablen speichern, Polygone
+var allDrawnFeatures = {
+  "type": "FeatureCollection",
+  "features": []
+};
+
 
 /**
  * Function to obtain the Sentinel-2 satellite images
@@ -481,7 +493,8 @@ function modelTraining() {
     "AOT": AOTCOORD,
     "StartDate": NewStartDate,
     "Enddate": endDate,
-    "algorithm": algorithem
+    "algorithm": algorithem,
+    "trainigsdata": allDrawnFeatures
   };
   console.log(DATAJSON);
 }
@@ -689,11 +702,7 @@ toggleMenuButton.addTo(map);
  */
 
 
-// globale Variablen speichern, Polygone
-var allDrawnFeatures = {
-  "type": "FeatureCollection",
-  "features": []
-};
+
 
 var allRectangle = {
   "type": "FeatureCollection", 
@@ -936,6 +945,7 @@ function send_feature(features) {
 })
   .catch(error => console.error('Fehler beim Senden der Daten:', error))
 }
+console.log(allDrawnFeatures);
 
 function area_of_Training_save(features){
   fetch('http://localhost:8080/area_of_Training', {
