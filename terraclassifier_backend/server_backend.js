@@ -34,6 +34,8 @@ if (!fs.existsSync(uploadPath)) {
 
 
 const bodyParser = require('body-parser');
+const { json } = require('express');
+const { error } = require('console');
 app.use(bodyParser.json());
 
 /**
@@ -182,7 +184,8 @@ app.post('/geojson-save', (req, res) => {
     if (err) {
       res.status(500).send({ message: 'Fehler beim Speichern der GeoJSON-Daten' });
     } else {
-      res.send({ message: 'Daten erfolgreich gespeichert' });
+      //res.send({ message: 'Daten erfolgreich gespeichert' });
+      res.send(data_geojson)
     }
   });
 });
@@ -217,13 +220,69 @@ app.post('/delete', (req, res) => {
         }
         res.send({message: 'Alle Daten erfolgreich gelöscht und zurückgesetzt!'})
       })
+    fs.unlink('send_data.json', err => {
+      if(err){
+        if(err.code === 'ENOENT'){
+          console.log('Datei exestiert nicht!')
+        }else{
+          console.error('Fehler beim löschen!', err)
+          return res.status(500).send({message: 'Fehler beim löschen!'})
+        }
+      }
+      res.send({message: 'Löschen war erflogreich!'})
+    })  
     
   })
 })
 
-app.get('/get-geojson', (req, res) => {
-  res.send({type: "FeatureCollection", features: []})  
+
+  app.get('/get-geojson', (req, res) => {
+  const file = 'data_geojson.json'
+  if(fs.existsSync(file)){
+    fs.readFile(file,'utf-8', (err, data) => {
+      if(err){
+        res.status(500).send({message: 'Fehler beim lesen'})
+      }else{
+        res.send(JSON.parse(data))
+      }
+    })
+  } 
+  else{
+    res.send({type: "FeatureCollection", features: []})
+  }
 })
+
+
+app.post('/send-data', (req, res)=> {
+  const send_data = req.body
+  fs.writeFile('send_data.json', JSON.stringify(send_data), err => {
+    if(err){
+      res.status(500).send({message:'Fehler'})
+    }else{
+      res.send(send_data)
+    }
+  })
+})
+
+app.get('/get-backend-data', (req, res) =>{
+  const file_all  = 'send_data.json'
+  fs.readFile(file_all, 'utf-8', (err, data) =>{
+    if(err){
+      res.status(500).send({message: 'Fehler beim senden'})
+    }else{
+      res.send(JSON.parse(data))
+    }
+  })
+})
+ 
+
+/**
+ * app.get('/get-geojson', (req, res)=>{
+  res.send({type: "FeatureCollection", features: []})
+})
+ */
+
+
   
   
 
