@@ -9,7 +9,6 @@ RUN npm install
 COPY . .
 # envirementVariable
 ENV PORT=3000
-ENV AWSHOST=54.185.59.127
 # Install app on a given port
 EXPOSE 3000
 # start app

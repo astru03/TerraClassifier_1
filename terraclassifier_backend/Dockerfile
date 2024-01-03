@@ -9,7 +9,6 @@ RUN npm install
 COPY . .
 # envirementVariable
 ENV PORT=8080
-ENV AWSHOST=54.185.59.127
 # Install app on a given port
 EXPOSE 8080
 # start app
