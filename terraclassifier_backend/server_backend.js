@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080
 const fetch = require('node-fetch');
+const { OpenEO  } = require('@openeo/js-client');
 
 
 const fs = require('fs');
@@ -85,6 +86,9 @@ app.post('/satellite', (req, res) => {
 
   // Koordinaten von AOI und AOT in liste pushen. ?????????????
   
+  testconnection();
+  testconnection_Ohne_Auth();
+
   // STAC API from AWS S3
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
@@ -173,6 +177,70 @@ app.post('/satellite', (req, res) => {
     })
     .catch((error) => console.error('Error:', error));
 });
+
+async function testconnection(){
+  OpenEO.connect("http://54.185.59.127:8000/").then(function(con) {
+    // Success
+    var info = con.capabilities();
+    console.log("API Version_1: ", info.apiVersion());
+  }).catch(function(error) {
+    // Error
+  });
+  
+}
+
+
+async function testconnection_Ohne_Auth(){
+  try {
+    var con = await OpenEO.connect("http://54.185.59.127:8000/");
+    // Success
+  } catch (error) {
+    // Error
+  }
+  var info = con.capabilities();
+  console.log("API Version_2: ", info.apiVersion());
+
+  var response = await con.listCollections();
+  response.collections.forEach(collection => {
+    console.log(`${collection.id}: ${collection.summary}`);})
+    console.log("Available Collections:");
+
+  var response = await con.listProcesses();
+  response.processes.forEach(process => {
+    console.log(`${process.id}: ${process.summary}`);
+  });
+  
+
+  /*
+  // Create a process builder
+  var builder = await con.buildProcess();
+  console.log(builder);
+
+  var datacube = builder.load_collection(
+    "sentinel-s2-l2a-cogs",
+    {west: 7.57, south: 51.95, east: 7.65, north: 52.0},
+    ["2023-07-01", "2023-07-14"],
+    ["VV", "VH"]
+  );
+  console.log("DATACUBE:");
+  console.log(datacube);
+
+  var result = builder.save_result(datacube, "GTiff");
+  console.log("RESULT:");
+  console.log(result);
+  
+  var job = await con.createJob(result, "Example Title");
+  await job.startJob();
+  
+  let stopFn = job.monitorJob(async (job, logs) => {
+    if (job.status === "finished") {
+      var urls = await job.listResults();
+      urls.forEach(url => console.log(`Download result from: ${url.href}`));
+    }
+  }); */
+
+}
+
 
 
 //post
