@@ -5,7 +5,7 @@ services:
     build: ./terraclassifier_app            # Pfad zum Dockerfile der Webanwendung. Baut daraus ein Image 
     # image: astru/terraclassifier_app:latest
     ports:
-      - "80:3000"            # Port 4000 des Host wird gemappt auf Port 4000 des Container, der das Image ausführt
+      - "3000:3000"            # Port 4000 des Host wird gemappt auf Port 4000 des Container, der das Image ausführt
     environment:
       - AWSHOST=54.185.59.127  # Umgebungsvariable für die App
 
