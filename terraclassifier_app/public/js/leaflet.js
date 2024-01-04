@@ -459,7 +459,12 @@ function algorithm() {
  * Function areaOfIntrest from easyButton4
  */
 function areaOfIntrest() {
-  reset_AOI()
+  if(previousRectangle){
+    drawnFeatures.removeLayer(previousRectangle)
+    previousRectangle = null
+    rectangleCoordinates = null
+    drawnFeatures.clearLayers()
+  }
   drawPolygone = false
   localStorage.setItem('drawPolygone', 'false') 
   update_drawing()
@@ -469,7 +474,7 @@ function areaOfIntrest() {
 /**
  * Function modelTraining from easyButton5
  */
-function modelTraining() {
+ async function modelTraining() {
   if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
     modelBoolean = true;
     checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
@@ -487,16 +492,32 @@ function modelTraining() {
   let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
   startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
   let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+
   
-  let DATAJSON = {
-    "AOI": AOICOORD,
-    "AOT": AOTCOORD,
-    "StartDate": NewStartDate,
-    "Enddate": endDate,
-    "algorithm": algorithem,
-    "trainigsdata": allDrawnFeatures
-  };
-  console.log(DATAJSON);
+  try{
+
+    const loaddata = await load_data()
+    
+
+    let DATAJSON = {
+      "AOI": AOICOORD,
+      "AOT": AOTCOORD,
+      "StartDate": NewStartDate,
+      "Enddate": endDate,
+      "algorithm": algorithem,
+      "trainigsdata": loaddata
+    };
+    console.log(DATAJSON);
+    send_backend_json(DATAJSON)
+
+    
+  }
+  catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
+    console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
+  }
+    
+  
+  
 }
 
 /**
@@ -899,8 +920,10 @@ function addToMap(data) {
 function node_polygon(geojsonData) {
   // Wenn geojsonData null oder undefiniert ist, sende allDrawnFeatures
   if (!geojsonData || geojsonData.type === 'rectangle') {
-    send_feature(allDrawnFeatures);
-    return;
+    send_feature(allDrawnFeatures, function(update_drwan_features){
+
+    })
+    return
   }
 
   // Wenn ein einzelnes Feature übergeben wird, füge es zu allDrawnFeatures hinzu
@@ -912,8 +935,7 @@ function node_polygon(geojsonData) {
     
     geojsonData.features.forEach(addFeature)
   }
-  send_feature(allDrawnFeatures);
-
+send_feature(allDrawnFeatures, function(update_drwan_features){})
 }
 
 function node_rectangle(area_of_Training){
@@ -931,7 +953,8 @@ function node_rectangle(area_of_Training){
  * Verwendet 'fetch' für http-POST-Anfragen 
  * @param {*} features Die Datei, welche zu dem Server gesendet werden soll
  */
-function send_feature(features) {
+function send_feature(features, callback) {
+  
   fetch('http://localhost:8080/geojson-save', {
     method: 'POST',
     headers: {
@@ -939,11 +962,14 @@ function send_feature(features) {
     },
     body: JSON.stringify(features)
   })
-  .then(response => response.json())
-  .then(data => {console.log("Serverantwort:", JSON.stringify(allDrawnFeatures)) 
-    update_drawing()
+.then(response => response.json())
+.then(data => {
+  allDrawnFeatures = data
+  callback(allDrawnFeatures)
+  console.log('Serverantwort: ', JSON.stringify(allDrawnFeatures))
 })
-  .catch(error => console.error('Fehler beim Senden der Daten:', error))
+  
+.catch(error => console.error('Fehler beim Senden der Daten:', error))
 }
 console.log(allDrawnFeatures);
 
@@ -976,12 +1002,13 @@ function load_area_of_Training() {
  * Diese Funktion lädt unsere GeoJSON-Daten vom Server und fügt sie der Karte hinzu
  */
 function load_data() {
-  fetch('http://localhost:8080/get-geojson')
-      .then(response => response.json())
-      .then(data => {
-          console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(allDrawnFeatures));  
-      })
-      .catch(error => console.error('Fehler beim Laden der GeoJSON-Daten:', error));
+  return fetch('http://localhost:8080/get-geojson')
+          .then(response => response.json())
+            .then(data => {
+            console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(data));
+            return data  
+              })
+          .catch(error => console.error('Fehler beim Laden der GeoJSON-Daten:', error));
 }
 
 async function status_server(){
@@ -1060,12 +1087,29 @@ function reset_Server(){
 }
 
 
+function send_backend_json(DATAJSON){
+  fetch('http://localhost:8080/send-data', {
+  method: 'POST', 
+  headers: {
+  'Content-Type': 'application/json',
+}, 
+body : JSON.stringify(DATAJSON)
+
+})
+.then(response => response.json())
+.then(data => {console.log(data)})
+.catch(error => {console.error(error)})
+}
+
+
+
 
 document.addEventListener('DOMContentLoaded', function(){
   //initial_drawing()
   reset_Server
   initial_drawing()
   check_map()
+  delete_data()
 });
 
 window.addEventListener('beforeunload', function (e) {
