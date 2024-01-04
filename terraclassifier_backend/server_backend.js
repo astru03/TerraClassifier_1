@@ -85,9 +85,8 @@ app.post('/satellite', (req, res) => {
   let SEC = stringSEC.map(parseFloat);
 
   // Koordinaten von AOI und AOT in liste pushen. ?????????????
-  
-  testconnection();
-  testconnection_Ohne_Auth();
+
+  connectionToOpenEOcubea();
 
   // STAC API from AWS S3
   const api_url = 'https://earth-search.aws.element84.com/v1';
@@ -178,19 +177,7 @@ app.post('/satellite', (req, res) => {
     .catch((error) => console.error('Error:', error));
 });
 
-async function testconnection(){
-  OpenEO.connect("http://54.185.59.127:8000/").then(function(con) {
-    // Success
-    var info = con.capabilities();
-    console.log("API Version_1: ", info.apiVersion());
-  }).catch(function(error) {
-    // Error
-  });
-  
-}
-
-
-async function testconnection_Ohne_Auth(){
+async function connectionToOpenEOcubea(){
   try {
     var con = await OpenEO.connect("http://54.185.59.127:8000/");
     // Success
@@ -210,28 +197,30 @@ async function testconnection_Ohne_Auth(){
     console.log(`${process.id}: ${process.summary}`);
   });
   
-
-  /*
   // Create a process builder
   var builder = await con.buildProcess();
-  console.log(builder);
 
-  var datacube = builder.load_collection(
+  var cube_s2_b234 = builder.load_collection(
     "sentinel-s2-l2a-cogs",
     {west: 7.57, south: 51.95, east: 7.65, north: 52.0},
     ["2023-07-01", "2023-07-14"],
-    ["VV", "VH"]
+    ["B02", "B03", "B04"]
   );
-  console.log("DATACUBE:");
-  console.log(datacube);
+  //reduce dimension time
+  var cube_s2_b234_red = builder.reduce_dimension(cube_s2_b234, (data, _, child) => child.mean(data), "t");
 
-  var result = builder.save_result(datacube, "GTiff");
+
+  var result = builder.save_result(cube_s2_b234_red, "GTiff");
   console.log("RESULT:");
   console.log(result);
   
-  var job = await con.createJob(result, "Example Title");
+  var job = await con.createJob(result, "temporal_mean_as_GTiff_js");
+  console.log("job:");
+  console.log(job);
+
   await job.startJob();
   
+  /*
   let stopFn = job.monitorJob(async (job, logs) => {
     if (job.status === "finished") {
       var urls = await job.listResults();
