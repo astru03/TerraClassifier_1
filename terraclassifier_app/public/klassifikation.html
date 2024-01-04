@@ -434,7 +434,77 @@
               </div>
             </div>
 
+          <!-- Enter Resolution for the calculation -->
+            <div class="modal fade" id="popup_EnterResolution" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Auflösung</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="objectResolutionInput" class="form-label">Bitte geben Sie für das die Berechnung eine gewünschte Auflösung in Meter pro Pixel an. Der Wert muss zwischen 30 und 100 liegen.</label>
+                      <input type="number" step="1" class="form-control" id="objectResolutionInput" onkeypress="return checkEntry(event)" onpaste="return checkEntry(event)" onchange="return checkEntry(event)" placeholder="Auflösung eingeben" required>
+                      <!-- Script that prohibits the use of special characters -->
+                      <script>
+                        function checkEntry(e) {
+                          var k;
+                          document.all ? k = e.keyCode : k = e.which;
+                          return (k == 8 || (k >= 48 && k <= 57));
+                          }
+                      </script>
+                    </div>
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_EnterResolution')">Abbrechen</button>
+                    <button type="button" class="btn btn-success" id="saveResolution">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+          <!-- If no Resolution was entered, corresponding popup opens -->
+            <div class="modal fade" id="popup_NoEnterResolution" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    Bitte tragen Sie eine Auflösung ein.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_NoEnterResolution')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- If Resolution is to small or to large , corresponding popup opens -->
+            <div class="modal fade" id="popup_EnterResolutionOverOrUnder" role="dialog" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Fehler</h4>
+                  </div>
+                  <!-- Modal Body -->
+                  <div class="modal-body">
+                    Die Auflösung darf nicht über 100 und nicht unter 30 Meter sein.
+                  </div>
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-info" onclick="closePopup('popup_EnterResolutionOverOrUnder')">Ok</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
             <div class="container-fluid mt-2" id="mapcontainer">

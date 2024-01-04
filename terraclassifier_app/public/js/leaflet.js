@@ -475,49 +475,61 @@ function areaOfIntrest() {
  * Function modelTraining from easyButton5
  */
  async function modelTraining() {
-  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
-    modelBoolean = true;
-    checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
-  } else {
-    console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
-  }
-  //End date
-  let dateParts = datum.split('.') // Splitting the old date format
-  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
-  let year = newDate.getFullYear();
-  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
-  let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
-  let NewStartDate = `${year}-${month}-${day}`;
+  $('#popup_EnterResolution').modal('show');
 
-  let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-  startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
-  let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+  $('#saveResolution').on('click', async function() {
+    let resolutionInput = document.getElementById('objectResolutionInput').value; // Taking cloud cover into account
+    if (resolutionInput === ''){
+      resolutionInput = null;
+    } else if (resolutionInput > 100 || resolutionInput < 30) {
+      resolutionInput = 'resolutionOverHundredUnderThirty';
+    }
+    if (resolutionInput !== null && resolutionInput !== 'resolutionOverHundredUnderThirty') {
+      if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+        modelBoolean = true;
+        checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+      } else {
+        console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
+      }
+      //End date
+      let dateParts = datum.split('.') // Splitting the old date format
+      let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
+      let year = newDate.getFullYear();
+      let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
+      let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
+      let NewStartDate = `${year}-${month}-${day}`;
 
-  
-  try{
+      let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
+      startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+      let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+      
+      try{
+        const loaddata = await load_data()
+        let DATAJSON = {
+          "AOI": AOICOORD,
+          "AOT": AOTCOORD,
+          "StartDate": NewStartDate,
+          "Enddate": endDate,
+          "algorithm": algorithem,
+          "trainigsdata": loaddata,
+          "resolution": resolutionInput
+        };
+        console.log(DATAJSON);
+        send_backend_json(DATAJSON)
+      }
+      catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
+        console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
+      }
 
-    const loaddata = await load_data()
-    
+    } else if (resolutionInput === null) {
+      $('#popup_EnterResolution').modal('hide');
+      $('#popup_NoEnterResolution').modal('show');
+    } else if (resolutionInput === 'resolutionOverHundredUnderThirty') {
+      $('#popup_EnterResolution').modal('hide');
+      $('#popup_EnterResolutionOverOrUnder').modal('show');
+    }
 
-    let DATAJSON = {
-      "AOI": AOICOORD,
-      "AOT": AOTCOORD,
-      "StartDate": NewStartDate,
-      "Enddate": endDate,
-      "algorithm": algorithem,
-      "trainigsdata": loaddata
-    };
-    console.log(DATAJSON);
-    send_backend_json(DATAJSON)
-
-    
-  }
-  catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
-    console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
-  }
-    
-  
-  
+  })
 }
 
 /**
@@ -559,7 +571,15 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_EnterObjektID') {
     $('#popup_EnterObjektID').modal('hide');
   }  else if (ID_Popup == 'popup_ObjectName') {
-    $('#popup_ObjectName').modal('hide');
+    $('#popup_ObjectName').modal('hide'); 
+  } else if (ID_Popup == 'popup_EnterResolution') {
+    $('#popup_EnterResolution').modal('hide');
+  } else if (ID_Popup == 'popup_NoEnterResolution') {
+    $('#popup_NoEnterResolution').modal('hide');
+    $('#popup_EnterResolution').modal('show');
+  } else if (ID_Popup == 'popup_EnterResolutionOverOrUnder') {
+    $('#popup_EnterResolutionOverOrUnder').modal('hide');
+    $('#popup_EnterResolution').modal('show');
   } else if (ID_Popup == 'popup_NotInAOT') {
     $('#popup_NotInAOT').modal('hide');
   } else if (ID_Popup == 'popup_select_sat') {
