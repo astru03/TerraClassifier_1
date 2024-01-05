@@ -528,7 +528,7 @@ function areaOfIntrest() {
       $('#popup_EnterResolution').modal('hide');
       $('#popup_EnterResolutionOverOrUnder').modal('show');
     }
-
+    $('#popup_EnterResolution').modal('hide');
   })
 }
 

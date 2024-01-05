@@ -3,7 +3,7 @@ const app = express();
 const port = process.env.PORT || 8080
 const fetch = require('node-fetch');
 const { OpenEO  } = require('@openeo/js-client');
-
+const path = require('path');
 
 const fs = require('fs');
 const multer = require('multer')
@@ -86,10 +86,6 @@ app.post('/satellite', (req, res) => {
   let SWC = stringSWC.map(parseFloat);
   let SEC = stringSEC.map(parseFloat);
 
-  // Koordinaten von AOI und AOT in liste pushen. ?????????????
-
-  connectionToOpenEOcubea();
-
   // STAC API from AWS S3
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
@@ -144,9 +140,10 @@ app.post('/satellite', (req, res) => {
     .then((response) => response.json())
 
     .then((data) => {
-      console.log(data.context);
+      //console.log(data);
+      //console.log(data.context);
       const items = data.features;
-      console.log(items.length); // How many satellite images were found according to the specified search criteria
+      //console.log(items.length); // How many satellite images were found according to the specified search criteria
       
       let objSatellitenImages = {}; // The id, the url and the imageBounds of the results are stored in this object
 
@@ -177,62 +174,7 @@ app.post('/satellite', (req, res) => {
       }
     })
     .catch((error) => console.error('Error:', error));
-});
-
-async function connectionToOpenEOcubea(){
-  try {
-    var con = await OpenEO.connect("http://54.185.59.127:8000/");
-    // Success
-  } catch (error) {
-    // Error
-  }
-  var info = con.capabilities();
-  console.log("API Version_2: ", info.apiVersion());
-
-  var response = await con.listCollections();
-  response.collections.forEach(collection => {
-    console.log(`${collection.id}: ${collection.summary}`);})
-    console.log("Available Collections:");
-
-  var response = await con.listProcesses();
-  response.processes.forEach(process => {
-    console.log(`${process.id}: ${process.summary}`);
-  });
-  
-  // Create a process builder
-  var builder = await con.buildProcess();
-
-  var cube_s2_b234 = builder.load_collection(
-    "sentinel-s2-l2a-cogs",
-    {west: 7.57, south: 51.95, east: 7.65, north: 52.0},
-    ["2023-07-01", "2023-07-14"],
-    ["B02", "B03", "B04"]
-  );
-  //reduce dimension time
-  var cube_s2_b234_red = builder.reduce_dimension(cube_s2_b234, (data, _, child) => child.mean(data), "t");
-
-
-  var result = builder.save_result(cube_s2_b234_red, "GTiff");
-  console.log("RESULT:");
-  console.log(result);
-  
-  var job = await con.createJob(result, "temporal_mean_as_GTiff_js");
-  console.log("job:");
-  console.log(job);
-
-  await job.startJob();
-  
-  /*
-  let stopFn = job.monitorJob(async (job, logs) => {
-    if (job.status === "finished") {
-      var urls = await job.listResults();
-      urls.forEach(url => console.log(`Download result from: ${url.href}`));
-    }
-  }); */
-
-}
-
-
+}); 
 
 //post
 app.post('/geojson-save', (req, res) => {
