@@ -52,6 +52,10 @@ let AOICOORD;
 let classID;
 let objectName;
 // Event-Handler for drawing polygons
+let ObjektNameCounter = 0;
+let ObjektIDCounter = 0;
+let numberOfPolygons = 0;
+
 map.on("draw:created", function(event) {
   var layer = event.layer;
   var type = event.layerType;
@@ -81,42 +85,45 @@ map.on("draw:created", function(event) {
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
   } else if(type === 'polygon') {
+    numberOfPolygons++;
     if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
-      $('#popup_EnterObjektID').modal('show');
-      $('#saveObjektID').on('click', function() { 
-        classID = document.getElementById('objectIdInput').value;
-        console.log(classID);
-        $('#popup_EnterObjektID').modal('hide');
-        $('#popup_ObjectName').modal('show');
-        $('#saveObjektName').on('click', function() {
-          objectName = document.getElementById('objectNameInput').value;
-          console.log(objectName);
-          $('#popup_ObjectName').modal('hide');
-
-            // Add the data to the feature
-            newFeature.properties = {
-            classID: classID,
-            name: objectName
-            };
-            
-            console.log(newFeature);
-            polygonToGeoJSON(newFeature);
-            node_polygon(newFeature);
-            drawnFeatures.addLayer(layer);
-            addPopup(layer)
-            checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
-        })
-        
-      })
-      //var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
-      //console.log(classID);
-      //var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
-      //classID = parseInt(classID);
-        //if(isNaN(classID)){
-        //alert('ObjektID muss eine Ganzzahl sein!')
-        //classID=undefined;
-    //}
       
+        $('#popup_EnterObjektID').modal('show');
+        $('#saveObjektID').on('click', function() { 
+          if (ObjektIDCounter < numberOfPolygons) { 
+            classID = document.getElementById('objectIdInput').value;
+            console.log(classID);
+            ObjektIDCounter++;
+            $('#popup_EnterObjektID').modal('hide');
+            $('#popup_ObjectName').modal('show');
+            $('#saveObjektName').on('click', function() { 
+              if (ObjektNameCounter < numberOfPolygons) {  
+                objectName = document.getElementById('objectNameInput').value;
+                console.log(objectName);
+                ObjektNameCounter++;
+                $('#popup_ObjectName').modal('hide');
+                    newFeature.properties = {
+                    classID: classID,
+                    name: objectName
+                    };
+                    polygonToGeoJSON(newFeature);
+                    node_polygon(newFeature);
+              }
+              
+            })
+          }
+        })
+        drawnFeatures.addLayer(layer);
+        addPopup(layer)
+        checkConditionButton3();
+    /*
+    var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
+    var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
+    classID = parseInt(classID);
+      if(isNaN(classID)){
+      alert('ObjektID muss eine Ganzzahl sein!')
+      classID=undefined;
+    } */
     } else {
       $('#popup_NotInAOT').modal('show');
     }
