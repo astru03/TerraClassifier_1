@@ -24,6 +24,7 @@
   "homepage": "https://github.com/astru03/TerraClassifier_1#readme",
   "dependencies": {
     "@ngageoint/geopackage": "^4.2.4",
+    "@openeo/js-client": "^2.5.1",
     "aws-sdk": "^2.1510.0",
     "better-sqlite3": "^9.2.2",
     "cors": "^2.8.5",

@@ -9,7 +9,8 @@ const multer = require('multer')
 const { GeoPackageAPI } = require('@ngageoint/geopackage');
 const JSZIP = require('jszip');
 const cors = require('cors');
-var R = require('r-script');
+const { OpenEO } = require('@openeo/js-client');
+
 
 const corsOptions = {
   origin: 'http://localhost:3000', // Erlaubt Anfragen von Ihrem Frontend
@@ -28,8 +29,6 @@ const uploadPath = 'upload/';
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
-
-
 
 
 
@@ -175,6 +174,120 @@ app.post('/satellite', (req, res) => {
     })
     .catch((error) => console.error('Error:', error));
 });
+
+
+
+/**
+ * const url = 'http://54.185.59.127:8000/'
+let connection = null 
+
+console.log('URL: ' + url);
+console.log('Client Version: ' + OpenEO.clientVersion());
+
+OpenEO.connect(url)
+	.then(c => {
+		connection = c;
+		return connection.capabilities();
+	})
+	.then(capabilities => {
+		console.log('Server Version: ' + capabilities.apiVersion());
+		return connection.listCollections();
+	})
+	.then(collections => {
+		console.log('Number of supported collections: ' + collections.collections.length);
+		return connection.listProcesses();
+	})
+	.then(processes => {
+		console.log('Number of supported processes: ' + processes.processes.length);
+	})
+	.catch(err => console.error(err.message));
+ */
+
+
+
+
+
+
+  /**
+   * let processGraph = {
+    process_id: 'Ihr-Prozess',
+    arguments: {
+      json_data:data
+    }
+}
+   */
+  
+
+ 
+
+ app.post('/processgraph', (req, res) => {
+  const send = 'send_data.json'
+
+   
+  const url = 'http://54.185.59.127:8000/'
+  let connection = null
+
+  console.log('URL: ' + url);
+  console.log('Client Version: ' + OpenEO.clientVersion());
+
+  fs.readFile(send, 'utf-8', (err, data)=> {
+    if(err){
+      return res.status(500).send({message: 'Fehler'})
+    }
+    try{
+
+      OpenEO.connect(url)
+	      .then(c => {
+          connection = c
+
+          const processgraph_data = JSON.parse(data)
+          let processGraph = {
+              process_id: 'Ihr-Prozess',
+              arguments: {
+                json_data: processgraph_data
+          }
+
+    }
+    res.send({
+      message: 'Das ist der Processgraph und die Datei', 
+      processGraph: processGraph
+      
+    })
+
+      return connection.capabilities();
+	})
+	      .then(capabilities => {
+		            console.log('Server Version: ' + capabilities.apiVersion());
+		            return connection.listCollections();
+	})
+	      .then(collections => {
+		            console.log('Number of supported collections: ' + collections.collections.length);
+		            return connection.listProcesses();
+	})
+	      .then(processes => {
+		            console.log('Number of supported processes: ' + processes.processes.length);
+	})
+	      .catch(err => console.error(err.message));
+
+      
+
+    
+
+
+    }catch(error){
+      res.status(500).send({message:'Fehler beim parsen der Datei'})
+    }
+  })
+  })
+   
+//starten
+
+ 
+   
+
+
+
+
 
 
 //post

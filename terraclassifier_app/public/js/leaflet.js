@@ -81,7 +81,8 @@ map.on("draw:created", function(event) {
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
   } else if(type === 'polygon') {
-    if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
+    /**
+     * if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
       $('#popup_EnterObjektID').modal('show');
       $('#saveObjektID').on('click', function() { 
         classID = document.getElementById('objectIdInput').value;
@@ -121,7 +122,37 @@ map.on("draw:created", function(event) {
       $('#popup_NotInAOT').modal('show');
     }
   }
+     */
+
+  if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
+    var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
+    var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
+    classID = parseInt(classID);
+      if(isNaN(classID)){
+      alert('ObjektID muss eine Ganzzahl sein!')
+      classID=undefined;
+  }
+
+      // Hinzufügen der Daten zum Feature
+    newFeature.properties = {
+    classID: classID,
+    name: name
+  };
+
+    polygonToGeoJSON(newFeature);
+    node_polygon(newFeature);
+    drawnFeatures.addLayer(layer);
+    addPopup(layer)
+    checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
+
+  }else{
+    //alert('Polygone müssen sich innerhalb')
+    $('#popup_NotInAOT').modal('show');
+  }
+    
+}
 })
+
 
 
 // Event-Handler for editing rectangle
@@ -524,7 +555,18 @@ function areaOfIntrest() {
  * Function classification from easyButton6
  */
 function classification() {
-  alert('Option 6 wurde geklickt!');
+
+  fetch('http://localhost:8080/processgraph', {
+    method:'POST'
+  })
+  .then(response => response.json())
+  .then(data =>{
+    console.log(data)
+  })
+  .catch(error=> {
+    console.error('Fehler', error)
+  })
+  
 }
 
 /**
@@ -721,7 +763,7 @@ toggleMenuButton.addTo(map);
 /**
  * **********************************************************************************
  */
-
+ 
 
 
 
@@ -826,6 +868,11 @@ async function handleFileUpload() {
           addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
           node_polygon(data_geojson)
           console.log('GeoJSON Daten zur Karte hinzugefügt');
+
+          // Aktualisiere drawPolygone und die Zeichenkontrollen
+          drawPolygone = true;
+          localStorage.setItem('drawPolygone', 'true');
+          update_drawing();
         }, 
         //Wenn man abbricht
         () => {
@@ -920,9 +967,7 @@ function addToMap(data) {
 function node_polygon(geojsonData) {
   // Wenn geojsonData null oder undefiniert ist, sende allDrawnFeatures
   if (!geojsonData || geojsonData.type === 'rectangle') {
-    send_feature(allDrawnFeatures, function(update_drwan_features){
-
-    })
+    send_feature(allDrawnFeatures)
     return
   }
 
@@ -935,7 +980,7 @@ function node_polygon(geojsonData) {
     
     geojsonData.features.forEach(addFeature)
   }
-send_feature(allDrawnFeatures, function(update_drwan_features){})
+  send_feature(allDrawnFeatures)
 }
 
 function node_rectangle(area_of_Training){
@@ -953,7 +998,7 @@ function node_rectangle(area_of_Training){
  * Verwendet 'fetch' für http-POST-Anfragen 
  * @param {*} features Die Datei, welche zu dem Server gesendet werden soll
  */
-function send_feature(features, callback) {
+function send_feature(features) {
   
   fetch('http://localhost:8080/geojson-save', {
     method: 'POST',
@@ -964,9 +1009,8 @@ function send_feature(features, callback) {
   })
 .then(response => response.json())
 .then(data => {
-  allDrawnFeatures = data
-  callback(allDrawnFeatures)
-  console.log('Serverantwort: ', JSON.stringify(allDrawnFeatures))
+  console.log('Serverantwort: ', JSON.stringify(data))
+  update_drawing()
 })
   
 .catch(error => console.error('Fehler beim Senden der Daten:', error))
