@@ -159,6 +159,42 @@ predict_model <- function(aoi_data, model) {
   return(prediction)
 }
 
+# Function to save the prediction for the area of interest
+prediction_pdf <- function(prediction){
+  # visualize the prediction, this step is optional
+  cols <- c("forestgreen", "lightgreen", "beige", "darkblue", "yellow",
+            "red", "green", "darkgreen", "darkred", "blue")
+  spplot(deratify(prediction), col.regions = cols)
+
+  # save prediction map as PDF, this step is optional
+  pdf("/prediction_muenster-knn.pdf")
+  spplot(deratify(prediction), maxpixels = ncell(prediction) * 0.4,
+         col.regions = cols)
+  dev.off()
+}
+
+# Function to save the prediction for the area of interest
+prediction_png <- function(prediction){
+  # visualize the prediction, this step is optional
+  cols <- c("forestgreen", "lightgreen", "beige", "darkblue", "yellow",
+            "red", "green", "darkgreen", "darkred", "blue")
+  spplot(deratify(prediction), col.regions = cols)
+
+  # save prediction map as PNG, this step is optional
+  png("/prediction_muenster-knn.png")
+  spplot(deratify(prediction), maxpixels = ncell(prediction) * 0.4,
+         col.regions = cols)
+  dev.off()
+}
+
+# Function to save the prediction for the area of interest
+prediction_tif <- function(prediction){
+  library(raster)
+  raster::writeRaster(deratify(prediction),
+              filename="/prediction_muenster-knn.tif",
+              format="GTiff", overwrite=TRUE)
+}
+
 # Fetch AOI data
 aoi_data <- fetch_aoi_data(aoi, temp)
 
@@ -173,3 +209,6 @@ model <- train_model(aoi_data, train_dat, algo)
 
 # Predict using the trained model
 prediction <- predict_model(aoi_data, model)
+
+# save prediction as pdf
+prediction_pdf(prediction)
