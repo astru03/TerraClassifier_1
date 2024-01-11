@@ -11,13 +11,13 @@ const { GeoPackageAPI } = require('@ngageoint/geopackage');
 const cors = require('cors');
 const { OpenEO } = require('@openeo/js-client');
 
-
+/*
 const corsOptions = {
   origin: 'http://localhost:3000', // Erlaubt Anfragen von Ihrem Frontend
   optionsSuccessStatus: 200 // Für ältere Browser, die nicht standardmäßig 204 senden
 };
 
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); */
 
 app.get('/status', (req, res) => {
   res.send({status: 'ready'});
@@ -56,8 +56,10 @@ const upload = multer({ storage: storage })
 
 // Middleware für CORS aktivieren
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Hier können die erlaubten Origin-Domains spezifiziert werden
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Credentials', true);
   next();
 });
 

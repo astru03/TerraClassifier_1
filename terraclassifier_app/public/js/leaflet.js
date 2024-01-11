@@ -1218,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', function(){
   //initial_drawing()
   //reset_Server
   initial_drawing()
-  check_map()
+  //check_map()
   delete_data()
 });
 
