@@ -12,6 +12,6 @@ services:
     build: ./terraclassifier_backend  # Pfad zum Dockerfile des EasyButton-Services
     # image: astru/terraclassifier_backend:latest
     ports:
-      - "8080:8080"              # Port des EasyButton-Service
+      - "8081:8081"              # Port des EasyButton-Service
     depends_on:
       - terraclassifier_app

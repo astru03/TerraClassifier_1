@@ -273,7 +273,7 @@ let sentinelBooelan;
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
   let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
   try {
-    const response = await fetch('http://localhost:8080/satellite', {  // Calling the backend
+    const response = await fetch('http://localhost:8081/satellite', {  // Calling the backend
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -566,7 +566,7 @@ function areaOfIntrest() {
  */
 function classification() {
 
-  fetch('http://localhost:8080/processgraph', {
+  fetch('http://localhost:8081/processgraph', {
     method:'POST'
   })
   .then(response => response.json())
@@ -888,7 +888,7 @@ async function handleFileUpload() {
     const formData = new FormData()
     formData.append('file', file)
 
-    fetch('http://localhost:8080/upload' , {
+    fetch('http://localhost:8081/upload' , {
       method : 'POST' , 
       body : formData ,
 
@@ -1004,7 +1004,7 @@ function node_rectangle(area_of_Training){
 /**
  * function send_feature(features) {
   
-  fetch('http://localhost:8080/geojson-save', {
+  fetch('http://localhost:8081/geojson-save', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1028,7 +1028,7 @@ console.log(allDrawnFeatures);
  * @param {*} features 
  * 
  * function area_of_Training_save(features){
-  fetch('http://localhost:8080/area_of_Training', {
+  fetch('http://localhost:8081/area_of_Training', {
     method: 'POST', 
     headers: {
       'Content-Type': 'application/json',
@@ -1048,7 +1048,7 @@ console.log(allDrawnFeatures);
 
 /**
  * function load_area_of_Training() {
-  fetch('http://localhost:8080/get_area_of_Training')
+  fetch('http://localhost:8081/get_area_of_Training')
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -1063,7 +1063,7 @@ console.log(allDrawnFeatures);
  * Diese Funktion lädt unsere GeoJSON-Daten vom Server und fügt sie der Karte hinzu
  * 
  * function load_data() {
-  return fetch('http://localhost:8080/get-geojson')
+  return fetch('http://localhost:8081/get-geojson')
           .then(response => response.json())
             .then(data => {
             console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(data));
@@ -1076,7 +1076,7 @@ console.log(allDrawnFeatures);
 
 async function status_server(){
   
-    return fetch('http://localhost:8080/status')
+    return fetch('http://localhost:8081/status')
       .then(response => {
         if(!response.ok){
           console.log('Server-Fehler')
@@ -1112,7 +1112,7 @@ async function check_map()
  * 
  * 
  * function delete_data(deleteAll){
-  fetch('http://localhost:8080/delete', {
+  fetch('http://localhost:8081/delete', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1134,7 +1134,7 @@ async function check_map()
 
 //Funktion muss behaklten werden, nur geändert
 function delete_data(){
-  fetch('http://localhost:8080/delete', {
+  fetch('http://localhost:8081/delete', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1173,7 +1173,7 @@ function delete_data(){
 
 /**
  * function download_data(){
-  window.open('http://localhost:8080/download', '_blank')
+  window.open('http://localhost:8081/download', '_blank')
 
 }
  */
@@ -1182,7 +1182,7 @@ function delete_data(){
 
 /**
  * function reset_Server(){
-  fetch('http://localhost:8080/reset-data', {
+  fetch('http://localhost:8081/reset-data', {
     method: 'POST'
   })
   .then(data => {
@@ -1198,7 +1198,7 @@ function delete_data(){
 
 
 function send_backend_json(DATAJSON){
-  fetch('http://localhost:8080/send-data', {
+  fetch('http://localhost:8081/send-data', {
   method: 'POST', 
   headers: {
   'Content-Type': 'application/json',
