@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const multer = require('multer')
 const { GeoPackageAPI } = require('@ngageoint/geopackage');
-const JSZIP = require('jszip');
+//const JSZIP = require('jszip');
 const cors = require('cors');
 const { OpenEO } = require('@openeo/js-client');
 
@@ -35,6 +35,8 @@ if (!fs.existsSync(uploadPath)) {
 const bodyParser = require('body-parser');
 const { json } = require('express');
 const { error } = require('console');
+const { url } = require('inspector');
+const { WGS84 } = require('proj4');
 app.use(bodyParser.json());
 
 /**
@@ -218,13 +220,13 @@ OpenEO.connect(url)
    */
   
 
- 
-
- app.post('/processgraph', (req, res) => {
+ /**
+  * app.post('/processgraph', (req, res) => {
   const send = 'send_data.json'
 
    
   const url = 'http://54.185.59.127:8000/'
+  //const url ='https://earthengine.openeo.org'
   let connection = null
 
   console.log('URL: ' + url);
@@ -239,35 +241,51 @@ OpenEO.connect(url)
       OpenEO.connect(url)
 	      .then(c => {
           connection = c
+    return connection.authenticateBasic('k_galb01','password')
+	})
 
-          const processgraph_data = JSON.parse(data)
+        .then(authenticatedConnection =>{
+                console.log('Authentiziert bei OpenEO')
+                const processgraph_data = JSON.parse(data)
+                console.log(processgraph_data)
+                
           let processGraph = {
               process_id: 'Ihr-Prozess',
               arguments: {
                 json_data: processgraph_data
+            }
           }
-
-    }
+    
+        console.log(processGraph)        
+        return authenticatedConnection.createJob(processGraph)      
+                
+                
+  })
+  .then(job => {
+    console.log('Job erstellt', job.job_id)
     res.send({
       message: 'Das ist der Processgraph und die Datei', 
       processGraph: processGraph
       
     })
-
-      return connection.capabilities();
-	})
-	      .then(capabilities => {
+    return authenticatedConnection.capabilities()
+  })
+  .catch(err =>{
+    console.error(err.message)
+    res.status(500).send({message:'Fehler beim erstellen des Jobs'})
+  })
+	  .then(capabilities => {
 		            console.log('Server Version: ' + capabilities.apiVersion());
-		            return connection.listCollections();
+		            return authenticatedConnection.listCollections();
 	})
-	      .then(collections => {
+	  .then(collections => {
 		            console.log('Number of supported collections: ' + collections.collections.length);
-		            return connection.listProcesses();
+		            return authenticatedConnection.listProcesses();
 	})
-	      .then(processes => {
+	  .then(processes => {
 		            console.log('Number of supported processes: ' + processes.processes.length);
 	})
-	      .catch(err => console.error(err.message));
+	  
 
       
 
@@ -279,9 +297,191 @@ OpenEO.connect(url)
     }
   })
   })
-   
-//starten
+  */
 
+
+
+
+   
+
+async function processGraph_erstellen(data_all){
+  try{
+
+    const northEast = data_all.AOI._northEast
+    const southWest = data_all.AOI._southWest
+
+
+    const url = 'http://54.185.59.127:8000/'
+    const connection = await OpenEO.connect(url)
+    await connection.authenticateBasic("k_galb01", "password");
+    const processes = await connection.listProcesses();
+    const file_types = await connection.listFileTypes()
+    // assign the graph-building helper object to "builder" for easy access to all openEO processes
+    //Stringsfy benutzen für die JSON und so als String die Daten übergeben, wie übergeben?
+    var builder = await connection.buildProcess();
+    //console.log(b)
+    //console.log(data.AOI)
+    // Schritt 2: Erstellung eines Prozessgraphen
+    //console.log(JSON.stringify(data))
+    //var data = JSON.stringify(data)
+    //console.log(data.trainigsdata)
+    //console.log(data.StartDate)
+    console.log("west", southWest.lng, "south", southWest.lat, "east", northEast.lng, "north", northEast.lat)
+    console.log(data_all.StartDate, data_all.Enddate)
+    
+    var datacube = builder.load_collection(
+       "sentinel-s2-l2a-cogs",
+       {west: southWest.lng, south: southWest.lat, east: northEast.lng, north: northEast.lat},
+        32618,
+        [data_all.StartDate, data_all.Enddate],
+        ["B02", "B03", "B04"]
+
+    )
+    console.log(datacube)
+
+    
+ /**
+  *  var filteredBands = builder.filter_bands({
+      data: datacube,
+      bands: ["B02", "B03", "B04"]
+   });
+  * */   
+
+   //var temporal = builder.filter_temporal(datacube, [data_all.StartDate, data_all.Enddate])
+   //console.log(temporal)
+   
+   //var mean = function(data){
+     //return this.mean(data)
+   //}
+   
+   //var cube = builder.reduce_dimension(filteredBands, mean, "t");
+
+
+
+   
+   var result = builder.save_result(datacube, "GTiff");
+   //var result_1 = await connection.computeResult(result)
+   await connection.downloadResult(result, "test.tif");    //downloadResults: 'get /jobs/{job_id}/results)
+   console.log('Fertig')
+
+
+
+   /**
+ * var processGraph = {
+    load_collection: load_collection_AOI.toJSON(),
+    filter_bands: filteredBands.toJSON(),
+    save_result: result.toJSON()
+ };
+  console.log(processGraph)
+ */
+   
+    
+  
+//computeResult()
+    
+
+/**
+ * const graph = {
+      load_collection: {
+          process_id: "load_collection",
+          arguments: {
+              id: "sentinel-2-l1c", // Beispiel für eine Datensammlung
+              spatial_extent: {"west": south_AOI[0], "south": south_AOI[1],"east": north_AOI[0], "north": north_AOI[1] },
+              temporal_extent: [data.StartDate, data.Enddate],
+              bands: ["B02","B03", "B04", "B08"]
+          }
+      },
+      // Weitere Prozesse hier hinzufügen
+  };
+ */
+
+    
+
+  //console.log(graph)
+  //var job = await connection.createJob(graph, 'AOI');
+  //await job.startJob()
+
+
+
+
+
+
+
+  /**
+   * let processGraph = {
+    "load_stac": {
+      "process_id": "load_stac",
+      "arguments": {
+        "url": url,
+        "spatial_extent": {
+          "west": 6.5,
+          "south": 51.0,
+          "east": 8.0,
+          "north": 52.5
+        },
+        "temporal_extent": [data.StartDate, data.Enddate],
+        "bands": ["B02", "B03", "B04", "B08"],  // Beispielsweise Sentinel-2 Bänder
+        "properties": {
+          "trainingsdaten": data.trainigsdata
+        }
+      }
+    },
+    // Weitere Prozesse...
+  };
+   */
+  
+
+
+
+  //console.log(JSON.stringify(graph, null, 2));
+  //var t = await connection.listJobs()
+  //console.log(t)
+  //var job = await connection.createJob(graph, 'Trainingsdata');
+  //await job.startJob()
+  
+  
+  
+
+
+
+
+
+
+
+    //console.log(builder)
+    
+
+    
+     //console.log('Authentiziert bei OpenEO', connection)
+
+      //console.log(data)
+
+      
+      //console.log(processGraph)
+      //const job = await connection.createJob(processGraph)
+      //console.log('Job', job.job_id)
+     
+    
+
+    
+
+  }catch(err){
+    console.error('Fehler beim verarbeiten', err)
+  }
+}
+
+app.post('/processgraph', (req,res)=>{
+  const processgraph_data = 'send_data.json'
+  fs.readFile(processgraph_data, 'utf-8', (err,data)=>{
+    if(err){
+      return res.status(500).send({message:'Fehler beim Lesen'})
+    }
+    const processgraph_data_parse = JSON.parse(data)
+    processGraph_erstellen(processgraph_data_parse).then(()=>{
+      res.send({message: 'Processgraph verarbeitet'})
+    })
+  })
+})
  
    
 
@@ -291,7 +491,8 @@ OpenEO.connect(url)
 
 
 //post
-app.post('/geojson-save', (req, res) => {
+/**
+ * app.post('/geojson-save', (req, res) => {
   const data_geojson = req.body;
   fs.writeFile('data_geojson.json', JSON.stringify(data_geojson), (err) => {
     if (err) {
@@ -302,8 +503,10 @@ app.post('/geojson-save', (req, res) => {
     }
   });
 });
+ */
 
-app.post('/area_of_Training', (req, res) =>{
+/**
+ * app.post('/area_of_Training', (req, res) =>{
   const area_geojson = req.body;
   fs.writeFile('area_of_Training.json', JSON.stringify(area_geojson), (err) => {
     if(err){
@@ -313,12 +516,33 @@ app.post('/area_of_Training', (req, res) =>{
     }
   })
 })
+ */
+
 
 
 
 //löschen alles, nicht einzeln!
 
 app.post('/delete', (req, res) => {
+  //Trainingsdaten zurücksetzen
+  
+    fs.unlink('send_data.json', err => {
+      if(err){
+        if(err.code === 'ENOENT'){
+          console.log('Datei exestiert nicht!')
+        }else{
+          console.error('Fehler beim löschen!', err)
+          return res.status(500).send({message: 'Fehler beim löschen!'})
+        }
+      }
+      res.send({message: 'Löschen war erflogreich!'})
+    })  
+    
+  })
+
+
+/**
+ * app.post('/delete', (req, res) => {
   //Trainingsdaten zurücksetzen
   fs.writeFile('data_geojson.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
     if(err){
@@ -347,9 +571,13 @@ app.post('/delete', (req, res) => {
     
   })
 })
+ */
 
 
-  app.get('/get-geojson', (req, res) => {
+ 
+
+/**
+ *  app.get('/get-geojson', (req, res) => {
   const file = 'data_geojson.json'
   if(fs.existsSync(file)){
     fs.readFile(file,'utf-8', (err, data) => {
@@ -364,6 +592,7 @@ app.post('/delete', (req, res) => {
     res.send({type: "FeatureCollection", features: []})
   }
 })
+ */
 
 
 app.post('/send-data', (req, res)=> {
@@ -401,11 +630,13 @@ app.get('/get-backend-data', (req, res) =>{
 
   
 
-
-app.get('/get_area_of_Training', (req,res) => {
+/**
+ * app.get('/get_area_of_Training', (req,res) => {
   
     res.send({type: "FeatureCollection", features: []})  
 })
+ */
+
 
 
 /**
@@ -417,7 +648,6 @@ app.post('/upload', upload.single('file'), async(req, res) => {
     const file = req.file.path;
     const geoPackage = await GeoPackageAPI.open(file);
     const feature = geoPackage.getFeatureTables();
-
     const layers = {};
 
     for (const table of feature) {
@@ -439,7 +669,10 @@ app.post('/upload', upload.single('file'), async(req, res) => {
 
 //https://github.com/Stuk/jszip
 
-app.get('/download', async (req, res) => {
+
+
+/**
+ * app.get('/download', async (req, res) => {
   try{
     if(fs.existsSync('data_geojson.json')){
       const geojsonData = JSON.parse(fs.readFileSync('data_geojson.json', 'utf-8'))
@@ -463,10 +696,12 @@ app.get('/download', async (req, res) => {
     res.status(500).send({message: 'Fehler beim herunterladen der ZIP-Datei'})
   }
 })
+ */
 
 
 
-app.post('/reset-data', (req, res) => {
+/**
+ * app.post('/reset-data', (req, res) => {
   const featureCollection_reset = { "type": "FeatureCollection", "features": []}
 
   fs.writeFileSync('data_geojson.json', JSON.stringify(featureCollection_reset), err => {
@@ -483,6 +718,8 @@ app.post('/reset-data', (req, res) => {
     }
   })
 })
+ */
+
 
 
 //Listener

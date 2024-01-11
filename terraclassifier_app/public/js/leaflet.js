@@ -2,6 +2,18 @@
 // create a variable for the map
 var map = L.map('map').setView([51.975, 7.61], 12);
 
+
+// globale Variablen speichern, Polygone
+var allDrawnFeatures = {
+  "type": "FeatureCollection",
+  "features": []
+};
+
+var allRectangle = {
+  "type": "FeatureCollection", 
+  "features": []
+};
+
 // add the base map
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -77,7 +89,7 @@ map.on("draw:created", function(event) {
     }
 
     console.log('Koordinaten: ', newFeature);
-    node_rectangle(newFeature)
+    //node_rectangle(newFeature)
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
   } else if(type === 'polygon') {
@@ -140,9 +152,9 @@ map.on("draw:created", function(event) {
   };
 
     polygonToGeoJSON(newFeature);
-    node_polygon(newFeature);
+    //node_polygon(newFeature);
     drawnFeatures.addLayer(layer);
-    addPopup(layer)
+    //addPopup(layer)
     checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
 
   }else{
@@ -171,7 +183,7 @@ map.on(L.Draw.Event.DELETED, function(event) {
   var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?')
   if(deleteAll) {
     delete_data()
-    drawPolygone = false
+    drawPolygone = true //vorher false
     localStorage.setItem('drawPolygone', 'false');
     update_drawing()
     location.reload()
@@ -185,11 +197,7 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
 // Functions for the actions of the menu
 
 
-// globale Variablen speichern, Polygone
-var allDrawnFeatures = {
-  "type": "FeatureCollection",
-  "features": []
-};
+
 
 
 /**
@@ -527,7 +535,7 @@ function areaOfIntrest() {
   
   try{
 
-    const loaddata = await load_data()
+    //const loaddata = await load_data() //ersetzen durch die varuabke allDrawnFeatures
     
 
     let DATAJSON = {
@@ -536,7 +544,9 @@ function areaOfIntrest() {
       "StartDate": NewStartDate,
       "Enddate": endDate,
       "algorithm": algorithem,
-      "trainigsdata": loaddata
+      //"trainigsdata": loaddata
+      "trainigsdata": allDrawnFeatures
+
     };
     console.log(DATAJSON);
     send_backend_json(DATAJSON)
@@ -763,19 +773,7 @@ toggleMenuButton.addTo(map);
 /**
  * **********************************************************************************
  */
- 
-
-
-
-var allRectangle = {
-  "type": "FeatureCollection", 
-  "features": []
-};
-
-
-
-//
-var duplicate_key = {}
+ var duplicate_key = {}
 
 /**
  * Generiert einen eindeutigen Schlüssel für ein gegebenes Feature. 
@@ -866,7 +864,7 @@ async function handleFileUpload() {
         //Wenn man auf Ok drückt
          () => {
           addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
-          node_polygon(data_geojson)
+         // node_polygon(data_geojson)
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
           // Aktualisiere drawPolygone und die Zeichenkontrollen
@@ -909,7 +907,7 @@ async function handleFileUpload() {
           )
           }
           geojson_data.features = filter
-          node_polygon(geojson_data)
+          //node_polygon(geojson_data)
           addToMap(geojson_data)
         }else{
           console.error('Kein gültiges Format!')
@@ -966,10 +964,15 @@ function addToMap(data) {
  */
 function node_polygon(geojsonData) {
   // Wenn geojsonData null oder undefiniert ist, sende allDrawnFeatures
-  if (!geojsonData || geojsonData.type === 'rectangle') {
+
+  /**
+   * 
+   * if (!geojsonData || geojsonData.type === 'rectangle') {
     send_feature(allDrawnFeatures)
     return
   }
+   */
+  
 
   // Wenn ein einzelnes Feature übergeben wird, füge es zu allDrawnFeatures hinzu
   if (geojsonData.type === 'Feature') {
@@ -980,14 +983,14 @@ function node_polygon(geojsonData) {
     
     geojsonData.features.forEach(addFeature)
   }
-  send_feature(allDrawnFeatures)
+  //send_feature(allDrawnFeatures)
 }
 
 function node_rectangle(area_of_Training){
   console.log("allRectangle vor dem Push:", allRectangle);
   console.log("area_of_Training:", area_of_Training);
   allRectangle.features.push(area_of_Training)
-  area_of_Training_save(area_of_Training)
+  //area_of_Training_save(area_of_Training)
 
   // Setzen der rectangle_Boundes auf die Grenzen des neuen Rechtecks
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
@@ -998,7 +1001,8 @@ function node_rectangle(area_of_Training){
  * Verwendet 'fetch' für http-POST-Anfragen 
  * @param {*} features Die Datei, welche zu dem Server gesendet werden soll
  */
-function send_feature(features) {
+/**
+ * function send_feature(features) {
   
   fetch('http://localhost:8080/geojson-save', {
     method: 'POST',
@@ -1015,9 +1019,15 @@ function send_feature(features) {
   
 .catch(error => console.error('Fehler beim Senden der Daten:', error))
 }
+ */
 console.log(allDrawnFeatures);
 
-function area_of_Training_save(features){
+
+/**
+ * 
+ * @param {*} features 
+ * 
+ * function area_of_Training_save(features){
   fetch('http://localhost:8080/area_of_Training', {
     method: 'POST', 
     headers: {
@@ -1030,9 +1040,14 @@ function area_of_Training_save(features){
   .then(data => console.log('Serverantwort', data))
   .catch(error => console.error('Fehler beim Senden des Area of Training', error))
 }
+ */
 
 
-function load_area_of_Training() {
+
+
+
+/**
+ * function load_area_of_Training() {
   fetch('http://localhost:8080/get_area_of_Training')
     .then(response => response.json())
     .then(data => {
@@ -1040,12 +1055,14 @@ function load_area_of_Training() {
     })
     .catch(error => console.error('Fehler beim Laden der Area of Training Daten:', error));
 }
+ */
+
 
 
 /**
  * Diese Funktion lädt unsere GeoJSON-Daten vom Server und fügt sie der Karte hinzu
- */
-function load_data() {
+ * 
+ * function load_data() {
   return fetch('http://localhost:8080/get-geojson')
           .then(response => response.json())
             .then(data => {
@@ -1054,6 +1071,8 @@ function load_data() {
               })
           .catch(error => console.error('Fehler beim Laden der GeoJSON-Daten:', error));
 }
+ */
+
 
 async function status_server(){
   
@@ -1068,11 +1087,15 @@ async function status_server(){
        
 }
 
+
+/**
+ * 
+ */
 async function check_map()
 {
   if(await status_server()){
-    load_data()
-    load_area_of_Training()
+    //load_data()
+    //load_area_of_Training()
   }else{
     console.log('Server ist noch nicht bereit!')
     location.reload()
@@ -1086,8 +1109,9 @@ async function check_map()
 
 /**
  * Diese Funktion löscht die Trainingsdaten vom Server
- */
-function delete_data(deleteAll){
+ * 
+ * 
+ * function delete_data(deleteAll){
   fetch('http://localhost:8080/delete', {
     method: 'POST',
     headers: {
@@ -1097,28 +1121,67 @@ function delete_data(deleteAll){
   })
   .then(response => response.json())
   .then(data => {
+    //behalten
     allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
+    //behalten
     allRectangle = {"type": "Featurecollection", "features": []};
     drawnFeatures.clearLayers()
     rectangleCoordinates = null
   })
   .catch(error => console.error('Fehler beim löschen', error))
 }
+ */
+
+//Funktion muss behaklten werden, nur geändert
+function delete_data(){
+  fetch('http://localhost:8080/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({deleteAll: true}) 
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data)
+    
+  })
+  .catch(error => console.error('Fehler beim löschen', error))
+  
+  //behalten
+    allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
+    //behalten
+    allRectangle = {"type": "Featurecollection", "features": []};
+    drawnFeatures.clearLayers()
+    rectangleCoordinates = null
+  }
+
 
 //Download data_geojson.json als ZIP-Datei 
-function addPopup(layer){
+
+/**
+ * 
+ * @param {*} layer 
+ * 
+ * function addPopup(layer){
   var popupContent = '<button onclick="download_data()">Download</button>'
   layer.bindPopup(popupContent);
 }
+ */
 
-function download_data(){
+
+
+/**
+ * function download_data(){
   window.open('http://localhost:8080/download', '_blank')
 
 }
+ */
 
 
 
-function reset_Server(){
+/**
+ * function reset_Server(){
   fetch('http://localhost:8080/reset-data', {
     method: 'POST'
   })
@@ -1129,6 +1192,9 @@ function reset_Server(){
     console.error('Fehler', error)
   })
 }
+ */
+//löscht von Node unsere Datein mit den Polygonen und Rechtecken 
+
 
 
 function send_backend_json(DATAJSON){
@@ -1150,7 +1216,7 @@ body : JSON.stringify(DATAJSON)
 
 document.addEventListener('DOMContentLoaded', function(){
   //initial_drawing()
-  reset_Server
+  //reset_Server
   initial_drawing()
   check_map()
   delete_data()
