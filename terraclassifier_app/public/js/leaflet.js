@@ -138,7 +138,7 @@ map.on("draw:created", function(event) {
 
   if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
     var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
-    var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
+    var Label = prompt('Bitte für das Polygon den passenden Namen eingeben!')
     classID = parseInt(classID);
       if(isNaN(classID)){
       alert('ObjektID muss eine Ganzzahl sein!')
@@ -148,7 +148,7 @@ map.on("draw:created", function(event) {
       // Hinzufügen der Daten zum Feature
     newFeature.properties = {
     classID: classID,
-    name: name
+    Label: Label
   };
 
     polygonToGeoJSON(newFeature);
@@ -888,7 +888,7 @@ async function handleFileUpload() {
     const formData = new FormData()
     formData.append('file', file)
 
-    fetch('http://localhost:8081/upload' , {
+    fetch('http://54.185.59.127:8081/upload' , {
       method : 'POST' , 
       body : formData ,
 
@@ -1076,7 +1076,7 @@ console.log(allDrawnFeatures);
 
 async function status_server(){
   
-    return fetch('http://localhost:8081/status')
+    return fetch('http://54.185.59.127:8081/status')
       .then(response => {
         if(!response.ok){
           console.log('Server-Fehler')
@@ -1134,7 +1134,7 @@ async function check_map()
 
 //Funktion muss behaklten werden, nur geändert
 function delete_data(){
-  fetch('http://localhost:8081/delete', {
+  fetch('http://54.185.59.127:8081/delete', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1198,7 +1198,7 @@ function delete_data(){
 
 
 function send_backend_json(DATAJSON){
-  fetch('http://localhost:8081/send-data', {
+  fetch('http://54.185.59.127:8081/send-data', {
   method: 'POST', 
   headers: {
   'Content-Type': 'application/json',
