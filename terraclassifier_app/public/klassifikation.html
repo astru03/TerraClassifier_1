@@ -437,11 +437,46 @@
               </div>
             </div>
 
+          <!-- Enter Resolution for the calculation -->
+          <div class="modal fade" id="popup_EnterResolution" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">Auflösung</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="objectResolutionInput">Bitte Wählen Sie für das die Berechnung eine gewünschte Auflösung in Meter pro Pixel an:</label>
+                    <select class="form-control" id="objectResolutionInput">
+                      <option value="30">30</option>
+                      <option value="60">60</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                </div> 
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_EnterResolution')">Abbrechen</button>
+                  <button type="button" class="btn btn-success" id="saveResolution">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
 
 
             <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
             <div class="container-fluid mt-2" id="mapcontainer">
                 <div id="map"></div>
+                <div id="loadingSpinner" class="text-center" style="display: none;">
+                  <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Loading...
+                  </button>
+                </div>
             </div>
         </main>
 

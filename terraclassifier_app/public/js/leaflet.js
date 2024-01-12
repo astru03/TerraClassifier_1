@@ -64,6 +64,10 @@ let AOICOORD;
 let classID;
 let objectName;
 // Event-Handler for drawing polygons
+let ObjektNameCounter = 0;
+let ObjektIDCounter = 0;
+let numberOfPolygons = 0;
+
 map.on("draw:created", function(event) {
   var layer = event.layer;
   var type = event.layerType;
@@ -89,82 +93,52 @@ map.on("draw:created", function(event) {
     }
 
     console.log('Koordinaten: ', newFeature);
-    //node_rectangle(newFeature)
     drawnFeatures.addLayer(layer);
     previousRectangle = layer;
   } else if(type === 'polygon') {
-    /**
-     * if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
-      $('#popup_EnterObjektID').modal('show');
-      $('#saveObjektID').on('click', function() { 
-        classID = document.getElementById('objectIdInput').value;
-        console.log(classID);
-        $('#popup_EnterObjektID').modal('hide');
-        $('#popup_ObjectName').modal('show');
-        $('#saveObjektName').on('click', function() {
-          objectName = document.getElementById('objectNameInput').value;
-          console.log(objectName);
-          $('#popup_ObjectName').modal('hide');
-
-            // Add the data to the feature
-            newFeature.properties = {
-            classID: classID,
-            name: objectName
-            };
-            
-            console.log(newFeature);
-            polygonToGeoJSON(newFeature);
-            node_polygon(newFeature);
-            drawnFeatures.addLayer(layer);
-            addPopup(layer)
-            checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
-        })
-        
-      })
-      //var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
-      //console.log(classID);
-      //var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
-      //classID = parseInt(classID);
-        //if(isNaN(classID)){
-        //alert('ObjektID muss eine Ganzzahl sein!')
-        //classID=undefined;
-    //}
+    numberOfPolygons++;
+    if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
       
-    } else {
-      $('#popup_NotInAOT').modal('show');
-    }
-  }
-     */
-
-  if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
+        $('#popup_EnterObjektID').modal('show');
+        $('#saveObjektID').on('click', function() { 
+          if (ObjektIDCounter < numberOfPolygons) { 
+            classID = document.getElementById('objectIdInput').value;
+            console.log(classID);
+            ObjektIDCounter++;
+            $('#popup_EnterObjektID').modal('hide');
+            $('#popup_ObjectName').modal('show');
+            $('#saveObjektName').on('click', function() { 
+              if (ObjektNameCounter < numberOfPolygons) {  
+                objectName = document.getElementById('objectNameInput').value;
+                console.log(objectName);
+                ObjektNameCounter++;
+                $('#popup_ObjectName').modal('hide');
+                    newFeature.properties = {
+                    classID: classID,
+                    name: objectName
+                    };
+                    polygonToGeoJSON(newFeature);
+              }
+              
+            })
+          }
+        })
+        drawnFeatures.addLayer(layer);
+        addPopup(layer)
+        checkConditionButton3();
+    /*
     var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
-    var Label = prompt('Bitte für das Polygon den passenden Namen eingeben!')
+    var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
     classID = parseInt(classID);
       if(isNaN(classID)){
       alert('ObjektID muss eine Ganzzahl sein!')
       classID=undefined;
+    } */
+    } else {
+      $('#popup_NotInAOT').modal('show');
+    }
   }
-
-      // Hinzufügen der Daten zum Feature
-    newFeature.properties = {
-    classID: classID,
-    Label: Label
-  };
-
-    polygonToGeoJSON(newFeature);
-    //node_polygon(newFeature);
-    drawnFeatures.addLayer(layer);
-    //addPopup(layer)
-    checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
-
-  }else{
-    //alert('Polygone müssen sich innerhalb')
-    $('#popup_NotInAOT').modal('show');
-  }
-    
-}
 })
-
 
 
 // Event-Handler for editing rectangle
@@ -323,6 +297,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 
         // when a satellite image has been selected and confirmed with the “ok” button
         $('#confirmSelectionBtn').on('click', function() {
+          $('#loadingSpinner').show();  
           reset_AOI()  // When Button confirmSelectionBtn is pressed, the previously drawn rectangle is removed from the leaflet map
           let selectedID = $('#objectSelect').val();
           // Show the geotiff in the leaflet map
@@ -347,6 +322,9 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
                   keepBuffer: 8
                   });
                   layer.addTo(map);
+                  setTimeout(function() {
+                    $('#loadingSpinner').hide();
+                  }, 12000);
               }); 
 
               // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
@@ -363,6 +341,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
       }
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
+    $('#loadingSpinner').hide();
   }
   $('#popup_sat').modal('hide');
 }
@@ -514,51 +493,46 @@ function areaOfIntrest() {
  * Function modelTraining from easyButton5
  */
  async function modelTraining() {
-  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
-    modelBoolean = true;
-    checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
-  } else {
-    console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
-  }
-  //End date
-  let dateParts = datum.split('.') // Splitting the old date format
-  let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
-  let year = newDate.getFullYear();
-  let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
-  let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
-  let NewStartDate = `${year}-${month}-${day}`;
+  $('#popup_EnterResolution').modal('show');
 
-  let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-  startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
-  let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+  $('#saveResolution').on('click', async function() {
+    let resolutionInput = document.getElementById('objectResolutionInput').value;
+      if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+        modelBoolean = true;
+        checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+      } else {
+        console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
+      }
+      //End date
+      let dateParts = datum.split('.') // Splitting the old date format
+      let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
+      let year = newDate.getFullYear();
+      let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
+      let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
+      let NewStartDate = `${year}-${month}-${day}`;
 
-  
-  try{
-
-    //const loaddata = await load_data() //ersetzen durch die varuabke allDrawnFeatures
-    
-
-    let DATAJSON = {
-      "AOI": AOICOORD,
-      "AOT": AOTCOORD,
-      "StartDate": NewStartDate,
-      "Enddate": endDate,
-      "algorithm": algorithem,
-      //"trainigsdata": loaddata
-      "trainigsdata": allDrawnFeatures
-
-    };
-    console.log(DATAJSON);
-    send_backend_json(DATAJSON)
-
-    
-  }
-  catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
-    console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
-  }
-    
-  
-  
+      let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
+      startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+      let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+      
+      try{
+        let DATAJSON = {
+          "AOI": AOICOORD,
+          "AOT": AOTCOORD,
+          "StartDate": NewStartDate,
+          "Enddate": endDate,
+          "algorithm": algorithem,
+          "trainigsdata": allDrawnFeatures,
+          "resolution": resolutionInput
+        };
+        console.log(DATAJSON);
+        send_backend_json(DATAJSON)
+      }
+      catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
+        console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
+      }
+    $('#popup_EnterResolution').modal('hide');
+  })
 }
 
 /**
@@ -611,7 +585,9 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_EnterObjektID') {
     $('#popup_EnterObjektID').modal('hide');
   }  else if (ID_Popup == 'popup_ObjectName') {
-    $('#popup_ObjectName').modal('hide');
+    $('#popup_ObjectName').modal('hide'); 
+  } else if (ID_Popup == 'popup_EnterResolution') {
+    $('#popup_EnterResolution').modal('hide');
   } else if (ID_Popup == 'popup_NotInAOT') {
     $('#popup_NotInAOT').modal('hide');
   } else if (ID_Popup == 'popup_select_sat') {
@@ -627,11 +603,6 @@ function closePopup(ID_Popup) {
 function showPopupNoRectangle() {
   $('#popup_NoRectangle').modal('show');
 }
-
-//function firstSelectRectangle() {
-//  var popup = document.getElementById('popup_NoRectangle');
-//  popup.style.display = 'none';
-//}
 
 /**
  * Function to reset_AOI
@@ -668,9 +639,6 @@ function checkConditionButton2() {
     button2.disable();
   }
 }
-//function(){
-//$('#popup_TrainingDataChoice').modal('show');
-//}, 'Trainigsdaten');
 
 // Button algorithem -----------------------------
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
@@ -864,7 +832,6 @@ async function handleFileUpload() {
         //Wenn man auf Ok drückt
          () => {
           addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
-         // node_polygon(data_geojson)
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
           // Aktualisiere drawPolygone und die Zeichenkontrollen
@@ -907,7 +874,6 @@ async function handleFileUpload() {
           )
           }
           geojson_data.features = filter
-          //node_polygon(geojson_data)
           addToMap(geojson_data)
         }else{
           console.error('Kein gültiges Format!')
@@ -963,17 +929,6 @@ function addToMap(data) {
  * @returns 
  */
 function node_polygon(geojsonData) {
-  // Wenn geojsonData null oder undefiniert ist, sende allDrawnFeatures
-
-  /**
-   * 
-   * if (!geojsonData || geojsonData.type === 'rectangle') {
-    send_feature(allDrawnFeatures)
-    return
-  }
-   */
-  
-
   // Wenn ein einzelnes Feature übergeben wird, füge es zu allDrawnFeatures hinzu
   if (geojsonData.type === 'Feature') {
     addFeature(geojsonData);
@@ -983,7 +938,6 @@ function node_polygon(geojsonData) {
     
     geojsonData.features.forEach(addFeature)
   }
-  //send_feature(allDrawnFeatures)
 }
 
 function node_rectangle(area_of_Training){
@@ -996,82 +950,7 @@ function node_rectangle(area_of_Training){
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
 }
 
-/**
- * Diese Funktion verwenden wir, um unsere Daten zu dem Server zu senden
- * Verwendet 'fetch' für http-POST-Anfragen 
- * @param {*} features Die Datei, welche zu dem Server gesendet werden soll
- */
-/**
- * function send_feature(features) {
-  
-  fetch('http://localhost:8081/geojson-save', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(features)
-  })
-.then(response => response.json())
-.then(data => {
-  console.log('Serverantwort: ', JSON.stringify(data))
-  update_drawing()
-})
-  
-.catch(error => console.error('Fehler beim Senden der Daten:', error))
-}
- */
 console.log(allDrawnFeatures);
-
-
-/**
- * 
- * @param {*} features 
- * 
- * function area_of_Training_save(features){
-  fetch('http://localhost:8081/area_of_Training', {
-    method: 'POST', 
-    headers: {
-      'Content-Type': 'application/json',
-    }, 
-    body : JSON.stringify(features)
-    
-  })
-  .then(response => response.json())
-  .then(data => console.log('Serverantwort', data))
-  .catch(error => console.error('Fehler beim Senden des Area of Training', error))
-}
- */
-
-
-
-
-
-/**
- * function load_area_of_Training() {
-  fetch('http://localhost:8081/get_area_of_Training')
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-    })
-    .catch(error => console.error('Fehler beim Laden der Area of Training Daten:', error));
-}
- */
-
-
-
-/**
- * Diese Funktion lädt unsere GeoJSON-Daten vom Server und fügt sie der Karte hinzu
- * 
- * function load_data() {
-  return fetch('http://localhost:8081/get-geojson')
-          .then(response => response.json())
-            .then(data => {
-            console.log('Geladene allDrawnFeatures vom Server:', JSON.stringify(data));
-            return data  
-              })
-          .catch(error => console.error('Fehler beim Laden der GeoJSON-Daten:', error));
-}
- */
 
 
 async function status_server(){
@@ -1094,43 +973,14 @@ async function status_server(){
 async function check_map()
 {
   if(await status_server()){
-    //load_data()
-    //load_area_of_Training()
+
   }else{
     console.log('Server ist noch nicht bereit!')
     location.reload()
-
   }
 }
 
 
-
-
-
-/**
- * Diese Funktion löscht die Trainingsdaten vom Server
- * 
- * 
- * function delete_data(deleteAll){
-  fetch('http://localhost:8081/delete', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({deleteAll: true}) 
-  })
-  .then(response => response.json())
-  .then(data => {
-    //behalten
-    allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
-    //behalten
-    allRectangle = {"type": "Featurecollection", "features": []};
-    drawnFeatures.clearLayers()
-    rectangleCoordinates = null
-  })
-  .catch(error => console.error('Fehler beim löschen', error))
-}
- */
 
 //Funktion muss behaklten werden, nur geändert
 function delete_data(){
@@ -1180,22 +1030,6 @@ function delete_data(){
 
 
 
-/**
- * function reset_Server(){
-  fetch('http://localhost:8081/reset-data', {
-    method: 'POST'
-  })
-  .then(data => {
-    console.log('data', data)
-  })
-  .catch(error => {
-    console.error('Fehler', error)
-  })
-}
- */
-//löscht von Node unsere Datein mit den Polygonen und Rechtecken 
-
-
 
 function send_backend_json(DATAJSON){
   fetch('/send-data', {
@@ -1215,8 +1049,6 @@ body : JSON.stringify(DATAJSON)
 
 
 document.addEventListener('DOMContentLoaded', function(){
-  //initial_drawing()
-  //reset_Server
   initial_drawing()
   check_map()
   delete_data()

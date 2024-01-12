@@ -7,7 +7,6 @@ const fs = require('fs');
 const multer = require('multer')
 const { GeoPackageAPI } = require('@ngageoint/geopackage');
 //const JSZIP = require('jszip');
-//const cors = require('cors');
 const { OpenEO } = require('@openeo/js-client');
 
 
@@ -44,15 +43,6 @@ app.use(bodyParser.json());
 const upload = multer({ storage: storage })
 
 
-// Middleware für CORS aktivieren
-//app.use((req, res, next) => {
-  //res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  //res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  //res.header('Access-Control-Allow-Headers', 'Content-Type');
-  //res.header('Access-Control-Allow-Credentials', true);
-  //next();
-//});
-
 
 //Gets
 app.get("/", (req, res) => { res.sendFile(__dirname + "/public/startseite.html"); });
@@ -85,9 +75,7 @@ app.post('/satellite', (req, res) => {
   let NWC = stringNWC.map(parseFloat);
   let SWC = stringSWC.map(parseFloat);
   let SEC = stringSEC.map(parseFloat);
-
-  // Koordinaten von AOI und AOT in liste pushen. ?????????????
-  
+ 
   // STAC API from AWS S3
   const api_url = 'https://earth-search.aws.element84.com/v1';
   const collection = 'sentinel-2-l2a'; // Sentinel-2, Level 2A, Cloud Optimized GeoTiffs (COGs)
@@ -178,131 +166,6 @@ app.post('/satellite', (req, res) => {
 });
 
 
-
-/**
- * const url = 'http://54.185.59.127:8000/'
-let connection = null 
-
-console.log('URL: ' + url);
-console.log('Client Version: ' + OpenEO.clientVersion());
-
-OpenEO.connect(url)
-	.then(c => {
-		connection = c;
-		return connection.capabilities();
-	})
-	.then(capabilities => {
-		console.log('Server Version: ' + capabilities.apiVersion());
-		return connection.listCollections();
-	})
-	.then(collections => {
-		console.log('Number of supported collections: ' + collections.collections.length);
-		return connection.listProcesses();
-	})
-	.then(processes => {
-		console.log('Number of supported processes: ' + processes.processes.length);
-	})
-	.catch(err => console.error(err.message));
- */
-
-
-
-
-
-
-  /**
-   * let processGraph = {
-    process_id: 'Ihr-Prozess',
-    arguments: {
-      json_data:data
-    }
-}
-   */
-  
-
- /**
-  * app.post('/processgraph', (req, res) => {
-  const send = 'send_data.json'
-
-   
-  const url = 'http://54.185.59.127:8000/'
-  //const url ='https://earthengine.openeo.org'
-  let connection = null
-
-  console.log('URL: ' + url);
-  console.log('Client Version: ' + OpenEO.clientVersion());
-
-  fs.readFile(send, 'utf-8', (err, data)=> {
-    if(err){
-      return res.status(500).send({message: 'Fehler'})
-    }
-    try{
-
-      OpenEO.connect(url)
-	      .then(c => {
-          connection = c
-    return connection.authenticateBasic('k_galb01','password')
-	})
-
-        .then(authenticatedConnection =>{
-                console.log('Authentiziert bei OpenEO')
-                const processgraph_data = JSON.parse(data)
-                console.log(processgraph_data)
-                
-          let processGraph = {
-              process_id: 'Ihr-Prozess',
-              arguments: {
-                json_data: processgraph_data
-            }
-          }
-    
-        console.log(processGraph)        
-        return authenticatedConnection.createJob(processGraph)      
-                
-                
-  })
-  .then(job => {
-    console.log('Job erstellt', job.job_id)
-    res.send({
-      message: 'Das ist der Processgraph und die Datei', 
-      processGraph: processGraph
-      
-    })
-    return authenticatedConnection.capabilities()
-  })
-  .catch(err =>{
-    console.error(err.message)
-    res.status(500).send({message:'Fehler beim erstellen des Jobs'})
-  })
-	  .then(capabilities => {
-		            console.log('Server Version: ' + capabilities.apiVersion());
-		            return authenticatedConnection.listCollections();
-	})
-	  .then(collections => {
-		            console.log('Number of supported collections: ' + collections.collections.length);
-		            return authenticatedConnection.listProcesses();
-	})
-	  .then(processes => {
-		            console.log('Number of supported processes: ' + processes.processes.length);
-	})
-	  
-
-      
-
-    
-
-
-    }catch(error){
-      res.status(500).send({message:'Fehler beim parsen der Datei'})
-    }
-  })
-  })
-  */
-
-
-
-
-   
 
 async function processGraph_erstellen(data_all){
   try{
@@ -504,39 +367,6 @@ app.post('/delete', (req, res) => {
     })  
     
   })
-
-
-/**
- * app.post('/delete', (req, res) => {
-  //Trainingsdaten zurücksetzen
-  fs.writeFile('data_geojson.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
-    if(err){
-      console.error(err)
-      return res.status(500).send({message: 'Fehler beim Zurücksetzen der area_of_Training.json'})
-    }
-  //Area of Training  
-  fs.writeFile('area_of_Training.json', JSON.stringify({"type": "FeatureCollection", "features": []}), err => {
-        if(err){
-          console.error(err)
-          return res.status(500).send({message: 'Fehler beim Löschen der Daten'})
-        }
-        res.send({message: 'Alle Daten erfolgreich gelöscht und zurückgesetzt!'})
-      })
-    fs.unlink('send_data.json', err => {
-      if(err){
-        if(err.code === 'ENOENT'){
-          console.log('Datei exestiert nicht!')
-        }else{
-          console.error('Fehler beim löschen!', err)
-          return res.status(500).send({message: 'Fehler beim löschen!'})
-        }
-      }
-      res.send({message: 'Löschen war erflogreich!'})
-    })  
-    
-  })
-})
- */
 
 
 app.post('/send-data', (req, res)=> {
