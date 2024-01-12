@@ -1012,12 +1012,12 @@ function delete_data(){
 /**
  * 
  * @param {*} layer 
- * 
- * function addPopup(layer){
+ */
+ function addPopup(layer){
   var popupContent = '<button onclick="download_data()">Download</button>'
   layer.bindPopup(popupContent);
 }
- */
+ 
 
 
 
