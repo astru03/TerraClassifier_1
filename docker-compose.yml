@@ -7,11 +7,4 @@ services:
     ports:
       - "3000:3000"            # Port 4000 des Host wird gemappt auf Port 4000 des Container, der das Image ausführt
   
-  terraclassifier_backend:
-    container_name: terraclassifier_backend
-    build: ./terraclassifier_backend  # Pfad zum Dockerfile des EasyButton-Services
-    # image: astru/terraclassifier_backend:latest
-    ports:
-      - "8081:8081"              # Port des EasyButton-Service
-    depends_on:
-      - terraclassifier_app
+  

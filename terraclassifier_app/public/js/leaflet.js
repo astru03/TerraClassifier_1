@@ -273,7 +273,7 @@ let sentinelBooelan;
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
   let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
   try {
-    const response = await fetch('http://localhost:8081/satellite', {  // Calling the backend
+    const response = await fetch('/satellite', {  // Calling the backend
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -566,7 +566,7 @@ function areaOfIntrest() {
  */
 function classification() {
 
-  fetch('http://localhost:8081/processgraph', {
+  fetch('/processgraph', {
     method:'POST'
   })
   .then(response => response.json())
@@ -888,7 +888,7 @@ async function handleFileUpload() {
     const formData = new FormData()
     formData.append('file', file)
 
-    fetch('http://54.185.59.127:8081/upload' , {
+    fetch('/upload' , {
       method : 'POST' , 
       body : formData ,
 
@@ -1076,7 +1076,7 @@ console.log(allDrawnFeatures);
 
 async function status_server(){
   
-    return fetch('http://54.185.59.127:8081/status')
+    return fetch('/status')
       .then(response => {
         if(!response.ok){
           console.log('Server-Fehler')
@@ -1134,7 +1134,7 @@ async function check_map()
 
 //Funktion muss behaklten werden, nur geändert
 function delete_data(){
-  fetch('http://54.185.59.127:8081/delete', {
+  fetch('/delete', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1198,7 +1198,7 @@ function delete_data(){
 
 
 function send_backend_json(DATAJSON){
-  fetch('http://54.185.59.127:8081/send-data', {
+  fetch('/send-data', {
   method: 'POST', 
   headers: {
   'Content-Type': 'application/json',
