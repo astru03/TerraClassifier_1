@@ -324,7 +324,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
                   layer.addTo(map);
                   setTimeout(function() {
                     $('#loadingSpinner').hide();
-                  }, 12000);
+                  }, 10000);
               }); 
 
               // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
