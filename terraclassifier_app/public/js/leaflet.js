@@ -107,7 +107,7 @@ map.on("draw:created", function(event) {
             ObjektIDCounter++;
             $('#popup_EnterObjektID').modal('hide');
             $('#popup_ObjectName').modal('show');
-            $('#saveObjektName').on('click', function() { 
+            $('#saveObjektName').on('click', function() {
               if (ObjektNameCounter < numberOfPolygons) {  
                 objectName = document.getElementById('objectNameInput').value;
                 console.log(objectName);
@@ -117,6 +117,7 @@ map.on("draw:created", function(event) {
                     classID: classID,
                     name: objectName
                     };
+                    console.log(newFeature);
                     polygonToGeoJSON(newFeature);
               }
               
@@ -324,6 +325,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
                   layer.addTo(map);
                   setTimeout(function() {
                     $('#loadingSpinner').hide();
+                    checkConditionButton2();
                   }, 10000);
               }); 
 
@@ -335,7 +337,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
             }
           }
           sentinelBooelan = true;
-          checkConditionButton2();
+          
           $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
         });         
       }
@@ -762,7 +764,10 @@ function create_key(feature){
 function addFeature(feature){
   var key = create_key(feature)
   if(!duplicate_key[key]){
-    allDrawnFeatures.features.push(feature);
+    // Kopie des Features erstellen
+    var featureCopy = JSON.parse(JSON.stringify(feature));
+    allDrawnFeatures.features.push(featureCopy);
+    //allDrawnFeatures.features.push(feature);
     duplicate_key[key] = true;
   }
 }
@@ -950,7 +955,7 @@ function node_rectangle(area_of_Training){
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
 }
 
-console.log(allDrawnFeatures);
+//console.log(allDrawnFeatures);
 
 
 async function status_server(){
