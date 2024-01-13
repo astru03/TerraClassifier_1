@@ -764,7 +764,7 @@ function create_key(feature){
 function addFeature(feature){
   var key = create_key(feature)
   if(!duplicate_key[key]){
-    // Kopie des Features erstellen
+    // Kopie des Features erstellen. Damit die features classID und Name nicht doppelt erscheinen
     var featureCopy = JSON.parse(JSON.stringify(feature));
     allDrawnFeatures.features.push(featureCopy);
     //allDrawnFeatures.features.push(feature);
