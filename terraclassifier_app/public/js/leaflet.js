@@ -3,12 +3,13 @@
 var map = L.map('map').setView([51.975, 7.61], 12);
 
 
-// globale Variablen speichern, Polygone
+// Global variables for saving the training data (polygons)
 var allDrawnFeatures = {
   "type": "FeatureCollection",
   "features": []
 };
 
+//Global variables for saving the rectangles
 var allRectangle = {
   "type": "FeatureCollection", 
   "features": []
@@ -20,7 +21,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-// Add Leaflet.draw-Plugin
+
 // Layer on which the User can draw a shape
 var drawnFeatures = new L.FeatureGroup();
 map.addLayer(drawnFeatures);
@@ -58,93 +59,25 @@ function setStyle(layer, layerType) {
   }
 }
 
-var rectangleCoordinates = null;  // Variable definition
-var previousRectangle = null; // Variable definition
+// Global variables
+let rectangleCoordinates = null;
+let previousRectangle = null;
 let AOICOORD;
 let classID;
 let objectName;
-// Event-Handler for drawing polygons
 let ObjektNameCounter = 0;
 let ObjektIDCounter = 0;
 let numberOfPolygons = 0;
-
-
-/**
- * map.on("draw:created", function(event) {
-  var layer = event.layer;
-  var type = event.layerType;
-  var newFeature = event.layer.toGeoJSON();
-  //var newFeature = layer.toGeoJSON();
-
-  setStyle(layer, event.layerType)
-
-  if (type === 'rectangle') {
-    if (previousRectangle !== null) { // If a rectangle has already been drawn, the old one will be deleted
-      drawnFeatures.removeLayer(previousRectangle);
-    }
-    // rectangleCoordinates = layer.getBounds().toBBoxString(); // only important if a string is required for the coordinates
-    rectangleCoordinates = layer.getBounds();
-    checkConditionButton5(); // Check Condition to activate easybutton 5 (modeltraining)
-    //console.log(rectangleCoordinates)
-    
-    // Only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
-    if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
-      AOICOORD = rectangleCoordinates;
-    // Only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
-    // for drawing in training data yourself
-    } else if (trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
-      AOTCOORD = rectangleCoordinates;
-    }
-
-    console.log('Koordinaten: ', newFeature);
-    drawnFeatures.addLayer(layer);
-    previousRectangle = layer;
-  } else if(type === 'polygon') {
-    numberOfPolygons++;
-    if(rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())){
-      
-        $('#popup_EnterObjektID').modal('show');
-        $('#saveObjektID').on('click', function() { 
-          if (ObjektIDCounter < numberOfPolygons) { 
-            classID = document.getElementById('objectIdInput').value;
-            console.log(classID);
-            ObjektIDCounter++;
-            $('#popup_EnterObjektID').modal('hide');
-            $('#popup_ObjectName').modal('show');
-            $('#saveObjektName').on('click', function() {
-              if (ObjektNameCounter < numberOfPolygons) {  
-                objectName = document.getElementById('objectNameInput').value;
-                console.log(objectName);
-                ObjektNameCounter++;
-                $('#popup_ObjectName').modal('hide');
-                    newFeature.properties = {
-                    classID: classID,
-                    name: objectName
-                    };
-                    console.log(newFeature);
-                    polygonToGeoJSON(newFeature);
-              }
-              
-            })
-          }
-        })
-        drawnFeatures.addLayer(layer);
-        addPopup(layer)
-        checkConditionButton3();
-    /*
-    var classID = prompt('Bitte für das Polygon die passende ObjektID eingeben!')
-    var name = prompt('Bitte für das Polygon den passenden Namen eingeben!')
-    classID = parseInt(classID);
-      if(isNaN(classID)){
-      alert('ObjektID muss eine Ganzzahl sein!')
-      classID=undefined;
-    } 
-  } else {
-    $('#popup_NotInAOT').modal('show');
-  }
-}
-})
- */
+let datum;
+let sentinelBooelan;
+let drawPolygone
+let AOTCOORD;
+let drawDataChoiceBoolean;
+let algorithem;
+let trainigBooelan = false;
+let algoBoolean = false;
+let aoiBoolean = false;
+let modelBoolean = false;
 
 function object_id() {
   return new Promise((resolve) => {
@@ -168,6 +101,7 @@ function object_name() {
   });
 }
 
+// Event-Handler for drawing
 map.on("draw:created", function(event) {
   var layer = event.layer;
   var type = event.layerType;
@@ -181,12 +115,12 @@ map.on("draw:created", function(event) {
     // rectangleCoordinates = layer.getBounds().toBBoxString(); // only important if a string is required for the coordinates
     rectangleCoordinates = layer.getBounds();
     checkConditionButton5(); // Check Condition to activate easybutton 5 (modeltraining)
-    //console.log(rectangleCoordinates)
     
     // Only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
     if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       AOICOORD = rectangleCoordinates;
     // Only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+    
     // for drawing in training data yourself
     } else if (trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
       AOTCOORD = rectangleCoordinates;
@@ -215,8 +149,6 @@ map.on("draw:created", function(event) {
   }
 
 })
-
-
 
 
 // Event-Handler for editing rectangle
@@ -256,8 +188,6 @@ L.control.scale({imperial: true, metric: true}).addTo(map);
  * Function to obtain the Sentinel-2 satellite images
  * @param {*} coordinates
  */
-var datum;
-
 function satelliteImages(coordinates) {
   let NorthEastCoordinates = coordinates.getNorthEast().lng + ', ' + coordinates.getNorthEast().lat;
   let SouthwestCoordinates = coordinates.getSouthWest().lng + ', ' + coordinates.getSouthWest().lat;
@@ -321,11 +251,10 @@ function satelliteImages(coordinates) {
  * @param {*} SouthwestCoordinates
  * @param {*} cloudCoverInput
  */
-let sentinelBooelan;
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
   let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
   try {
-    const response = await fetch('/satellite', {  // Calling the backend
+    const response = await fetch('/satellite', {  // Calling satellite
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -341,7 +270,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
         throw new Error('Network response was not ok');
       }
 
-      // Interpret the microservice's response in the frontend. Return value of the backend
+      // Interpret the response.
       const data = await response.json();
       if (Object.keys(data).length >= 1 ) { // If more than objects were found, then the id and the url are written into one object URLlist
         for (var index = 0; index < Object.keys(data).length; index ++) {
@@ -426,7 +355,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
 }
 
 
-var drawPolygone
+
 //console.log(drawPolygone)
 
 if (drawPolygone === null) {
@@ -473,8 +402,7 @@ function update_drawing() {
     console.log(drawPolygone)
 }
 
-let AOTCOORD;
-let drawDataChoiceBoolean;
+
 $(document).ready(function(){
   $('#uploadFileChoice').click(function(){
     
@@ -521,18 +449,16 @@ function sentinel2() {
   }
 }
 
+/**
+ * Function trainingData from easyButton2
+ */
 function trainingData() {
   $('#popup_TrainingDataChoice').modal('show');
-  //fileInput.click()
-  //document.getElementById('fileInput').click();
-  //document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-  //fileInput.click()
 }
 
 /**
  * Function algorithm from easyButton3
  */
-let algorithem;
 function algorithm() {
     $('#popup_algo').modal('show');
     $('#confirmSelectionAlg').on('click', function() {
@@ -668,13 +594,8 @@ function classification() {
         }
       });
 
-
     })
 
-
-    /**
-     * 
-     */
 
     // Verwenden Sie parseGeoraster, um das GeoTIFF-Bild zu laden und anzeigen zu lassen
     
@@ -752,10 +673,7 @@ function reset_AOI(){
 }
 
 // Create EasyButtons for the menu-functions
-let trainigBooelan = false;
-let algoBoolean = false;
-let aoiBoolean = false;
-let modelBoolean = false;
+
 
 // Button Sentinel-2 Data -----------------------------
 var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');

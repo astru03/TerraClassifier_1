@@ -170,6 +170,7 @@ app.post('/satellite', (req, res) => {
 
 
 async function processGraph_erstellen(data_all){
+  console.log(data_all);
   try{
     /**
      *  const northEast = data_all.AOI._northEast
@@ -253,7 +254,7 @@ console.log(list)
   
  
 
-
+/**
  let processGraph = {
   load_collection: {
       process_id: "load_collection",
@@ -290,11 +291,10 @@ console.log(list)
       result: true
   }
 };
+*/
 
 
-
-/**
- * let processGraph = {
+let processGraph = {
   load_collection: {
     process_id: "load_collection",
     arguments: {
@@ -316,6 +316,13 @@ console.log(list)
       bands: ["B02", "B03", "B04"]
     }
   },
+  reduce_dimension: {
+    process_id: "reduce_dimension",
+    arguments: {
+      data: { from_node: "filter_bands" },
+      reducer: {mean}
+    }
+  },
   save_result: {
     process_id: "save_result",
     arguments: {
@@ -325,7 +332,7 @@ console.log(list)
     result: true
   }
 };
- */
+ 
 
 
 
