@@ -22,7 +22,16 @@ footer {
   height: 100%;
   margin-bottom: 300px;
 }
-
+#loadingSpinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000; /* Stellen Sie sicher, dass dieser Wert hoch genug ist, um über der Karte zu liegen */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 
 
