@@ -2,12 +2,14 @@ const express = require('express');
 const app = express()
 const port = process.env.PORT || 3000
 const fetch = require('node-fetch');
+const path = require('path');
+
 
 const fs = require('fs');
 const multer = require('multer')
 const { GeoPackageAPI } = require('@ngageoint/geopackage');
 //const JSZIP = require('jszip');
-const { OpenEO } = require('@openeo/js-client');
+const { OpenEO} = require('@openeo/js-client');
 
 
 //Folders
@@ -169,8 +171,8 @@ app.post('/satellite', (req, res) => {
 
 async function processGraph_erstellen(data_all){
   try{
-
-    const northEast = data_all.AOI._northEast
+    /**
+     *  const northEast = data_all.AOI._northEast
     const southWest = data_all.AOI._southWest
 
 
@@ -194,81 +196,205 @@ async function processGraph_erstellen(data_all){
     
     var datacube = builder.load_collection(
        "sentinel-s2-l2a-cogs",
-       {west: southWest.lng, south: southWest.lat, east: northEast.lng, north: northEast.lat},
+       {west: southWest.lat, south: southWest.lng, east: northEast.lat, north: northEast.lng},
         32618,
-        [data_all.StartDate, data_all.Enddate],
-        ["B02", "B03", "B04"]
+        //[data_all.StartDate, data_all.Enddate],
+        ["2023-07-01", "2023-11-01"]
+        //["B02", "B03", "B04"]
 
     )
     console.log(datacube)
 
     
- /**
-  *  var filteredBands = builder.filter_bands({
+ 
+  var filteredBands = builder.filter_bands({
       data: datacube,
       bands: ["B02", "B03", "B04"]
    });
-  * */   
+   
 
-   //var temporal = builder.filter_temporal(datacube, [data_all.StartDate, data_all.Enddate])
+   var temporal = builder.filter_temporal(filteredBands, ["2023-07-01", "2023-08-01"])
    //console.log(temporal)
    
-   //var mean = function(data){
-     //return this.mean(data)
-   //}
+   var mean = function(data){
+     return this.mean(data)
+   }
    
-   //var cube = builder.reduce_dimension(filteredBands, mean, "t");
+    var cube = builder.reduce_dimension(temporal, mean, "t");
 
 
 
    
-   var result = builder.save_result(datacube, "GTiff");
+   var result = builder.save_result(cube, "GTiff");
    //var result_1 = await connection.computeResult(result)
-   await connection.downloadResult(result, "test.tif");    //downloadResults: 'get /jobs/{job_id}/results)
+   await connection.downloadResult(result, "result.tif");    //downloadResults: 'get /jobs/{job_id}/results)
    console.log('Fertig')
 
+   return "result.tif"
+     */
+
+   const northEast = data_all.AOI._northEast
+  const southWest = data_all.AOI._southWest
+
+const connection = await OpenEO.connect("http://54.185.59.127:8000/");
 
 
-   /**
- * var processGraph = {
-    load_collection: load_collection_AOI.toJSON(),
-    filter_bands: filteredBands.toJSON(),
-    save_result: result.toJSON()
- };
-  console.log(processGraph)
- */
-   
-    
+// Basic login
+await connection.authenticateBasic("k_galb01", "password");
+
+// Erstellen des Prozess-Builders
+var builder = await connection.buildProcess();
+var co = await connection.listProcesses()
+console.log(co)
+
+
+
   
-//computeResult()
-    
+ 
+
+
+ let processGraph = {
+  load_collection: {
+      process_id: "load_collection",
+      arguments: {
+          //id: "sentinel-s2-l2a-cogs",
+          id: "sentinel-s2-l2a",
+          spatial_extent: {
+              west: southWest.lng,
+              south: southWest.lat,
+              east: northEast.lng,
+              north: northEast.lat
+          },
+          temporal_extent: ["2022-05-01", "2022-06-01"],
+          bands: ["B04", "B08"]
+      }
+  },
+  ndvi: {
+      process_id: "ndvi",
+       arguments: {
+           data: { from_node: "load_collection" },
+          nir: "B08",
+          red: "B04"
+      }
+  },
+  save_result: {
+      process_id: "save_result",
+      arguments: {
+          //data: { from_node: "ndvi" },
+          data: { from_node: "ndvi"},
+          format: "GTiff"
+      },
+      result: true
+  }
+};
+
+
 
 /**
- * const graph = {
-      load_collection: {
-          process_id: "load_collection",
-          arguments: {
-              id: "sentinel-2-l1c", // Beispiel für eine Datensammlung
-              spatial_extent: {"west": south_AOI[0], "south": south_AOI[1],"east": north_AOI[0], "north": north_AOI[1] },
-              temporal_extent: [data.StartDate, data.Enddate],
-              bands: ["B02","B03", "B04", "B08"]
-          }
+ * let processGraph = {
+  load_collection: {
+    process_id: "load_collection",
+    arguments: {
+      id: "sentinel-s2-l2a-cogs",
+      spatial_extent: {
+        west: southWest.lng,
+        south: southWest.lat,
+        east: northEast.lng,
+        north: northEast.lat
       },
-      // Weitere Prozesse hier hinzufügen
-  };
+      temporal_extent: ["2022-05-01", "2022-06-01"],
+      bands: ["B02", "B03", "B04"]
+    }
+  },
+  filter_bands: {
+    process_id: "filter_bands",
+    arguments: {
+      data: { from_node: "load_collection" },
+      bands: ["B02", "B03", "B04"]
+    }
+  },
+  save_result: {
+    process_id: "save_result",
+    arguments: {
+      data: { from_node: "filter_bands" },
+      format: "GTiff"
+    },
+    result: true
+  }
+};
  */
 
-    
-
-  //console.log(graph)
-  //var job = await connection.createJob(graph, 'AOI');
-  //await job.startJob()
 
 
+ // Erstellen eines Prozessgraphen
+ 
+ 
+ 
 
+console.log(processGraph)
+try {
+  const startTime = Date.now();
 
+  
+   const tiffPath = "./result.tif"; 
+   console.log('Starte Download der Ergebnisse...');
+   await connection.downloadResult(processGraph, tiffPath);
+   console.log('Download abgeschlossen:', tiffPath);
 
+   // Überprüfen Sie, ob die Datei existiert
+   if (!fs.existsSync(tiffPath)) {
+     throw new Error('TIFF-Datei wurde nicht gefunden: ' + tiffPath);
+   }
 
+   const endTime = Date.now();
+  console.log("Time taken:", endTime - startTime, "ms");
+
+   return tiffPath;
+  
+
+  
+  //return "./result.tif"
+} catch (error) {
+  console.error("Error during execution:", error);
+}
+
+/**
+ * // Laden der Datenkollektion
+builder = builder.load_collection(
+    'sentinel-s2-l2a-cogs',
+    {
+        west: -66.27866,
+        south: -9.34489,
+        east: -66.26212,
+        north: -9.33131
+    },
+    ["2021-05-01", "2022-06-30"],
+    ['B08', 'B04']
+);
+
+// NDVI Berechnung hinzufügen
+builder = builder.ndvi("B08", "B04");
+
+// Speichern des Ergebnisses als GeoTIFF
+const result = builder.save_result('GTiff');
+
+try {
+    const startTime = Date.now();
+
+    // Ausführen und Herunterladen des Ergebnisses
+    const response = await result.execute();
+    await response.downloadResults(result, "./amazonia_2022_ndvi.tif");
+
+    const endTime = Date.now();
+    console.log("Time taken:", endTime - startTime, "ms");
+} catch (error) {
+    console.error("Error during execution:", error);
+}
+
+console.log("End of processes");
+ */
+
+   
 
   /**
    * let processGraph = {
@@ -293,58 +419,40 @@ async function processGraph_erstellen(data_all){
   };
    */
   
-
-
-
-  //console.log(JSON.stringify(graph, null, 2));
-  //var t = await connection.listJobs()
-  //console.log(t)
-  //var job = await connection.createJob(graph, 'Trainingsdata');
-  //await job.startJob()
-  
-  
-  
-
-
-
-
-
-
-
-    //console.log(builder)
-    
-
-    
-     //console.log('Authentiziert bei OpenEO', connection)
-
-      //console.log(data)
-
-      
-      //console.log(processGraph)
-      //const job = await connection.createJob(processGraph)
-      //console.log('Job', job.job_id)
-     
-    
-
-    
-
   }catch(err){
     console.error('Fehler beim verarbeiten', err)
   }
 }
 
-app.post('/processgraph', (req,res)=>{
-  const processgraph_data = 'send_data.json'
-  fs.readFile(processgraph_data, 'utf-8', (err,data)=>{
-    if(err){
-      return res.status(500).send({message:'Fehler beim Lesen'})
+
+  app.post('/processgraph', (req, res) => {
+  const processgraph_data = 'send_data.json';
+  fs.readFile(processgraph_data, 'utf-8', async (err, data) => {
+    if (err) {
+      return res.status(500).send({ message: 'Fehler beim Lesen' });
     }
-    const processgraph_data_parse = JSON.parse(data)
-    processGraph_erstellen(processgraph_data_parse).then(()=>{
-      res.send({message: 'Processgraph verarbeitet'})
-    })
-  })
-})
+    const processgraph_data_parsed = JSON.parse(data);
+    try {
+      const tiffPath = await processGraph_erstellen(processgraph_data_parsed);
+      if (!tiffPath || typeof tiffPath !== 'string') {
+        throw new Error('tiffPath ist ungültig oder undefiniert');
+      }
+      const absoluteTiffPath = path.join(__dirname, tiffPath);
+      if (!fs.existsSync(absoluteTiffPath)) {
+        throw new Error('TIFF-Datei existiert nicht im angegebenen Pfad');
+      }
+      res.sendFile(absoluteTiffPath);
+    } catch (error) {
+      console.error('Fehler bei der Verarbeitung', error);
+      res.status(500).send({ message: 'Fehler bei der Verarbeitung' });
+    }
+  });
+});
+ 
+
+
+
+
  
    
 

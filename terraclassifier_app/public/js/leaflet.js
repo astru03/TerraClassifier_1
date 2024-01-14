@@ -537,14 +537,19 @@ function areaOfIntrest() {
 
 /**
  * Function classification from easyButton6
- */
-function classification() {
+ * function classification() {
 
   fetch('/processgraph', {
     method:'POST'
   })
   .then(response => response.json())
   .then(data =>{
+    if(data.tiffPath){
+      console.log(data)
+      var data0 = JSON.parse(data.data)
+      console.log(data0)
+      L.imageOverlay(data.tiffPath, [[data0.AOI._southWest.lat, data0.AOI._southWest.lng], [data0.AOI._northEast.lat, data0.AOI._northEast.lng]]).addTo(map);
+    }
     console.log(data)
   })
   .catch(error=> {
@@ -552,6 +557,57 @@ function classification() {
   })
   
 }
+ */
+
+function classification() {
+  fetch('/processgraph', {
+    method: 'POST'
+  })
+  .then(response => response.blob()) // Empfangen der Antwort als JSON
+    .then(blob => {
+      const imageUrl = URL.createObjectURL(blob);
+      console.log(imageUrl)
+      // Konvertieren des Base64-kodierten Strings in einen Blob
+      parseGeoraster(imageUrl).then(georaster => {
+        // Verwenden Sie die georaster-layer-for-leaflet-Bibliothek, um das Bild auf der Karte anzuzeigen
+        const layer = new GeoRasterLayer({
+          georaster: georaster,
+          opacity: 0.7,
+          resolution: 128,
+          keepBuffer: 8
+        });
+  
+        // Fügen Sie die Schicht zur Karte hinzu
+        layer.addTo(map);
+  
+        // Optional: Setzen Sie die Ansicht der Karte auf den Mittelpunkt des Bildes und passen Sie den Zoom an
+        if (georaster.xmin !== undefined && georaster.xmax !== undefined &&
+            georaster.ymin !== undefined && georaster.ymax !== undefined) {
+          const centerLat = (georaster.ymin + georaster.ymax) / 2;
+          const centerLng = (georaster.xmin + georaster.xmax) / 2;
+          map.setView([centerLat, centerLng], 13);
+        }
+      });
+
+
+    })
+
+
+    /**
+     * 
+     */
+
+    // Verwenden Sie parseGeoraster, um das GeoTIFF-Bild zu laden und anzeigen zu lassen
+    
+  
+  .catch(error => {
+    console.error('Fehler:', error);
+  });
+}
+
+
+
+
 
 /**
  * Function to close Popup-windows
