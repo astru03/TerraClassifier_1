@@ -68,10 +68,14 @@ let ObjektNameCounter = 0;
 let ObjektIDCounter = 0;
 let numberOfPolygons = 0;
 
-map.on("draw:created", function(event) {
+
+/**
+ * map.on("draw:created", function(event) {
   var layer = event.layer;
   var type = event.layerType;
   var newFeature = event.layer.toGeoJSON();
+  //var newFeature = layer.toGeoJSON();
+
   setStyle(layer, event.layerType)
 
   if (type === 'rectangle') {
@@ -134,12 +138,85 @@ map.on("draw:created", function(event) {
       if(isNaN(classID)){
       alert('ObjektID muss eine Ganzzahl sein!')
       classID=undefined;
-    } */
+    } 
+  } else {
+    $('#popup_NotInAOT').modal('show');
+  }
+}
+})
+ */
+
+function object_id() {
+  return new Promise((resolve) => {
+    $('#popup_EnterObjektID').modal('show');
+    $('#saveObjektID').off().on('click', function() {
+      var classID = document.getElementById('objectIdInput').value;
+      $('#popup_EnterObjektID').modal('hide');
+      resolve(classID);
+    });
+  });
+}
+
+function object_name() {
+  return new Promise((resolve) => {
+    $('#popup_ObjectName').modal('show');
+    $('#saveObjektName').off().on('click', function() {
+      var objectName = document.getElementById('objectNameInput').value;
+      $('#popup_ObjectName').modal('hide');
+      resolve(objectName);
+    });
+  });
+}
+
+map.on("draw:created", function(event) {
+  var layer = event.layer;
+  var type = event.layerType;
+  var newFeature = layer.toGeoJSON();
+  setStyle(layer, event.layerType);
+
+  if (type === 'rectangle') {
+    if (previousRectangle !== null) { // If a rectangle has already been drawn, the old one will be deleted
+      drawnFeatures.removeLayer(previousRectangle);
+    }
+    // rectangleCoordinates = layer.getBounds().toBBoxString(); // only important if a string is required for the coordinates
+    rectangleCoordinates = layer.getBounds();
+    checkConditionButton5(); // Check Condition to activate easybutton 5 (modeltraining)
+    //console.log(rectangleCoordinates)
+    
+    // Only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
+    if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+      AOICOORD = rectangleCoordinates;
+    // Only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+    // for drawing in training data yourself
+    } else if (trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
+      AOTCOORD = rectangleCoordinates;
+    }
+
+    console.log('Koordinaten: ', newFeature);
+    drawnFeatures.addLayer(layer);
+    previousRectangle = layer;
+  }else if(type === 'polygon'){
+    numberOfPolygons++;
+    if (rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())) {
+      object_id().then(classID => {
+        newFeature.properties = { classID: classID };
+        return object_name();
+      }).then(objectName => {
+        newFeature.properties.name = objectName;
+        console.log(newFeature);
+        polygonToGeoJSON(newFeature);
+        drawnFeatures.addLayer(layer);
+        addPopup(layer);
+        checkConditionButton3();
+      });
     } else {
       $('#popup_NotInAOT').modal('show');
     }
   }
+
 })
+
+
 
 
 // Event-Handler for editing rectangle

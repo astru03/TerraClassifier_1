@@ -245,7 +245,8 @@ await connection.authenticateBasic("k_galb01", "password");
 // Erstellen des Prozess-Builders
 var builder = await connection.buildProcess();
 var co = await connection.listProcesses()
-console.log(co)
+var list = await connection.listCollections()
+console.log(list)
 
 
 
@@ -258,13 +259,14 @@ console.log(co)
       process_id: "load_collection",
       arguments: {
           //id: "sentinel-s2-l2a-cogs",
-          id: "sentinel-s2-l2a",
+          id: "sentinel-s2-l2a-cogs",
           spatial_extent: {
               west: southWest.lng,
               south: southWest.lat,
               east: northEast.lng,
-              north: northEast.lat
-          },
+              north: northEast.lat,
+              crs: "EPSG:3857"
+            },
           temporal_extent: ["2022-05-01", "2022-06-01"],
           bands: ["B04", "B08"]
       }
@@ -282,7 +284,8 @@ console.log(co)
       arguments: {
           //data: { from_node: "ndvi" },
           data: { from_node: "ndvi"},
-          format: "GTiff"
+          format: "GTiff", 
+          options: {crs : "EPSG:3857"}
       },
       result: true
   }
@@ -450,7 +453,43 @@ console.log("End of processes");
 });
  
 
+/**
+ * app.post('/processgraph', (req, res) => {
+  const processgraph_data = 'send_data.json';
+  fs.readFile(processgraph_data, 'utf-8', async (err, data) => {
+    if (err) {
+      return res.status(500).send({ message: 'Fehler beim Lesen' });
+    }
+    const processgraph_data_parsed = JSON.parse(data);
+    try {
+      const tiffPath = await processGraph_erstellen(processgraph_data_parsed);
+      if (!tiffPath || typeof tiffPath !== 'string') {
+        throw new Error('tiffPath ist ungültig oder undefiniert');
+      }
+      const absoluteTiffPath = path.join(__dirname, tiffPath);
+      if (!fs.existsSync(absoluteTiffPath)) {
+        throw new Error('TIFF-Datei existiert nicht im angegebenen Pfad');
+      }
 
+      // TIFF-Datei in Base64 umwandeln
+      const tiffData = fs.readFileSync(absoluteTiffPath);
+      const tiffBase64 = tiffData.toString('base64');
+
+      // JSON-Antwort erstellen
+      const jsonResponse = {
+        imageBase64: tiffBase64, // Base64-kodierter String der TIFF-Datei
+        additionalData: processgraph_data_parsed // Zusätzliche Daten
+      };
+
+      // JSON-Antwort senden
+      res.json(jsonResponse);
+    } catch (error) {
+      console.error('Fehler bei der Verarbeitung', error);
+      res.status(500).send({ message: 'Fehler bei der Verarbeitung' });
+    }
+  });
+});
+ */
 
 
  
