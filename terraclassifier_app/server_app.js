@@ -168,6 +168,101 @@ app.post('/satellite', (req, res) => {
 });
 
 
+app.post('/demo_builder', async (req, res) => {
+    let connection = await OpenEO.connect("http://54.185.59.127:8000/");
+    await connection.authenticateBasic("k_galb01", "password");
+    var builder = await connection.buildProcess();
+    var datacube = builder.load_collection(
+      "sentinel-s2-l2a-cogs",
+      {west:840180.2, south:6788889.4, east:852976.1, north:6799716.7},
+      3857,
+      ["2022-01-01", "2022-12-31"]
+    ); 
+    let datacube_filtered = builder.filter_bands(datacube, ["B02", "B03", "B04"]);
+    var mean = function(data) {
+        return this.mean(data);
+    };
+    let datacube_reduced = builder.reduce_dimension(datacube_filtered, mean, dimension = "t");
+    let result = builder.save_result(datacube_reduced,'GTiff');
+    let response = await connection.computeResult(result);
+    console.log(response.data);
+    // Setze die richtigen Header für den Dateityp
+    //res.setHeader('Content-Type', 'image/tiff');
+    //res.setHeader('Access-Control-Expose-Headers', 'Location, OpenEO-Identifier, OpenEO-Costs');
+
+    response.data.pipe(res); // Send the Tiff as response
+    console.log("Send Done");
+
+    //var ret = await doSomething();
+    //console.log(ret);
+    //res.status(200).send(ret);
+    //res.send({message: 'Funktion ausgeführt'});
+ 
+
+});
+
+
+async function doSomething(){
+  let connection = await OpenEO.connect("http://54.185.59.127:8000/");
+  // Basic login
+  await connection.authenticateBasic("k_galb01", "password");
+  
+  //builder
+  var builder = await connection.buildProcess();
+  
+  //load_collection
+  /*
+  var datacube = builder.load_collection(
+    'sentinel-s2-l2a-cogs',
+    {west: 7.555, south: 51.925, east: 7.565, north: 51.935},
+    ["2023-07-07", "2023-07-09"],
+    ); */
+  var datacube = builder.load_collection(
+      "sentinel-s2-l2a-cogs",
+      {west:840180.2, south:6788889.4, east:852976.1, north:6799716.7},
+      3857,
+      ["2022-01-01", "2022-12-31"]
+    );  
+
+  //filter_bands
+  let datacube_filtered = builder.filter_bands(datacube, ["B02", "B03", "B04"]);
+
+  var mean = function(data) {
+      return this.mean(data);
+  };
+
+  let fileTypes = await connection.listFileTypes();
+  console.log(fileTypes);
+  //let rds = fileTypes.data.output.RDS;
+  //console.log(rds);
+
+  //let datacube_filled = builder.fill_NAs_cube(datacube_filtered);
+  let datacube_reduced = builder.reduce_dimension(datacube_filtered, mean, dimension = "t");
+  //let model = builder.train_model_ml(data = datacube_reduced, save = true, name = "Test1");
+  //console.log(model)
+
+  //save_result
+  let result = builder.save_result(datacube_reduced,'GTiff');
+
+  //computeResult
+  let response = await connection.computeResult(result);
+  console.log(response);
+  console.log("Send Done");
+  return response;
+  // Sending the result data back to the frontend
+ //res.status(200).send(result);
+ //res.send(response)
+ //response.data.pipe(res); // Send the Tiff as response
+ 
+ 
+  //save_result
+  //let result = builder.save_result(datacube_filtered, "GTiff");
+    //let tiffPath = 'result.tiff';
+  //downloadResult
+  //await con.downloadResult(result, "tiffPath.tiff");
+
+} 
+
 
 async function processGraph_erstellen(data_all){
   console.log(data_all);
@@ -234,8 +329,8 @@ async function processGraph_erstellen(data_all){
    return "result.tif"
      */
 
-   const northEast = data_all.AOI._northEast
-  const southWest = data_all.AOI._southWest
+  //const northEast = data_all.AOI._northEast
+  //const southWest = data_all.AOI._southWest
 
 const connection = await OpenEO.connect("http://54.185.59.127:8000/");
 
@@ -245,16 +340,11 @@ await connection.authenticateBasic("k_galb01", "password");
 
 // Erstellen des Prozess-Builders
 var builder = await connection.buildProcess();
-var co = await connection.listProcesses()
-var list = await connection.listCollections()
-console.log(list)
+//var co = await connection.listProcesses()
+//var list = await connection.listCollections()
+//console.log(list)
 
-
-
-  
- 
-
-/**
+/*
  let processGraph = {
   load_collection: {
       process_id: "load_collection",
@@ -268,7 +358,7 @@ console.log(list)
               north: northEast.lat,
               crs: "EPSG:3857"
             },
-          temporal_extent: ["2022-05-01", "2022-06-01"],
+          temporal_extent: ["2022-05-01", "2022-05-10"],
           bands: ["B04", "B08"]
       }
   },
@@ -290,10 +380,9 @@ console.log(list)
       },
       result: true
   }
-};
-*/
+};*/
 
-
+/*
 let processGraph = {
   load_collection: {
     process_id: "load_collection",
@@ -331,22 +420,16 @@ let processGraph = {
     },
     result: true
   }
-};
+}; */
  
-
-
-
  // Erstellen eines Prozessgraphen
- 
- 
- 
 
+ /*
 console.log(processGraph)
 try {
   const startTime = Date.now();
-
-  
-   const tiffPath = "./result.tif"; 
+    let tiffPath = 'C:/Users/Andreas/Documents/result.tif';
+   //const tiffPath = "./result.tif"; 
    console.log('Starte Download der Ergebnisse...');
    await connection.downloadResult(processGraph, tiffPath);
    console.log('Download abgeschlossen:', tiffPath);
@@ -360,34 +443,57 @@ try {
   console.log("Time taken:", endTime - startTime, "ms");
 
    return tiffPath;
-  
 
-  
   //return "./result.tif"
 } catch (error) {
   console.error("Error during execution:", error);
-}
+} */
 
-/**
- * // Laden der Datenkollektion
-builder = builder.load_collection(
+
+// Laden der Datenkollektion
+datacube = builder.load_collection(
     'sentinel-s2-l2a-cogs',
-    {
-        west: -66.27866,
-        south: -9.34489,
-        east: -66.26212,
-        north: -9.33131
-    },
+    //{west: 405653.080, south: 5758282.708, east: 405522.824, north: 5758386.271}
+    {west: -7338335, south: -1027138, east: -7329987, north: -1018790},
+    //32632,
+    3857,
     ["2021-05-01", "2022-06-30"],
-    ['B08', 'B04']
+    //['B08', 'B04']
 );
 
 // NDVI Berechnung hinzufügen
-builder = builder.ndvi("B08", "B04");
+datacube_ndvi = builder.ndvi(datacube, "B08", "B04");
 
+
+/*
+let datacube_filtered = builder.filter_bands(datacube, ["B02", "B03", "B04"]);
+var mean = function(data) {
+  return this.mean(data);
+};*/
+
+
+//formats = list_file_formats()
+//outputformat = formats.output.GTiff
+
+//list_file_formats()
 // Speichern des Ergebnisses als GeoTIFF
-const result = builder.save_result('GTiff');
+let result = builder.save_result(datacube_ndvi, "GTiff");
+//let response1 = await connection.computeResult(result);
+//let tiffPath = 'result.tiff';
 
+await connection.downloadResult(result, "tiffPath.tiff");
+//let test = await connection.cumputeResult(result);
+//test.data
+
+
+//let tiffPath1 = 'C:/Users/Andreas/Documents/resulte.tif';
+//await connection.downloadResult(result, tiffPath1);
+//await connection.downloadResult(result, "./resulte.tif");
+
+
+
+//console.log(response1);
+/*
 try {
     const startTime = Date.now();
 
@@ -406,28 +512,6 @@ console.log("End of processes");
 
    
 
-  /**
-   * let processGraph = {
-    "load_stac": {
-      "process_id": "load_stac",
-      "arguments": {
-        "url": url,
-        "spatial_extent": {
-          "west": 6.5,
-          "south": 51.0,
-          "east": 8.0,
-          "north": 52.5
-        },
-        "temporal_extent": [data.StartDate, data.Enddate],
-        "bands": ["B02", "B03", "B04", "B08"],  // Beispielsweise Sentinel-2 Bänder
-        "properties": {
-          "trainingsdaten": data.trainigsdata
-        }
-      }
-    },
-    // Weitere Prozesse...
-  };
-   */
   
   }catch(err){
     console.error('Fehler beim verarbeiten', err)
@@ -444,9 +528,9 @@ console.log("End of processes");
     const processgraph_data_parsed = JSON.parse(data);
     try {
       const tiffPath = await processGraph_erstellen(processgraph_data_parsed);
-      if (!tiffPath || typeof tiffPath !== 'string') {
+      /* if (!tiffPath || typeof tiffPath !== 'string') {
         throw new Error('tiffPath ist ungültig oder undefiniert');
-      }
+      } */
       const absoluteTiffPath = path.join(__dirname, tiffPath);
       if (!fs.existsSync(absoluteTiffPath)) {
         throw new Error('TIFF-Datei existiert nicht im angegebenen Pfad');
@@ -459,49 +543,6 @@ console.log("End of processes");
   });
 });
  
-
-/**
- * app.post('/processgraph', (req, res) => {
-  const processgraph_data = 'send_data.json';
-  fs.readFile(processgraph_data, 'utf-8', async (err, data) => {
-    if (err) {
-      return res.status(500).send({ message: 'Fehler beim Lesen' });
-    }
-    const processgraph_data_parsed = JSON.parse(data);
-    try {
-      const tiffPath = await processGraph_erstellen(processgraph_data_parsed);
-      if (!tiffPath || typeof tiffPath !== 'string') {
-        throw new Error('tiffPath ist ungültig oder undefiniert');
-      }
-      const absoluteTiffPath = path.join(__dirname, tiffPath);
-      if (!fs.existsSync(absoluteTiffPath)) {
-        throw new Error('TIFF-Datei existiert nicht im angegebenen Pfad');
-      }
-
-      // TIFF-Datei in Base64 umwandeln
-      const tiffData = fs.readFileSync(absoluteTiffPath);
-      const tiffBase64 = tiffData.toString('base64');
-
-      // JSON-Antwort erstellen
-      const jsonResponse = {
-        imageBase64: tiffBase64, // Base64-kodierter String der TIFF-Datei
-        additionalData: processgraph_data_parsed // Zusätzliche Daten
-      };
-
-      // JSON-Antwort senden
-      res.json(jsonResponse);
-    } catch (error) {
-      console.error('Fehler bei der Verarbeitung', error);
-      res.status(500).send({ message: 'Fehler bei der Verarbeitung' });
-    }
-  });
-});
- */
-
-
- 
-   
-
 
 //löschen alles, nicht einzeln!
 

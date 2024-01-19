@@ -37,6 +37,7 @@
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "leaflet-easybutton": "^2.4.0",
+    "leaflet-geotiff": "^0.2.0",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.6.1",
     "nodemon": "^3.0.1"

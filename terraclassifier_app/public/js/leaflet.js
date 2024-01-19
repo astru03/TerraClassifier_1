@@ -311,7 +311,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
           for (var i = 0; i < URLlist.length; i++){
             if (selectedID === URLlist[i].ID) {
               let geoTiffURL = URLlist[i].URL;
-
+              console.log(geoTiffURL);
               // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
                 parseGeoraster(geoTiffURL).then(georaster => {
                 console.log("georaster:", georaster);
@@ -666,8 +666,36 @@ function closePopup(ID_Popup) {
  * @param {*} ID_Popup
  */
 function demoButton() {
+  fetch('/demo_builder', {
+    method: 'POST',
+    body: JSON.stringify({}) 
+  })
+  .then(response => {
+    // Überprüfen Sie den Status der Antwort
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+    return response.blob();
+  })
+  .then(blob => {
+    // Verarbeite den Blob, z.B. zeige ein Bild an
+    const imageUrl = URL.createObjectURL(blob);
+    console.log(imageUrl);
+    const imageElement = document.createElement('img');
+    imageElement.src = imageUrl;
+    document.body.appendChild(imageElement);
+  })
+
+  /*
+  .then(response => response.blob()) 
+  .then(blob => {
+    console.log("kommt");
+    console.log(blob);
+  })*/
+
   document.getElementById('exampleButton').style.display = 'none';
-  
+  /*
+  document.getElementById('exampleButton').style.display = 'none';
   const DEMO_AOICOORD = {northEast: {lat: 51.966, lng: 7.6175} , southWest: {lat: 51.939, lng: 7.5714} }
   const DEMO_AOTCOORD = {northEast: {lat: 51.90462174078735, lng: 7.668225785886583} , southWest: {lat: 51.87908396304335, lng: 7.617230713510279} }
   const DEMO_NewStartDate = "2023-07-01"
@@ -915,7 +943,6 @@ function demoButton() {
   }
   const DEMO_resolutionInput = "30"
 
-  
   let DEMODATAJSON = {
     "AOI": DEMO_AOICOORD,
     "AOT": DEMO_AOTCOORD,
@@ -927,6 +954,9 @@ function demoButton() {
   };
   console.log(DEMODATAJSON);
   //HIER PROZESSAUFRUF
+  send_backend_json(DEMODATAJSON)
+  */
+
 }
 
 
