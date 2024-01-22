@@ -21,17 +21,25 @@
   },
   "homepage": "https://github.com/astru03/TerraClassifier_1#readme",
   "dependencies": {
+    "@ngageoint/geopackage": "^4.2.4",
     "@openeo/js-client": "^2.5.1",
     "ajax": "^0.0.4",
+    "aws-sdk": "^2.1534.0",
+    "better-sqlite3": "^9.2.2",
     "bootstrap": "^5.3.2",
     "bootstrap-datepicker": "^1.10.0",
     "express": "^4.18.2",
+    "fs": "^0.0.1-security",
     "georaster": "^1.6.0",
     "georaster-layer-for-leaflet": "^3.10.0",
     "jquery": "^3.7.1",
+    "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "leaflet-easybutton": "^2.4.0",
+    "leaflet-geotiff": "^0.2.0",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.6.1",
     "nodemon": "^3.0.1"
   }
 }
