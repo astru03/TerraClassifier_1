@@ -30,6 +30,9 @@
         <!-- Leaflet-easy-button plugin JS-->
         <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
 
+        <!-- Leaflet-GeoTIFF-->
+        <script src="https://unpkg.com/leaflet-geotiff/leaflet-geotiff.js"></script>
+
         <!--jQuery-->
         <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
         
@@ -53,6 +56,9 @@
         <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script> <!-- Only required if you'd like to enable authentication via OpenID Connect -->
         <script src="https://cdn.jsdelivr.net/npm/multihashes@3/src/index.min.js"></script> <!-- Only required if you have checksums in the STAC metadata -->
         <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
+
+        
+        
     </head>
     <body>
         <header> 
@@ -86,7 +92,7 @@
                   <div class="modal-content">
                     <!-- Modal Header -->
                     <div class="modal-header">
-                      <h5 class="modal-title">Satelliten</h5>
+                      <h5 class="modal-title">Satellitenbilder</h5>
                     </div>
                     <!-- Modal Body -->
                     <div class="modal-body">
@@ -103,7 +109,7 @@
                         <!-- <div class="row"> -->
                           <!-- <div class="col"> -->
                             <!-- <label for="fromDate">Von:</label> -->
-                            <input type="text" class="form-control" id="fromDate">
+                            <input type="text" class="form-control" id="fromDate" placeholder="Datum auswählen">
                           <!-- </div> -->
                           <!-- <div class="col"> -->
                             <!-- <label for="toDate">Bis:</label> -->
@@ -168,7 +174,7 @@
                     </div>
                     <!-- Modal Body -->
                     <div class="modal-body">
-                        Bitte zeichnen Sie zuerst ein Rechteck auf die Karte und definieren somit für welchen Bereich Sentinel-2 Bilder geladen werden sollen.
+                        Bitte zeichnen Sie zuerst ein Rechteck auf die Karte und definieren somit für welchen Bereich Sentinel-2 Daten geladen werden sollen.
                     </div>
                     <!-- Modal Footer -->
                     <div class="modal-footer">
@@ -249,7 +255,7 @@
                   <!-- Modal Body -->
                   <div class="modal-body">
                       Leider wurden keine Sentinel-2 Daten für das angegebene Datum und die Wolkenbedeckung gefunden.
-                      Bitte wählen Sie ein anderes Datum oder ändern Sie den Werk für die Wolkenbedeckung.
+                      Bitte wählen Sie ein anderes Datum oder ändern Sie den Wert für die Wolkenbedeckung.
                   </div>
                   <!-- Modal Footer -->
                   <div class="modal-footer">
@@ -295,11 +301,67 @@
                 </div>
                 <!-- Modal Body -->
                 <div class="modal-body">
-                    Das Polygon für das Trainigsgebiet muss innerhalb der AOT (Area of Trainig) gezeichnet werden.
+                    Das Polygon für das Trainigsgebiet muss innerhalb des AOT (Area of Trainig) gezeichnet werden.
                 </div>
                 <!-- Modal Footer -->
                 <div class="modal-footer">
                   <button type="button" class="btn btn-info" onclick="closePopup('popup_NotInAOT')">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enter ObjectID for the training data polygon -->
+          <div class="modal fade" id="popup_EnterObjektID" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">ObjektID</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="objectIdInput" class="form-label">Bitte für das Polygon die passende ObjektID eingeben.</label>
+                    <input type="number" step="1" class="form-control" id="objectIdInput" onkeypress="return checkEntry(event)" onpaste="return checkEntry(event)" onchange="return checkEntry(event)" placeholder="ObjektID eingeben" required>
+                    <!-- Script that prohibits the use of special characters -->
+                    <script>
+                      function checkEntry(e) {
+                        var k;
+                        document.all ? k = e.keyCode : k = e.which;
+                        return (k == 8 || (k >= 48 && k <= 57));
+                        }
+                    </script>
+                  </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_EnterObjektID')">Abbrechen</button>
+                  <button type="button" class="btn btn-success" id="saveObjektID">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enter ObjectName for the training data polygon -->
+          <div class="modal fade" id="popup_ObjectName" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">ObjektName</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="objectNameInput" class="form-label">Bitte für das Polygon die passende Bezeichnung eingeben.</label>
+                    <input type="text" class="form-control" id="objectNameInput" placeholder="Objektname eingeben" required>
+                  </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_ObjectName')">Abbrechen</button>
+                  <button type="button" class="btn btn-success" id="saveObjektName">Ok</button>
                 </div>
               </div>
             </div>
@@ -378,18 +440,53 @@
               </div>
             </div>
 
+          <!-- Enter Resolution for the calculation -->
+          <div class="modal fade" id="popup_EnterResolution" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title" id="myModalLabel">Auflösung</h4>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="objectResolutionInput">Bitte wählen Sie für die Berechnung eine gewünschte Auflösung in Meter pro Pixel:</label>
+                    <select class="form-control" id="objectResolutionInput">
+                      <option value="30">30</option>
+                      <option value="60">60</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                </div> 
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="closePopup('popup_EnterResolution')">Abbrechen</button>
+                  <button type="button" class="btn btn-success" id="saveResolution">Ok</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
 
 
             <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
             <div class="container-fluid mt-2" id="mapcontainer">
                 <div id="map"></div>
+                <div id="loadingSpinner" class="text-center" style="display: none;">
+                  <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Loading...
+                  </button>
+                </div>
             </div>
         </main>
 
         <footer class="text-center text-light" style="background-color: rgb(54, 54, 54)">
             <h6 class="text-uppercase fw-bold pt-2">Autoren:</h6>
                 <p>
-                  Terra Classifier GmbH
+                  TerraClassifier GmbH
                 </p>  
         </footer>
 
