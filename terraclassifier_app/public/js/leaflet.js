@@ -575,6 +575,8 @@ async function modelTraining() {
  * Function classification
  */
 function classification() {
+  console.log("kommt");
+  $('#loadingSpinner').show();
   fetch('/processgraph', {
     method: 'POST'
   })
@@ -589,6 +591,7 @@ function classification() {
     .catch(error => {
       console.error('Fehler:', error);
     });
+    
 }
 
 /**
@@ -617,10 +620,12 @@ function downloadTiff() {
   }
 }
 
+var geladen = false;
 /**
  * Function showTiff
  */
 function showTiff() {
+  geladen = true;
   setTimeout(() => {
     fetch('/show-tiff')
       .then(response => {
@@ -641,6 +646,7 @@ function showTiff() {
             console.error('Fehler beim anzeigen der Tif!')
           })
       })
+      $('#loadingSpinner').hide();
   }, 10000)
 }
 
