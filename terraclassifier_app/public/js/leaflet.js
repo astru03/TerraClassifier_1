@@ -72,6 +72,7 @@ let drawPolygone
 let AOTCOORD;
 let drawDataChoiceBoolean;
 let algorithem;
+let hyperparameter;
 let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
@@ -453,16 +454,56 @@ function algorithm() {
     var algorithmMD = document.getElementById('algorithm1').checked;
     var algorithmRF = document.getElementById('algorithm2').checked;
     if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  // if neither or both algorithms are selected
+      $('#popup_algo').modal('hide');
       $('#popup_NoAlgorithm').modal('show');
     } else {
       if (algorithmMD) {
         algorithem = 'MD';
+        $('#popup_algo').modal('hide');
+        $('#popup_EnterHyperparameterMinimumDistance').modal('show');
+
+        $('#saveTuneLength').on('click', function () {
+          var MinimumDistanceTuneLengthInput = document.getElementById('MinimumDistanceTuneLengthInput').value;
+          if (MinimumDistanceTuneLengthInput === '') {
+            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+            $('#popup_NotBetween10And50').modal('show');
+          } else if (MinimumDistanceTuneLengthInput > 50 || MinimumDistanceTuneLengthInput < 10) {
+            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+            $('#popup_NotBetween10And50').modal('show');
+          } else if (MinimumDistanceTuneLengthInput < 50 || MinimumDistanceTuneLengthInput > 10) {
+            hyperparameter = MinimumDistanceTuneLengthInput;
+            algoBoolean = true;
+            checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+            console.log("hyperparameter: " + hyperparameter);
+          }
+          
+        })
       } else {
         algorithem = 'RF';
+        $('#popup_algo').modal('hide');
+        $('#popup_EnterHyperparameterRandomForest').modal('show');
+
+        $('#saveNTree').on('click', function () {
+          var RandomForestNTreeInput = document.getElementById('RandomForestNTreeInput').value;
+          if (RandomForestNTreeInput === '') {
+            $('#popup_EnterHyperparameterRandomForest').modal('hide');
+            $('#popup_NotBetween10And500').modal('show');
+          } else if (RandomForestNTreeInput > 500 || RandomForestNTreeInput < 10) {
+            $('#popup_EnterHyperparameterRandomForest').modal('hide');
+            $('#popup_NotBetween10And500').modal('show');
+          } else if (RandomForestNTreeInput < 500 || RandomForestNTreeInput > 10) {
+            hyperparameter = RandomForestNTreeInput;
+            algoBoolean = true;
+            checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+            $('#popup_EnterHyperparameterRandomForest').modal('hide');
+            console.log("hyperparameter: " + hyperparameter);
+          }
+        })
       }
-      algoBoolean = true;
-      checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
-      $('#popup_algo').modal('hide');
+      //algoBoolean = true;
+      //checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+      //$('#popup_algo').modal('hide');
     }
   })
 }
@@ -516,6 +557,7 @@ async function modelTraining() {
         "StartDate": NewStartDate,
         "Enddate": endDate,
         "algorithm": algorithem,
+        "hyperparameter": hyperparameter,
         "trainigsdata": allDrawnFeatures,
         "resolution": resolutionInput
       };
@@ -629,6 +671,19 @@ function closePopup(ID_Popup) {
     $('#popup_NoRectangleForAOT').modal('hide');
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
+    $('#popup_algo').modal('show');
+  } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
+    $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+    $('#popup_algo').modal('show');
+  } else if (ID_Popup == 'popup_NotBetween10And50') {
+    $('#popup_NotBetween10And50').modal('hide');
+    $('#popup_EnterHyperparameterMinimumDistance').modal('show');
+  } else if (ID_Popup == 'popup_EnterHyperparameterRandomForest') {
+    $('#popup_EnterHyperparameterRandomForest').modal('hide');
+    $('#popup_algo').modal('show');
+  } else if (ID_Popup == 'popup_NotBetween10And500') {
+    $('#popup_NotBetween10And500').modal('hide');
+    $('#popup_EnterHyperparameterRandomForest').modal('show');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
   } else if (ID_Popup == 'popup_EnterObjektID') {

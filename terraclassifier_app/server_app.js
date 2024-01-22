@@ -266,8 +266,6 @@ async function processGraph_erstellen(data_all) {
  * 
  * 
  * 
- 
-
 async function processGraph_erstellen(data_all){
   try{
   const northEast = data_all.AOI._northEast
