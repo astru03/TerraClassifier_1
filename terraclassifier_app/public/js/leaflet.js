@@ -713,26 +713,6 @@ function closePopup(ID_Popup) {
  * 
  */
 function demoButton() {
-  /*
-  fetch('/demo_builder', {
-    method: 'POST',
-    body: JSON.stringify({}) 
-  })
-  .then(response => {
-    // Überprüfen Sie den Status der Antwort
-    if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-    }
-    return response.blob();
-  })
-  .then(blob => {
-    // Verarbeite den Blob, z.B. zeige ein Bild an
-    const imageUrl = URL.createObjectURL(blob);
-    console.log(imageUrl);
-    const imageElement = document.createElement('img');
-    imageElement.src = imageUrl;
-    document.body.appendChild(imageElement);
-  })*/
   document.getElementById('exampleButton').style.display = 'none';
   const DEMO_AOICOORD = { northEast: { lat: 51.966, lng: 7.6175 }, southWest: { lat: 51.939, lng: 7.5714 } }
   const DEMO_AOTCOORD = { northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
