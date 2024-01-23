@@ -1,5 +1,4 @@
 html {
-<<<<<<< HEAD:TerraClassifier_app/public/css/beispiel.css
   position: relative;
   height: 100%;
   padding-bottom:160px;
@@ -26,33 +25,6 @@ footer {
   z-index: 1000;
 }
 
-=======
-    position: relative;
-    height: 100%;
-    padding-bottom:160px;
-  }
-  footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 87px;
-  }
-  #logo {
-    width: 100px;
-    height: auto;
-  }
-  #map {
-    width: 100%;
-    height: 575px;
-  }  
-  #exampleButton {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-  }
->>>>>>> Andreas_Branch:terraclassifier_app/public/css/beispiel.css
 
 
 
