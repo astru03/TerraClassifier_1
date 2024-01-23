@@ -501,9 +501,6 @@ function algorithm() {
           }
         })
       }
-      //algoBoolean = true;
-      //checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
-      //$('#popup_algo').modal('hide');
     }
   })
 }
@@ -713,26 +710,6 @@ function closePopup(ID_Popup) {
  * 
  */
 function demoButton() {
-  /*
-  fetch('/demo_builder', {
-    method: 'POST',
-    body: JSON.stringify({}) 
-  })
-  .then(response => {
-    // Überprüfen Sie den Status der Antwort
-    if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-    }
-    return response.blob();
-  })
-  .then(blob => {
-    // Verarbeite den Blob, z.B. zeige ein Bild an
-    const imageUrl = URL.createObjectURL(blob);
-    console.log(imageUrl);
-    const imageElement = document.createElement('img');
-    imageElement.src = imageUrl;
-    document.body.appendChild(imageElement);
-  })*/
   document.getElementById('exampleButton').style.display = 'none';
   const DEMO_AOICOORD = { northEast: { lat: 51.966, lng: 7.6175 }, southWest: { lat: 51.939, lng: 7.5714 } }
   const DEMO_AOTCOORD = { northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
@@ -1222,36 +1199,45 @@ async function handleFileUpload() {
   }
   // Datentyp filtern 
   const fileType = file.name.split('.').pop().toLowerCase();
-
   if (fileType === 'json' || fileType === 'geojson') {
     const reader = new FileReader();
     reader.onload = async function (event) {
       console.log('GeoJSON Datei wurde erfolgreich geladen');
-      const data_geojson = JSON.parse(event.target.result);
-      if (rectangleCoordinates) {
-        const filteredFeatures = data_geojson.features.filter(feature =>
-          isUploadinRectangle(feature, rectangleCoordinates)
-        );
-        data_geojson.features = filteredFeatures;
-      } else {
-        console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
-      }
-      merge_choice(
-        //Wenn man auf Ok drückt
-        () => {
-          addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
-          console.log('GeoJSON Daten zur Karte hinzugefügt');
-          // Aktualisiere drawPolygone und die Zeichenkontrollen
-          drawPolygone = true;
-          localStorage.setItem('drawPolygone', 'true');
-          update_drawing();
-        },
-        //Wenn man abbricht
-        () => {
-          L.geoJSON(data_geojson).addTo(map)
-          console.log('GeoJSON', data_geojson)
+      try {
+        const data_geojson = JSON.parse(event.target.result);
+        for (const feature of data_geojson.features) {
+          if (!feature.properties || Object.keys(feature.properties).length === 0) {
+            alert('Die Daten müssen gelabelt sein!')
+            return
+          }
         }
-      )
+        if (rectangleCoordinates) {
+          const filteredFeatures = data_geojson.features.filter(feature =>
+            isUploadinRectangle(feature, rectangleCoordinates)
+          );
+          data_geojson.features = filteredFeatures;
+        } else {
+          console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
+        }
+        merge_choice(
+          //Wenn man auf Ok drückt
+          () => {
+            addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
+            console.log('GeoJSON Daten zur Karte hinzugefügt');
+            // Aktualisiere drawPolygone und die Zeichenkontrollen
+            drawPolygone = true;
+            localStorage.setItem('drawPolygone', 'true');
+            update_drawing();
+          },
+          //Wenn man abbricht
+          () => {
+            L.geoJSON(data_geojson).addTo(map)
+            console.log('GeoJSON', data_geojson)
+          }
+        )
+      } catch {
+        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
+      }
     };
     reader.readAsText(file);
   }
@@ -1259,7 +1245,6 @@ async function handleFileUpload() {
     console.log('GeoPackage Datei auswählen');
     const formData = new FormData()
     formData.append('file', file)
-
     fetch('/upload', {
       method: 'POST',
       body: formData,
@@ -1271,13 +1256,19 @@ async function handleFileUpload() {
         for (layer in layers) {
           const geojson_data = layers[layer]
           if (geojson_data.type === 'FeatureCollection') {
-            let filter = geojson_data.features
+            for (const feature of geojson_data.features) {
+              if (!feature.properties || Object.keys(feature.properties).length === 0) {
+                alert("Die Daten müssen gelabelt sein!")
+                return
+              }
+            }
+            let filtered_geojson = []
             if (rectangleCoordinates) {
-              filter = geojson_data.features.filter(feature =>
+              filtered_geojson = geojson_data.features.filter(feature =>
                 isUploadinRectangle(feature, rectangleCoordinates)
               )
             }
-            geojson_data.features = filter
+            geojson_data.features = filtered_geojson
             addToMap(geojson_data)
           } else {
             console.error('Kein gültiges Format!')
@@ -1413,12 +1404,6 @@ function addPopup(layer) {
   var popupContent = '<button onclick="download_data()">Download</button>'
   layer.bindPopup(popupContent);
 }
-
-/**
- * function download_data(){
-  window.open('http://localhost:8081/download', '_blank')
-}
- */
 
 /**
  * Function send_backend_json

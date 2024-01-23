@@ -159,36 +159,6 @@ app.post('/satellite', (req, res) => {
 
 
 app.post('/demo_builder', async (req, res) => {
-  /*
-  let connection = await OpenEO.connect("http://54.185.59.127:8000/");
-  await connection.authenticateBasic("k_galb01", "password");
-  var builder = await connection.buildProcess();
-  var datacube = builder.load_collection(
-    "sentinel-s2-l2a-cogs",
-    {west:840180.2, south:6788889.4, east:852976.1, north:6799716.7},
-    3857,
-    ["2022-01-01", "2022-12-31"]
-  ); 
-  let datacube_filtered = builder.filter_bands(datacube, ["B02", "B03", "B04"]);
-  var mean = function(data) {
-      return this.mean(data);
-  };
-  let datacube_reduced = builder.reduce_dimension(datacube_filtered, mean, dimension = "t");
-  let result = builder.save_result(datacube_reduced,'GTiff');
-  let response = await connection.computeResult(result);
-  console.log(response.data);
-  // Setze die richtigen Header für den Dateityp
-  //res.setHeader('Content-Type', 'image/tiff');
-  //res.setHeader('Access-Control-Expose-Headers', 'Location, OpenEO-Identifier, OpenEO-Costs');
-
-  response.data.pipe(res); // Send the Tiff as response
-  console.log("Send Done");
-
-  //var ret = await doSomething();
-  //console.log(ret);
-  //res.status(200).send(ret);
-  //res.send({message: 'Funktion ausgeführt'});
-  */
 });
 
 /**
@@ -443,11 +413,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         features: geojsonFeatures
       };
     }
-
     res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
   } catch (error) {
-    console.error('Fehler beim Verarbeiten der GeoPackage-Datei:', error);
-    res.status(500).send({ message: 'Fehler beim Verarbeiten der GeoPackage-Datei: ' + error.message });
+    console.error('Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:', error);
+    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:' + error.message });
   }
 });
 
