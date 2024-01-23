@@ -1,19 +1,19 @@
-
 // create a variable for the map
 var map = L.map('map').setView([51.975, 7.61], 12);
 
-
-// Global variables for saving the training data (polygons)
+// global variables for saving the training data (polygons)
 var allDrawnFeatures = {
   "type": "FeatureCollection",
   "features": []
 };
 
-//Global variables for saving the rectangles
+// global variables for saving the rectangles
 var allRectangle = {
   "type": "FeatureCollection", 
   "features": []
 };
+
+var satalite_layer;
 
 // add the base map
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -21,17 +21,15 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-
-// Layer on which the User can draw a shape
+// layer on which the User can draw a shape
 var drawnFeatures = new L.FeatureGroup();
 map.addLayer(drawnFeatures);
 
-
-// Adding a Leaflet.Draw Toolbar
+// adding a Leaflet.Draw toolbar
    var drawControl = new L.Control.Draw( {
     edit: {featureGroup: drawnFeatures, 
       remove: true},
-    // Only rectangle draw function is needed
+    // only rectangle draw function is needed
     draw: {
         polyline: false,
         rectangle: true,
@@ -45,7 +43,7 @@ map.addLayer(drawnFeatures);
 map.addControl(drawControl);
 
 /**
- * Function to style the rectangles
+ * function to style the rectangles
  * @param {*} layer
  *  @param {*} layerType 
  */
@@ -59,7 +57,7 @@ function setStyle(layer, layerType) {
   }
 }
 
-// Global variables
+// global variables
 let rectangleCoordinates = null;
 let previousRectangle = null;
 let AOICOORD;
@@ -74,6 +72,7 @@ let drawPolygone
 let AOTCOORD;
 let drawDataChoiceBoolean;
 let algorithem;
+let hyperparameter;
 let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
@@ -101,7 +100,7 @@ function object_name() {
   });
 }
 
-// Event-Handler for drawing
+// event-handler for drawing
 map.on("draw:created", function(event) {
   var layer = event.layer;
   var type = event.layerType;
@@ -109,17 +108,17 @@ map.on("draw:created", function(event) {
   setStyle(layer, event.layerType);
 
   if (type === 'rectangle') {
-    if (previousRectangle !== null) { // If a rectangle has already been drawn, the old one will be deleted
+    if (previousRectangle !== null) { // if a rectangle has already been drawn, the old one will be deleted
       drawnFeatures.removeLayer(previousRectangle);
     }
     // rectangleCoordinates = layer.getBounds().toBBoxString(); // only important if a string is required for the coordinates
     rectangleCoordinates = layer.getBounds();
     checkConditionButton5(); // Check Condition to activate easybutton 5 (modeltraining)
     
-    // Only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
+    // only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
     if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       AOICOORD = rectangleCoordinates;
-    // Only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+    // only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
     
     // for drawing in training data yourself
     } else if (trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
@@ -147,11 +146,16 @@ map.on("draw:created", function(event) {
       $('#popup_NotInAOT').modal('show');
     }
   }
-
 })
 
+function remove_satalite_layer(){
+  if(satalite_layer){
+    map.removeLayer(satalite_layer)
+    satalite_layer = null
+  }
+}
 
-// Event-Handler for editing rectangle
+// event-handler for editing rectangle
 map.on("draw:edited", function(event) {
   var layers = event.layers;
   layers.eachLayer(function (layer) {
@@ -162,7 +166,7 @@ map.on("draw:edited", function(event) {
   });
 })
 
-// Deleting the training data
+// deleting the training data
 map.on(L.Draw.Event.DELETED, function(event) {
   var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?')
   if(deleteAll) {
@@ -178,14 +182,10 @@ map.on(L.Draw.Event.DELETED, function(event) {
 L.control.scale({imperial: true, metric: true}).addTo(map);
 
 //----------------------------------------------------------------------------------------------
-// Functions for the actions of the menu
-
-
-
-
+// functions for the actions of the menu
 
 /**
- * Function to obtain the Sentinel-2 satellite images
+ * function to obtain the Sentinel-2 satellite images
  * @param {*} coordinates
  */
 function satelliteImages(coordinates) {
@@ -194,48 +194,48 @@ function satelliteImages(coordinates) {
   document.getElementById('northeastCoordinates').value = NorthEastCoordinates;
   document.getElementById('southwestCoordinates').value = SouthwestCoordinates;
   $('#popup_sat').modal('show');
-  
-  // Date selection
-  $(document).ready(function() {
-    var selectedDate = null; // Variable to store the selected date
+
+  // date selection
+  $(document).ready(function () {
+    var selectedDate = null; // variable to store the selected date
     $('#fromDate').datepicker({
-        autoclose: true,
-        format: 'dd/mm/yyyy',
-        todayHighlight: true,
-        endDate: '+0d' // Set the end date limit to today
-    }).on('changeDate', function(selected) {
-        selectedDate = selected.date;
+      autoclose: true,
+      format: 'dd/mm/yyyy',
+      todayHighlight: true,
+      endDate: '+0d' // set the end date limit to today
+    }).on('changeDate', function (selected) {
+      selectedDate = selected.date;
     });
 
-    $('#saveChangesBtn').on('click', function() {
-      let cloudCoverInput = document.getElementById('cloudCoverInput').value; // Taking cloud cover into account
-      if (cloudCoverInput === ''){
+    $('#saveChangesBtn').on('click', function () {
+      let cloudCoverInput = document.getElementById('cloudCoverInput').value; // taking cloud cover into account
+      if (cloudCoverInput === '') {
         cloudCoverInput = null;
       } else if (cloudCoverInput > 100 || cloudCoverInput < 0) {
         cloudCoverInput = 'overHundred';
       }
-      
-      let selectedDateNull = document.getElementById('fromDate').value; // Taking the date into account
-      if (selectedDateNull === '' ){
+
+      let selectedDateNull = document.getElementById('fromDate').value; // taking the date into account
+      if (selectedDateNull === '') {
         selectedDate = null;
       } else {
         selectedDate = document.getElementById('fromDate').value;
       }
-      if(selectedDate !== null && cloudCoverInput !== null && cloudCoverInput !== 'overHundred') {
-          let dateParts = selectedDate.split('/');
-          let day = parseInt(dateParts[0], 10); // Day of the selected date
-          let month = parseInt(dateParts[1], 10); // Month of the selected date
-          let year = parseInt(dateParts[2], 10); // Year of the selected date
-          datum = day +"."+ month + "." + year
-          let cloudCoverInput = document.getElementById('cloudCoverInput').value;
-          // The function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
-          getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
-        } else if (selectedDate === null) {
-          $('#popup_sat').modal('hide');
-          $('#popup_NoDate').modal('show');
-        } else if (cloudCoverInput === null) {
-          $('#popup_sat').modal('hide');
-          $('#popup_NoCloudCover').modal('show');
+      if (selectedDate !== null && cloudCoverInput !== null && cloudCoverInput !== 'overHundred') {
+        let dateParts = selectedDate.split('/');
+        let day = parseInt(dateParts[0], 10); // day of the selected date
+        let month = parseInt(dateParts[1], 10); // month of the selected date
+        let year = parseInt(dateParts[2], 10); // year of the selected date
+        datum = day + "." + month + "." + year
+        let cloudCoverInput = document.getElementById('cloudCoverInput').value;
+        // the function passes the values ​​to the backend, which fetches the satellite images from AWS and returns the ImageURL and the imageBound
+        getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput);
+      } else if (selectedDate === null) {
+        $('#popup_sat').modal('hide');
+        $('#popup_NoDate').modal('show');
+      } else if (cloudCoverInput === null) {
+        $('#popup_sat').modal('hide');
+        $('#popup_NoCloudCover').modal('show');
       } else if (cloudCoverInput === 'overHundred') {
         $('#popup_sat').modal('hide');
         $('#popup_CloudCoverNotOver100').modal('show');
@@ -245,108 +245,102 @@ function satelliteImages(coordinates) {
 }
 
 /**
- * Function sends the information to the backend that the sentinel-2 images fetches
+ * function sends the information to the backend that the sentinel-2 images fetches
  * @param {*} datum
  * @param {*} NorthEastCoordinates
  * @param {*} SouthwestCoordinates
  * @param {*} cloudCoverInput
  */
 async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordinates, cloudCoverInput) {
-  let URLlist = [];  // The URL list is always emptied when the satellite images are to be fetched again
+  let URLlist = [];  // the URL list is always emptied when the satellite images are to be fetched again
   try {
-    const response = await fetch('/satellite', {  // Calling satellite
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          Date: datum,
-          NEC: NorthEastCoordinates,
-          SWC: SouthwestCoordinates,
-          CCI: cloudCoverInput})
-      }) 
-      // If response is not returned properly, returns errors
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+    const response = await fetch('/satellite', {  // calling satellite
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        Date: datum,
+        NEC: NorthEastCoordinates,
+        SWC: SouthwestCoordinates,
+        CCI: cloudCoverInput
+      })
+    })
+    // if response is not returned properly, returns errors
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
 
-      // Interpret the response.
-      const data = await response.json();
-      if (Object.keys(data).length >= 1 ) { // If more than objects were found, then the id and the url are written into one object URLlist
-        for (var index = 0; index < Object.keys(data).length; index ++) {
-          var key = 'item_' + index;
-          if(data.hasOwnProperty(key)) {
-            var item = data[key];
-            let URLListItem = {
-                ID: item.id,
-                URL: item.url,
-                IB: item.imageBounds
-            };
-            URLlist.push(URLListItem)
-          }  
+    // interpret the response.
+    const data = await response.json();
+    if (Object.keys(data).length >= 1) { // if more than objects were found, then the id and the url are written into one object URLlist
+      for (var index = 0; index < Object.keys(data).length; index++) {
+        var key = 'item_' + index;
+        if (data.hasOwnProperty(key)) {
+          var item = data[key];
+          let URLListItem = {
+            ID: item.id,
+            URL: item.url,
+            IB: item.imageBounds
+          };
+          URLlist.push(URLListItem)
         }
       }
-      // The selected ID from the selection list where the satellite images can be selected
-      let selectionContent = $('#objectSelect');
-      selectionContent.empty(); // Empty the contents of the modal body
+    }
+    // the selected ID from the selection list where the satellite images can be selected
+    let selectionContent = $('#objectSelect');
+    selectionContent.empty(); // empty the contents of the modal body
 
-      if (URLlist.length === 0) {
-        $('#popup_select_sat').modal('hide');
-        $('#popup_NoData').modal('show');
-      } else {
-        // Creates the selection list in the pop-up window where the satellite images can be selected
-        URLlist.forEach(function (item) {
-          selectionContent.append($('<option>', {
-            text: item.ID
-          }));
-        });
-        $('#popup_select_sat').modal('show'); // Open the pop-up window with the satellite image selection list
+    if (URLlist.length === 0) {
+      $('#popup_select_sat').modal('hide');
+      $('#popup_NoData').modal('show');
+    } else {
+      // creates the selection list in the pop-up window where the satellite images can be selected
+      URLlist.forEach(function (item) {
+        selectionContent.append($('<option>', {
+          text: item.ID
+        }));
+      });
+      $('#popup_select_sat').modal('show'); // open the pop-up window with the satellite image selection list
 
-        // when a satellite image has been selected and confirmed with the “ok” button
-        $('#confirmSelectionBtn').on('click', function() {
-          $('#loadingSpinner').show();  
-          reset_AOI()  // When Button confirmSelectionBtn is pressed, the previously drawn rectangle is removed from the leaflet map
-          let selectedID = $('#objectSelect').val();
-          // Show the geotiff in the leaflet map
-          for (var i = 0; i < URLlist.length; i++){
-            if (selectedID === URLlist[i].ID) {
-              let geoTiffURL = URLlist[i].URL;
-              console.log(geoTiffURL);
-              // Load GeoTIFF from STAC API with georaster_layer_for_leaflet
-                parseGeoraster(geoTiffURL).then(georaster => {
-                console.log("georaster:", georaster);
-                  /*
-                      GeoRasterLayer is an extension of GridLayer,
-                      which means can use GridLayer options like opacity.
-                      Just make sure to include the georaster option!
-                      http://leafletjs.com/reference-1.2.0.html#gridlayer
-                  */
-                var layer = new GeoRasterLayer({
-                  useWebWorkers: true,
-                  attribution: "earth-search.aws.element84.com",
-                  georaster: georaster,
-                  resolution: 128,
-                  keepBuffer: 8
-                  });
-                  layer.addTo(map);
-                  setTimeout(function() {
-                    $('#loadingSpinner').hide();
-                    checkConditionButton2();
-                  }, 10000);
-              }); 
-
-              // Old call to load the thumbnails (satellite images with very low resolution and as jpg) into the leaflet map
-              //let leafletImageBounds = URLlist[i].IB.map(coordinates => {return coordinates.map(coord => [coord[1], coord[0]])});
-              //console.log(leafletImageBounds);
-              //let imageOverlay = L.imageOverlay(URLlist[i].URL, leafletImageBounds);
-              //imageOverlay.addTo(map);
-            }
+      // when a satellite image has been selected and confirmed with the “ok” button
+      $('#confirmSelectionBtn').on('click', function () {
+        $('#loadingSpinner').show();
+        reset_AOI()  // when button confirmSelectionBtn is pressed, the previously drawn rectangle is removed from the leaflet map
+        let selectedID = $('#objectSelect').val();
+        // show the geotiff in the leaflet map
+        for (var i = 0; i < URLlist.length; i++) {
+          if (selectedID === URLlist[i].ID) {
+            let geoTiffURL = URLlist[i].URL;
+            // load GeoTIFF from STAC API with georaster_layer_for_leaflet
+            parseGeoraster(geoTiffURL).then(georaster => {
+              console.log("georaster:", georaster);
+              /*
+                  GeoRasterLayer is an extension of GridLayer,
+                  which means can use GridLayer options like opacity.
+                  Just make sure to include the georaster option!
+                  http://leafletjs.com/reference-1.2.0.html#gridlayer
+              */
+              var layer = new GeoRasterLayer({
+                useWebWorkers: true,
+                attribution: "earth-search.aws.element84.com",
+                georaster: georaster,
+                resolution: 128,
+                keepBuffer: 8
+              });
+              layer.addTo(map);
+              setTimeout(function () {
+                $('#loadingSpinner').hide();
+                checkConditionButton2();
+              }, 10000);
+            });
           }
-          sentinelBooelan = true;
-          
-          $('#popup_select_sat').modal('hide'); // Close the selection list popup after confirmation
-        });         
-      }
+        }
+        sentinelBooelan = true;
+
+        $('#popup_select_sat').modal('hide'); // close the selection list popup after confirmation
+      });
+    }
   } catch (error) {
     console.error('Es gab einen Fehler:', error);
     $('#loadingSpinner').hide();
@@ -354,13 +348,9 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
   $('#popup_sat').modal('hide');
 }
 
-
-
-//console.log(drawPolygone)
-
 if (drawPolygone === null) {
-    localStorage.setItem('drawPolygone', 'false');
-    drawPolygone = false;
+  localStorage.setItem('drawPolygone', 'false');
+  drawPolygone = false;
 }
 console.log(localStorage.getItem('drawPolygone'))
 
@@ -370,49 +360,48 @@ console.log(localStorage.getItem('drawPolygone'))
 function initial_drawing() {
   var value = localStorage.getItem('drawPolygone')
   console.log(value)
-  
-  if(value === null){
+
+  if (value === null) {
     drawPolygone = false
     localStorage.setItem('drawPolygone', 'false')
     console.log('Erster Besuch der Seite', drawPolygone)
-  }else{
+  } else {
     drawPolygone = value === 'true'
     console.log('Aktualisiert', drawPolygone)
   }
   update_drawing()
-  }
+}
  
 /**
  * Function update_drawing
  */
 function update_drawing() {
   map.removeControl(drawControl)
-    drawControl = new L.Control.Draw({
-      edit: { featureGroup: drawnFeatures, remove: true}, 
-      draw: {
-        polyline: false, 
-        rectangle: true, 
-        polygon: drawPolygone, 
-        circle: false, 
-        circlemarker: false, 
-        marker: false
-      }
-    })
-    map.addControl(drawControl)
-    console.log(drawPolygone)
+  drawControl = new L.Control.Draw({
+    edit: { featureGroup: drawnFeatures, remove: true },
+    draw: {
+      polyline: false,
+      rectangle: true,
+      polygon: drawPolygone,
+      circle: false,
+      circlemarker: false,
+      marker: false
+    }
+  })
+  map.addControl(drawControl)
+  console.log(drawPolygone)
 }
 
+$(document).ready(function () {
+  $('#uploadFileChoice').click(function () {
 
-$(document).ready(function(){
-  $('#uploadFileChoice').click(function(){
-    
-    if(rectangleCoordinates) {
+    if (rectangleCoordinates) {
       trainigBooelan = true;
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
-      checkConditionButton3(); // Check Condition to activate easybutton 3 (algorithm)
-      // Only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
-      // If the training data should be uploaded
+      checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
+      // only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+      // if the training data should be uploaded
       if (trainigBooelan === true && rectangleCoordinates) {
         AOTCOORD = rectangleCoordinates;
       }
@@ -422,7 +411,7 @@ $(document).ready(function(){
       $('#popup_NoRectangleForAOT').modal('show')
     }
   })
-  $('#drawDataChoice').click(function(){
+  $('#drawDataChoice').click(function () {
     trainigBooelan = true;
     $('#popup_TrainingDataChoice').modal('hide')
     reset_AOI()
@@ -442,7 +431,7 @@ fileInput.addEventListener('change', handleFileUpload);
  * Function sentinel2 from easyButton1
  */
 function sentinel2() {
-  if(rectangleCoordinates) {
+  if (rectangleCoordinates) {
     satelliteImages(rectangleCoordinates)
   } else {
     showPopupNoRectangle();
@@ -460,36 +449,77 @@ function trainingData() {
  * Function algorithm from easyButton3
  */
 function algorithm() {
-    $('#popup_algo').modal('show');
-    $('#confirmSelectionAlg').on('click', function() {
-      var algorithmMD = document.getElementById('algorithm1').checked;
-      var algorithmRF = document.getElementById('algorithm2').checked;
-      if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  // If neither or both algorithms are selected
-        $('#popup_NoAlgorithm').modal('show');
-      } else {
-        if (algorithmMD) {
-          algorithem = 'MD';
-        } else {
-          algorithem = 'RF';
-        }
-        algoBoolean = true;
-        checkConditionButton4() // Check Condition to activate easybutton 4 (areaOfIntrest)
+  $('#popup_algo').modal('show');
+  $('#confirmSelectionAlg').on('click', function () {
+    var algorithmMD = document.getElementById('algorithm1').checked;
+    var algorithmRF = document.getElementById('algorithm2').checked;
+    if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  // if neither or both algorithms are selected
+      $('#popup_algo').modal('hide');
+      $('#popup_NoAlgorithm').modal('show');
+    } else {
+      if (algorithmMD) {
+        algorithem = 'MD';
         $('#popup_algo').modal('hide');
-    }})
+        $('#popup_EnterHyperparameterMinimumDistance').modal('show');
+
+        $('#saveTuneLength').on('click', function () {
+          var MinimumDistanceTuneLengthInput = document.getElementById('MinimumDistanceTuneLengthInput').value;
+          if (MinimumDistanceTuneLengthInput === '') {
+            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+            $('#popup_NotBetween10And50').modal('show');
+          } else if (MinimumDistanceTuneLengthInput > 50 || MinimumDistanceTuneLengthInput < 10) {
+            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+            $('#popup_NotBetween10And50').modal('show');
+          } else if (MinimumDistanceTuneLengthInput < 50 || MinimumDistanceTuneLengthInput > 10) {
+            hyperparameter = MinimumDistanceTuneLengthInput;
+            algoBoolean = true;
+            checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+            console.log("hyperparameter: " + hyperparameter);
+          }
+          
+        })
+      } else {
+        algorithem = 'RF';
+        $('#popup_algo').modal('hide');
+        $('#popup_EnterHyperparameterRandomForest').modal('show');
+
+        $('#saveNTree').on('click', function () {
+          var RandomForestNTreeInput = document.getElementById('RandomForestNTreeInput').value;
+          if (RandomForestNTreeInput === '') {
+            $('#popup_EnterHyperparameterRandomForest').modal('hide');
+            $('#popup_NotBetween10And500').modal('show');
+          } else if (RandomForestNTreeInput > 500 || RandomForestNTreeInput < 10) {
+            $('#popup_EnterHyperparameterRandomForest').modal('hide');
+            $('#popup_NotBetween10And500').modal('show');
+          } else if (RandomForestNTreeInput < 500 || RandomForestNTreeInput > 10) {
+            hyperparameter = RandomForestNTreeInput;
+            algoBoolean = true;
+            checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+            $('#popup_EnterHyperparameterRandomForest').modal('hide');
+            console.log("hyperparameter: " + hyperparameter);
+          }
+        })
+      }
+      //algoBoolean = true;
+      //checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+      //$('#popup_algo').modal('hide');
+    }
+  })
 }
 
 /**
  * Function areaOfIntrest from easyButton4
  */
 function areaOfIntrest() {
-  if(previousRectangle){
+  if (previousRectangle) {
     drawnFeatures.removeLayer(previousRectangle)
     previousRectangle = null
     rectangleCoordinates = null
     drawnFeatures.clearLayers()
   }
   drawPolygone = false
-  localStorage.setItem('drawPolygone', 'false') 
+  localStorage.setItem('drawPolygone', 'false')
   update_drawing()
   aoiBoolean = true
 }
@@ -497,124 +527,128 @@ function areaOfIntrest() {
 /**
  * Function modelTraining from easyButton5
  */
- async function modelTraining() {
+async function modelTraining() {
   $('#popup_EnterResolution').modal('show');
 
-  $('#saveResolution').on('click', async function() {
+  $('#saveResolution').on('click', async function () {
     let resolutionInput = document.getElementById('objectResolutionInput').value;
-      if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
-        modelBoolean = true;
-        checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
-      } else {
-        console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
-      }
-      //End date
-      let dateParts = datum.split('.') // Splitting the old date format
-      let newDate = new Date(dateParts[2],dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
-      let year = newDate.getFullYear();
-      let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
-      let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
-      let NewStartDate = `${year}-${month}-${day}`;
+    if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+      modelBoolean = true;
+      checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+    } else {
+      console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
+    }
+    //End date
+    let dateParts = datum.split('.') // Splitting the old date format
+    let newDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // Be careful months start at 0. So Janua = 0 therefore -1 for month
+    let year = newDate.getFullYear();
+    let month = String(newDate.getMonth() + 1).padStart(2, '0'); // Add leading zeros for month
+    let day = String(newDate.getDate()).padStart(2, '0'); // Add leading zeros for tag
+    let NewStartDate = `${year}-${month}-${day}`;
 
-      let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-      startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
-      let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
-      
-      console.log(AOICOORD);
-      console.log(AOTCOORD);
-      console.log(NewStartDate);
-      console.log(endDate);
-      console.log(algorithem);
-      console.log(allDrawnFeatures);
-      console.log(resolutionInput);
-      try{
-        let DATAJSON = {
-          "AOI": AOICOORD,
-          "AOT": AOTCOORD,
-          "StartDate": NewStartDate,
-          "Enddate": endDate,
-          "algorithm": algorithem,
-          "trainigsdata": allDrawnFeatures,
-          "resolution": resolutionInput
-        };
-        console.log(DATAJSON);
-        send_backend_json(DATAJSON)
-      }
-      catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
-        console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
-      }
+    let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
+    startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+    let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
+
+    try {
+      let DATAJSON = {
+        "AOI": AOICOORD,
+        "AOT": AOTCOORD,
+        "StartDate": NewStartDate,
+        "Enddate": endDate,
+        "algorithm": algorithem,
+        "hyperparameter": hyperparameter,
+        "trainigsdata": allDrawnFeatures,
+        "resolution": resolutionInput
+      };
+      console.log(DATAJSON);
+      send_backend_json(DATAJSON)
+    }
+    catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
+      console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
+    }
     $('#popup_EnterResolution').modal('hide');
   })
 }
 
 /**
- * Function classification from easyButton6
- * function classification() {
-
-  fetch('/processgraph', {
-    method:'POST'
-  })
-  .then(response => response.json())
-  .then(data =>{
-    if(data.tiffPath){
-      console.log(data)
-      var data0 = JSON.parse(data.data)
-      console.log(data0)
-      L.imageOverlay(data.tiffPath, [[data0.AOI._southWest.lat, data0.AOI._southWest.lng], [data0.AOI._northEast.lat, data0.AOI._northEast.lng]]).addTo(map);
-    }
-    console.log(data)
-  })
-  .catch(error=> {
-    console.error('Fehler', error)
-  })
-  
-}
+ * Function classification
  */
-
 function classification() {
+  console.log("kommt");
+  $('#loadingSpinner').show();
   fetch('/processgraph', {
     method: 'POST'
   })
-  .then(response => response.blob()) // Empfangen der Antwort als JSON
-    .then(blob => {
-      const imageUrl = URL.createObjectURL(blob);
-      console.log(imageUrl)
-      // Konvertieren des Base64-kodierten Strings in einen Blob
-      parseGeoraster(imageUrl).then(georaster => {
-        // Verwenden Sie die georaster-layer-for-leaflet-Bibliothek, um das Bild auf der Karte anzuzeigen
-        const layer = new GeoRasterLayer({
-          georaster: georaster,
-          opacity: 0.7,
-          resolution: 128,
-          keepBuffer: 8
-        });
-  
-        // Fügen Sie die Schicht zur Karte hinzu
-        layer.addTo(map);
-  
-        // Optional: Setzen Sie die Ansicht der Karte auf den Mittelpunkt des Bildes und passen Sie den Zoom an
-        if (georaster.xmin !== undefined && georaster.xmax !== undefined &&
-            georaster.ymin !== undefined && georaster.ymax !== undefined) {
-          const centerLat = (georaster.ymin + georaster.ymax) / 2;
-          const centerLng = (georaster.xmin + georaster.xmax) / 2;
-          map.setView([centerLat, centerLng], 13);
-        }
-      });
-
+    .then(response => {
+      if (response.ok) {
+        downloadTiff()
+        showTiff()
+      } else {
+        console.log("Fehler bei der Verarbeitung der Datei!")
+      }
     })
-
-
-    // Verwenden Sie parseGeoraster, um das GeoTIFF-Bild zu laden und anzeigen zu lassen
+    .catch(error => {
+      console.error('Fehler:', error);
+    });
     
-  
-  .catch(error => {
-    console.error('Fehler:', error);
-  });
 }
 
+/**
+ * Function downloadTiff
+ */
+function downloadTiff() {
+  var user_confirm = confirm("Möchten sie die Klassifikation herunterladen?")
+  if (user_confirm) {
+    setTimeout(() => {
+      fetch('/download-tiff')
+        .then(response => {
+          response.blob().then(blob => {
+            // creating a link element for the download
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'test_js_1.tif';
+            document.body.appendChild(a);
+            a.click();
+            a.remove(); // removing the element after the download
+          });
+        })
+    }, 5000)
+  } else {
+    console.log("Download wurde verweigert!")
+  }
+}
 
-
-
+var geladen = false;
+/**
+ * Function showTiff
+ */
+function showTiff() {
+  geladen = true;
+  setTimeout(() => {
+    fetch('/show-tiff')
+      .then(response => {
+        response.blob()
+          .then(blob => {
+            let url = window.URL.createObjectURL(blob)
+            parseGeoraster(url).then(georaster => {
+              var layer = new GeoRasterLayer({
+                georaster: georaster,
+                useWebWorkers: true,
+                resolution: 128,
+                keepBuffer: 8
+              })
+              layer.addTo(map)
+            })
+          })
+          .catch(error => {
+            console.error('Fehler beim anzeigen der Tif!')
+          })
+      })
+      $('#loadingSpinner').hide();
+  }, 10000)
+}
 
 /**
  * Function to close Popup-windows
@@ -628,8 +662,8 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NoRectangle') {
     $('#popup_NoRectangle').modal('hide');
   } else if (ID_Popup == 'popup_NoDate') {
-      $('#popup_NoDate').modal('hide');
-      $('#popup_sat').modal('show');
+    $('#popup_NoDate').modal('hide');
+    $('#popup_sat').modal('show');
   } else if (ID_Popup == 'popup_NoCloudCover') {
     $('#popup_NoCloudCover').modal('hide');
     $('#popup_sat').modal('show');
@@ -639,16 +673,29 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_CloudCoverNotOver100') {
     $('#popup_CloudCoverNotOver100').modal('hide');
     $('#popup_sat').modal('show');
-  }  else if (ID_Popup == 'popup_NoRectangleForAOT') {
+  } else if (ID_Popup == 'popup_NoRectangleForAOT') {
     $('#popup_NoRectangleForAOT').modal('hide');
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
+    $('#popup_algo').modal('show');
+  } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
+    $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
+    $('#popup_algo').modal('show');
+  } else if (ID_Popup == 'popup_NotBetween10And50') {
+    $('#popup_NotBetween10And50').modal('hide');
+    $('#popup_EnterHyperparameterMinimumDistance').modal('show');
+  } else if (ID_Popup == 'popup_EnterHyperparameterRandomForest') {
+    $('#popup_EnterHyperparameterRandomForest').modal('hide');
+    $('#popup_algo').modal('show');
+  } else if (ID_Popup == 'popup_NotBetween10And500') {
+    $('#popup_NotBetween10And500').modal('hide');
+    $('#popup_EnterHyperparameterRandomForest').modal('show');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
   } else if (ID_Popup == 'popup_EnterObjektID') {
     $('#popup_EnterObjektID').modal('hide');
-  }  else if (ID_Popup == 'popup_ObjectName') {
-    $('#popup_ObjectName').modal('hide'); 
+  } else if (ID_Popup == 'popup_ObjectName') {
+    $('#popup_ObjectName').modal('hide');
   } else if (ID_Popup == 'popup_EnterResolution') {
     $('#popup_EnterResolution').modal('hide');
   } else if (ID_Popup == 'popup_NotInAOT') {
@@ -662,10 +709,11 @@ function closePopup(ID_Popup) {
 
 
 /**
- * Function to close Popup-windows
- * @param {*} ID_Popup
+ * Function demoButton
+ * 
  */
 function demoButton() {
+  /*
   fetch('/demo_builder', {
     method: 'POST',
     body: JSON.stringify({}) 
@@ -684,20 +732,10 @@ function demoButton() {
     const imageElement = document.createElement('img');
     imageElement.src = imageUrl;
     document.body.appendChild(imageElement);
-  })
-
-  /*
-  .then(response => response.blob()) 
-  .then(blob => {
-    console.log("kommt");
-    console.log(blob);
   })*/
-
   document.getElementById('exampleButton').style.display = 'none';
-  /*
-  document.getElementById('exampleButton').style.display = 'none';
-  const DEMO_AOICOORD = {northEast: {lat: 51.966, lng: 7.6175} , southWest: {lat: 51.939, lng: 7.5714} }
-  const DEMO_AOTCOORD = {northEast: {lat: 51.90462174078735, lng: 7.668225785886583} , southWest: {lat: 51.87908396304335, lng: 7.617230713510279} }
+  const DEMO_AOICOORD = { northEast: { lat: 51.966, lng: 7.6175 }, southWest: { lat: 51.939, lng: 7.5714 } }
+  const DEMO_AOTCOORD = { northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
   const DEMO_NewStartDate = "2023-07-01"
   const DEMO_endDate = "2023-07-15"
   const DEMO_algorithem = "MD"
@@ -955,8 +993,6 @@ function demoButton() {
   console.log(DEMODATAJSON);
   //HIER PROZESSAUFRUF
   send_backend_json(DEMODATAJSON)
-  */
-
 }
 
 
@@ -970,8 +1006,8 @@ function showPopupNoRectangle() {
 /**
  * Function to reset_AOI
  */
-function reset_AOI(){
-  if(previousRectangle) {
+function reset_AOI() {
+  if (previousRectangle) {
     drawnFeatures.removeLayer(previousRectangle)
     delete_data()
     previousRectangle = null
@@ -979,21 +1015,20 @@ function reset_AOI(){
   }
 }
 
-// Create EasyButtons for the menu-functions
-
-
+// create easyButtons for the menu-functions
 // Button Sentinel-2 Data -----------------------------
 var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
 
 // Button Trainigsdata -----------------------------
 var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
-button2.disable(); // By default the button is disabled
+button2.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton2
- * Only active when variable trainigBooelan = true
+ * only active when variable trainigBooelan = true
  */
 function checkConditionButton2() {
-  if(sentinelBooelan === true) {
+  if (sentinelBooelan === true) {
+    //button1.disable();
     button2.enable();
   } else {
     button2.disable();
@@ -1002,13 +1037,14 @@ function checkConditionButton2() {
 
 // Button algorithem -----------------------------
 var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
-button3.disable(); // By default the button is disabled
+button3.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton3
- * Only active when variable trainigBooelan = true
+ * only active when variable trainigBooelan = true
  */
 function checkConditionButton3() {
-  if(trainigBooelan === true) {
+  if (trainigBooelan === true) {
+    //button2.disable();
     button3.enable();
   } else {
     button3.disable();
@@ -1016,14 +1052,18 @@ function checkConditionButton3() {
 }
 
 // Button area of intrest -----------------------------
-var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', areaOfIntrest, 'AOI');
-button4.disable(); // By default the button is disabled
+var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
+  areaOfIntrest()
+  remove_satalite_layer()
+}, 'AOI');
+button4.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton4
- * Only active when variable trainigBooelan = true and algoBoolean = true
+ * only active when variable trainigBooelan = true and algoBoolean = true
  */
 function checkConditionButton4() {
-  if(trainigBooelan === true && algoBoolean === true) {
+  if (trainigBooelan === true && algoBoolean === true) {
+    //button3.disable();
     button4.enable();
   } else {
     button4.disable();
@@ -1031,14 +1071,16 @@ function checkConditionButton4() {
 }
 
 // Button modeltrainig -----------------------------
-var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining, 'Modeltraining');
-button5.disable(); // By default the button is disabled
+var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining
+  , 'Modeltraining');
+button5.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton4
- * Only active when variable trainigBooelan = truen, algoBoolean = true and aoiBoolean = true and a rectangle has been drawn
+ * only active when variable trainigBooelan = truen, algoBoolean = true and aoiBoolean = true and a rectangle has been drawn
  */
 function checkConditionButton5() {
-  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+    //button4.disable();
     button5.enable();
   } else {
     button5.disable();
@@ -1047,13 +1089,14 @@ function checkConditionButton5() {
 
 // Button classification -----------------------------
 var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
-button6.disable(); // By default the button is disabled
+button6.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton4
- * Only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ * only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
  */
 function checkConditionButton6() {
-  if(trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
+  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
+    //button5.disable();
     button6.enable();
   } else {
     button6.disable();
@@ -1061,7 +1104,7 @@ function checkConditionButton6() {
 }
 
 
-// Create the main toggle menu
+// create the main toggle menu
 var toggleMenuButton = L.easyButton({
   position: 'topright',
   states: [{
@@ -1096,14 +1139,13 @@ var toggleMenuButton = L.easyButton({
 // add toggle menu to leaflet-map
 toggleMenuButton.addTo(map);
 
-
-
 /**
  * **********************************************************************************
  */
  var duplicate_key = {}
 
 /**
+ * Function create_key
  * Generiert einen eindeutigen Schlüssel für ein gegebenes Feature. 
  * Die Funktion bekommt ein feature-Objekt und wandelt dieses, aufgrund der Geometrie und der Eigenschaft, in ein JSON-String um und fügt sie zusammen. 
  * Diese Kombination dient als eindeutiger Schlüssel und wird später eingesetzt, um doppelte Polygone zu verhindern. 
@@ -1115,13 +1157,14 @@ function create_key(feature){
 }
 
 /**
+ * Function addFeature
  * Fügt ein Feature zu Sammlung hinzu, wenn es noch nicht vorhanden ist 
  * Verwendet 'create_key', um Duplikate zu vermeiden
  * @param {*} feature 
  */
-function addFeature(feature){
+function addFeature(feature) {
   var key = create_key(feature)
-  if(!duplicate_key[key]){
+  if (!duplicate_key[key]) {
     // Kopie des Features erstellen. Damit die features classID und Name nicht doppelt erscheinen
     var featureCopy = JSON.parse(JSON.stringify(feature));
     allDrawnFeatures.features.push(featureCopy);
@@ -1132,6 +1175,7 @@ function addFeature(feature){
 
 
 /**
+ * Function polygonToGeoJSON
  * Diese Funktion, fügt ein Polygon als GeoJSON-Objekt hinzu
  * @param {*} newFeature Das GeoJSON-Objekt, was hinzugeügt werden soll
  */
@@ -1139,6 +1183,11 @@ function polygonToGeoJSON(newFeature) {
   addFeature(newFeature)
 }
 
+/**
+ * Function merge_choice
+ * @param {*} onConfirm
+ * @param {*} onCancel
+ */
 function merge_choice(onConfirm, onCancel) {
   var userChoice = confirm("Möchten Sie die hochgeladene GeoJSON-Datei mit den vorhandenen Daten zusammenführen?");
   if (userChoice) {
@@ -1148,68 +1197,61 @@ function merge_choice(onConfirm, onCancel) {
   }
 }
 
-
-
-function isUploadinRectangle(feature, rectangleCoordinates){
+/**
+ * Function isUploadinRectangle
+ * @param {*} feature
+ * @param {*} rectangleCoordinates
+ */
+function isUploadinRectangle(feature, rectangleCoordinates) {
   const bounds = L.geoJSON(feature).getBounds();
   return rectangleCoordinates.contains(bounds)
 }
 
-
-
 /**
+ * Function handleFileUpload
  * Diese asynchrone Funktion ermöglicht das hochladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
  * @returns 
  */
 async function handleFileUpload() {
   console.log('file_upload');
-
   const fileInput = document.getElementById('fileInput');
   const file = fileInput.files[0];
-
   if (!file) {
-      alert('Datei auswählen!');
-      return;
+    alert('Datei auswählen!');
+    return;
   }
-
   // Datentyp filtern 
   const fileType = file.name.split('.').pop().toLowerCase();
 
   if (fileType === 'json' || fileType === 'geojson') {
     const reader = new FileReader();
-    reader.onload = async function(event) {
+    reader.onload = async function (event) {
       console.log('GeoJSON Datei wurde erfolgreich geladen');
       const data_geojson = JSON.parse(event.target.result);
-      
       if (rectangleCoordinates) {
-        const filteredFeatures = data_geojson.features.filter(feature => 
+        const filteredFeatures = data_geojson.features.filter(feature =>
           isUploadinRectangle(feature, rectangleCoordinates)
         );
         data_geojson.features = filteredFeatures;
-      }else{
+      } else {
         console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
       }
-
-
       merge_choice(
         //Wenn man auf Ok drückt
-         () => {
+        () => {
           addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
           console.log('GeoJSON Daten zur Karte hinzugefügt');
-
           // Aktualisiere drawPolygone und die Zeichenkontrollen
           drawPolygone = true;
           localStorage.setItem('drawPolygone', 'true');
           update_drawing();
-        }, 
+        },
         //Wenn man abbricht
         () => {
           L.geoJSON(data_geojson).addTo(map)
           console.log('GeoJSON', data_geojson)
         }
-        
       )
-      
     };
     reader.readAsText(file);
   }
@@ -1218,75 +1260,68 @@ async function handleFileUpload() {
     const formData = new FormData()
     formData.append('file', file)
 
-    fetch('/upload' , {
-      method : 'POST' , 
-      body : formData ,
-
+    fetch('/upload', {
+      method: 'POST',
+      body: formData,
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-      const layers = data.data 
-      for(layer in layers){
-        const geojson_data = layers[layer]
-        if(geojson_data.type === 'FeatureCollection'){
-          let filter = geojson_data.features
-          if(rectangleCoordinates){
-            filter = geojson_data.features.filter(feature => 
-              isUploadinRectangle(feature, rectangleCoordinates)
-          )
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        const layers = data.data
+        for (layer in layers) {
+          const geojson_data = layers[layer]
+          if (geojson_data.type === 'FeatureCollection') {
+            let filter = geojson_data.features
+            if (rectangleCoordinates) {
+              filter = geojson_data.features.filter(feature =>
+                isUploadinRectangle(feature, rectangleCoordinates)
+              )
+            }
+            geojson_data.features = filter
+            addToMap(geojson_data)
+          } else {
+            console.error('Kein gültiges Format!')
           }
-          geojson_data.features = filter
-          addToMap(geojson_data)
-        }else{
-          console.error('Kein gültiges Format!')
         }
-      }
-      
-    })
-    .catch(error => {
-      console.error('Fehler', error)
-      
-    })
-
-    
-    
-} else {
-      alert('Nicht unterstütztes Dateiformat. Bitte laden Sie eine GeoJSON- oder GeoPackage-Datei hoch.');
+      })
+      .catch(error => {
+        console.error('Fehler', error)
+      })
+  } else {
+    alert('Nicht unterstütztes Dateiformat. Bitte laden Sie eine GeoJSON- oder GeoPackage-Datei hoch.');
   }
 }
 
-
-
 /**
+ * Function addToMap
  * Fügt die Daten zur leaflet-Karte hinzu
  * @param {*} data GeoJSON-data die zur Karte hinzugefügt werden soll
  */
 function addToMap(data) {
   if (data.type === 'FeatureCollection') {
-      // Einzelnes GeoJSON-Objekt
-      L.geoJSON(data, {
-          onEachFeature: function(feature, layer) {
-              addFeature(feature);
-              drawnFeatures.addLayer(layer);
-          }
-      }).addTo(map);
-  } else if (typeof data === 'object') {
-      // Sammlung von GeoJSON-Objekten
-      for (const layerName in data) {
-          const layerData = data[layerName];
-          L.geoJSON(layerData, {
-              onEachFeature: function(feature, layer) {
-              }
-          }).addTo(map);
+    // Einzelnes GeoJSON-Objekt
+    L.geoJSON(data, {
+      onEachFeature: function (feature, layer) {
+        addFeature(feature);
+        drawnFeatures.addLayer(layer);
       }
+    }).addTo(map);
+  } else if (typeof data === 'object') {
+    // Sammlung von GeoJSON-Objekten
+    for (const layerName in data) {
+      const layerData = data[layerName];
+      L.geoJSON(layerData, {
+        onEachFeature: function (feature, layer) {
+        }
+      }).addTo(map);
+    }
   } else {
-      console.error('Ungültige Datenstruktur für die Kartenanzeige');
+    console.error('Ungültige Datenstruktur für die Kartenanzeige');
   }
 }
 
-
 /**
+ * Function node_polygon
  * Verarbeitet GeoJSON-Daten. Es wird differenziert zwischen Feature und FeatureCollection, aber sendet jedes Feature einzeln
  * @param {*} geojsonData 
  * @returns 
@@ -1298,120 +1333,112 @@ function node_polygon(geojsonData) {
   }
   // Wenn eine FeatureCollection übergeben wird, füge jedes Feature einzeln hinzu
   else if (geojsonData.type === 'FeatureCollection') {
-    
     geojsonData.features.forEach(addFeature)
   }
 }
 
-function node_rectangle(area_of_Training){
+/**
+ * Function node_rectangle
+ * @param {*} area_of_Training 
+ */
+function node_rectangle(area_of_Training) {
   console.log("allRectangle vor dem Push:", allRectangle);
   console.log("area_of_Training:", area_of_Training);
   allRectangle.features.push(area_of_Training)
   //area_of_Training_save(area_of_Training)
-
   // Setzen der rectangle_Boundes auf die Grenzen des neuen Rechtecks
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
 }
 
-//console.log(allDrawnFeatures);
-
-
-async function status_server(){
-  
-    return fetch('/status')
-      .then(response => {
-        if(!response.ok){
-          console.log('Server-Fehler')
-        }
-        return response.json()})
-        .then(data => data.status === 'ready')
-        .catch(error => {console.error('Status konnte nicht abgerufen werden', error);return false})
-       
+/**
+ * Function status_server
+ * @param {*}
+ */
+async function status_server() {
+  return fetch('/status')
+    .then(response => {
+      if (!response.ok) {
+        console.log('Server-Fehler')
+      }
+      return response.json()
+    })
+    .then(data => data.status === 'ready')
+    .catch(error => { console.error('Status konnte nicht abgerufen werden', error); return false })
 }
 
-
 /**
- * 
+ * Function check_map
+ * @param {*}
  */
-async function check_map()
-{
-  if(await status_server()){
-
-  }else{
+async function check_map() {
+  if (await status_server()) {
+  } else {
     console.log('Server ist noch nicht bereit!')
     location.reload()
   }
 }
 
-
-
-//Funktion muss behaklten werden, nur geändert
-function delete_data(){
+//Funktion muss behalten werden, nur geändert
+/**
+ * Function delete_data
+ * @param {*}
+ */
+function delete_data() {
   fetch('/delete', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({deleteAll: true}) 
+    body: JSON.stringify({ deleteAll: true })
   })
-  .then(response => response.json())
-  .then(data => {
-    console.log(data)
-    
-  })
-  .catch(error => console.error('Fehler beim löschen', error))
-  
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+    .catch(error => console.error('Fehler beim löschen', error))
   //behalten
-    allDrawnFeatures = {"type": "FeatrueCollection", "features": []};
-    //behalten
-    allRectangle = {"type": "Featurecollection", "features": []};
-    drawnFeatures.clearLayers()
-    rectangleCoordinates = null
-  }
-
+  allDrawnFeatures = { "type": "FeatrueCollection", "features": [] };
+  //behalten
+  allRectangle = { "type": "Featurecollection", "features": [] };
+  drawnFeatures.clearLayers()
+  rectangleCoordinates = null
+}
 
 //Download data_geojson.json als ZIP-Datei 
-
 /**
- * 
+ * Function addPopup
  * @param {*} layer 
  */
- function addPopup(layer){
+function addPopup(layer) {
   var popupContent = '<button onclick="download_data()">Download</button>'
   layer.bindPopup(popupContent);
 }
- 
-
-
 
 /**
  * function download_data(){
   window.open('http://localhost:8081/download', '_blank')
-
 }
  */
 
-
-
-
-function send_backend_json(DATAJSON){
+/**
+ * Function send_backend_json
+ * @param {*} DATAJSON 
+ */
+function send_backend_json(DATAJSON) {
   fetch('/send-data', {
-  method: 'POST', 
-  headers: {
-  'Content-Type': 'application/json',
-}, 
-body : JSON.stringify(DATAJSON)
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(DATAJSON)
 
-})
-.then(response => response.json())
-.then(data => {console.log(data)})
-.catch(error => {console.error(error)})
+  })
+    .then(response => response.json())
+    .then(data => { console.log(data) })
+    .catch(error => { console.error(error) })
 }
 
-
-
-
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', function () {
   initial_drawing()
   check_map()
   delete_data()
@@ -1419,6 +1446,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 window.addEventListener('beforeunload', function (e) {
   localStorage.setItem('drawPolygone', 'false');
-
-  
 });
+
+
