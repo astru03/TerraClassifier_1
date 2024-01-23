@@ -1028,7 +1028,7 @@ button2.disable(); // by default the button is disabled
  */
 function checkConditionButton2() {
   if (sentinelBooelan === true) {
-    button1.disable();
+    //button1.disable();
     button2.enable();
   } else {
     button2.disable();
@@ -1044,7 +1044,7 @@ button3.disable(); // by default the button is disabled
  */
 function checkConditionButton3() {
   if (trainigBooelan === true) {
-    button2.disable();
+    //button2.disable();
     button3.enable();
   } else {
     button3.disable();
@@ -1063,7 +1063,7 @@ button4.disable(); // by default the button is disabled
  */
 function checkConditionButton4() {
   if (trainigBooelan === true && algoBoolean === true) {
-    button3.disable();
+    //button3.disable();
     button4.enable();
   } else {
     button4.disable();
@@ -1080,7 +1080,7 @@ button5.disable(); // by default the button is disabled
  */
 function checkConditionButton5() {
   if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
-    button4.disable();
+    //button4.disable();
     button5.enable();
   } else {
     button5.disable();
@@ -1096,7 +1096,7 @@ button6.disable(); // by default the button is disabled
  */
 function checkConditionButton6() {
   if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
-    button5.disable();
+    //button5.disable();
     button6.enable();
   } else {
     button6.disable();
