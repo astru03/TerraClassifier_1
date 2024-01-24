@@ -1413,7 +1413,16 @@ async function handleFileUpload() {
     const reader = new FileReader();
     reader.onload = async function(event) {
       console.log('GeoJSON Datei wurde erfolgreich geladen');
-      const data_geojson = JSON.parse(event.target.result);
+      try{
+        const data_geojson = JSON.parse(event.target.result);
+
+      
+      for(const feature of data_geojson.features){
+          if(!feature.properties || Object.keys(feature.properties).length === 0){
+            alert('Die Daten müssen gelabelt sein!')
+            return
+          }
+      }
       
       if (rectangleCoordinates) {
         const filteredFeatures = data_geojson.features.filter(feature => 
@@ -1443,7 +1452,9 @@ async function handleFileUpload() {
         }
         
       )
-      
+      }catch{
+        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
+      }
     };
     reader.readAsText(file);
   }
@@ -1464,13 +1475,22 @@ async function handleFileUpload() {
       for(layer in layers){
         const geojson_data = layers[layer]
         if(geojson_data.type === 'FeatureCollection'){
-          let filter = geojson_data.features
+          //let filter = geojson_data.features
+
+          for(const feature of geojson_data.features){
+            if(!feature.properties || Object.keys(feature.properties).length === 0){
+              alert("Die Daten müssen gelabelt sein!")
+              return
+            }
+          }
+
+          let filtered_geojson = []
           if(rectangleCoordinates){
-            filter = geojson_data.features.filter(feature => 
+            filtered_geojson = geojson_data.features.filter(feature => 
               isUploadinRectangle(feature, rectangleCoordinates)
           )
-          }
-          geojson_data.features = filter
+          } 
+          geojson_data.features = filtered_geojson
           addToMap(geojson_data)
         }else{
           console.error('Kein gültiges Format!')
