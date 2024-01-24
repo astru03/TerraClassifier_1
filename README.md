@@ -12,7 +12,7 @@ Schnelligkeit und Effizienz: Klassifizieren Sie Satellitenbilder und Trainingsda
 Benutzerfreundlichkeit: Unsere Plattform ist intuitiv und einfach zu bedienen.
 
 ## Installation und Start der Webanwendung:
-1. Klonen Sie das folgende [GitHub-Repository] (https://github.com/astru03/TerraClassifier_1) in eine IDE (zum Beispiel VS Code).
+1. Klonen Sie das folgende [GitHub-Repository](https://github.com/astru03/TerraClassifier_1) in eine IDE (zum Beispiel VS Code).
 2. Navigieren Sie im Terminal mit dem Befehl "cd terraclassifier_app" in das gleichnamige Verzeichnis.
 3. Nutzen Sie den Befehl "npm install", um alle notwenidgen Module und Komponenten zu installieren. Die Installation kann bis zu zwei Minuten in Anspruch nehmen.
 4. Nachdem die Installation erfolgreich abgeschlossen wurde, können Sie die Anwendung starten. Geben Sie dafür den Befehl "npm start" ein. Nach wenigen Sekunden ist die Anwendung im Browser unter der URL: http://localhost:3000 abrufbar.
