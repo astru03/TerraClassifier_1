@@ -19,6 +19,17 @@
         <!-- Leaflet JS -->
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+        
+        <!--jQuery-->
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+        
+        <!--jQuery UI CSS-->
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        
+        <!--jQuery UI JS-->
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+        <!--georaster-layer-for-leaflet JS-->
+        <script src=" https://cdn.jsdelivr.net/npm/georaster-layer-for-leaflet@3.10.0/dist/v3/webpack/bundle/georaster-layer-for-leaflet.min.js "></script> 
     </head>
     <body>
         <header>
@@ -43,14 +54,25 @@
             </nav>
         </header>
 
-        <main>
+        <main >
             <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
             <div class="container-fluid mt-2" id="mapcontainer">
-                <div id="map"></div>
+                <div id="map" style="height: 100vh; width: 100vw;"></div>
                 <div id="exampleButton">
                     <button type="button" class="btn btn-primary" onclick="demoButton()">Start Demo</button>
                 </div>
+                    <div id="loadingSpinner" class="text-center" style="display: none;">
+                      <button class="btn btn-primary" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading...
+                      </button>
+                    </div>
+                
+
             </div>
+            
+            <a href="/download-tiff" download="test_js_1.tif"></a>
+
         </main>
 
         <footer class="text-center text-light" style="background-color: rgb(54, 54, 54)">
@@ -62,5 +84,7 @@
 
         <!-- Utilities -->
         <link rel="stylesheet" type="text/css" href="/css/beispiel.css">
+        <script src="https://unpkg.com/georaster"></script>
+        <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
         <script type="text/javascript" src="/js/leaflet.js"></script>
     </body>

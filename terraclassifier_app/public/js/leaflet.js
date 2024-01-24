@@ -570,6 +570,7 @@ async function modelTraining() {
 
 /**
  * Function classification
+ * tion
  */
 function classification() {
   console.log("kommt");
@@ -711,251 +712,452 @@ function closePopup(ID_Popup) {
  */
 function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
-  const DEMO_AOICOORD = { northEast: { lat: 51.966, lng: 7.6175 }, southWest: { lat: 51.939, lng: 7.5714 } }
-  const DEMO_AOTCOORD = { northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
+  const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
+  const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
   const DEMO_NewStartDate = "2023-07-01"
   const DEMO_endDate = "2023-07-15"
   const DEMO_algorithem = "MD"
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
     "features": [
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "1",
-          "name": "Wasser"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "1",
+                "name": "Wasser"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.655696,
+                            51.886889
+                        ],
+                        [
+                            7.658743,
+                            51.886968
+                        ],
+                        [
+                            7.658915,
+                            51.885908
+                        ],
+                        [
+                            7.656468,
+                            51.885935
+                        ],
+                        [
+                            7.655696,
+                            51.886889
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.655696, 51.886889],
-              [7.658743, 51.886968],
-              [7.658915, 51.885908],
-              [7.656468, 51.885935],
-              [7.655696, 51.886889]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "2",
-          "name": "Wasser"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "2",
+                "name": "Wasser"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.660804,
+                            51.888531
+                        ],
+                        [
+                            7.657971,
+                            51.888505
+                        ],
+                        [
+                            7.655824,
+                            51.888214
+                        ],
+                        [
+                            7.656511,
+                            51.887737
+                        ],
+                        [
+                            7.659216,
+                            51.887949
+                        ],
+                        [
+                            7.660804,
+                            51.888531
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.660804, 51.888531],
-              [7.657971, 51.888505],
-              [7.655824, 51.888214],
-              [7.656511, 51.887737],
-              [7.659216, 51.887949],
-              [7.660804, 51.888531]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "3",
-          "name": "Wasser"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "3",
+                "name": "Wasser"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.633589,
+                            51.891366
+                        ],
+                        [
+                            7.631958,
+                            51.890969
+                        ],
+                        [
+                            7.630499,
+                            51.890942
+                        ],
+                        [
+                            7.63243,
+                            51.890492
+                        ],
+                        [
+                            7.634491,
+                            51.890465
+                        ],
+                        [
+                            7.633589,
+                            51.891366
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.633589, 51.891366],
-              [7.631958, 51.890969],
-              [7.630499, 51.890942],
-              [7.63243, 51.890492],
-              [7.634491, 51.890465],
-              [7.633589, 51.891366]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "4",
-          "name": "Acker"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "4",
+                "name": "Acker"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.633203,
+                            51.889883
+                        ],
+                        [
+                            7.630502,
+                            51.890202
+                        ],
+                        [
+                            7.630459,
+                            51.889619
+                        ],
+                        [
+                            7.631789,
+                            51.889222
+                        ],
+                        [
+                            7.633549,
+                            51.889089
+                        ],
+                        [
+                            7.634579,
+                            51.88954
+                        ],
+                        [
+                            7.633203,
+                            51.889883
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.633203, 51.889883],
-              [7.630502, 51.890202],
-              [7.630459, 51.889619],
-              [7.631789, 51.889222],
-              [7.633549, 51.889089],
-              [7.634579, 51.88954],
-              [7.633203, 51.889883]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "5",
-          "name": "Acker"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "5",
+                "name": "Acker"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.624149,
+                            51.888718
+                        ],
+                        [
+                            7.624192,
+                            51.887314
+                        ],
+                        [
+                            7.626338,
+                            51.887314
+                        ],
+                        [
+                            7.626896,
+                            51.888692
+                        ],
+                        [
+                            7.624149,
+                            51.888718
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.624149, 51.888718],
-              [7.624192, 51.887314],
-              [7.626338, 51.887314],
-              [7.626896, 51.888692],
-              [7.624149, 51.888718]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "6",
-          "name": "Acker"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "6",
+                "name": "Acker"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.650891,
+                            51.881273
+                        ],
+                        [
+                            7.649644,
+                            51.880771
+                        ],
+                        [
+                            7.650717,
+                            51.879764
+                        ],
+                        [
+                            7.651919,
+                            51.880321
+                        ],
+                        [
+                            7.650891,
+                            51.881273
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.650891, 51.881273],
-              [7.649644, 51.880771],
-              [7.650717, 51.879764],
-              [7.651919, 51.880321],
-              [7.650891, 51.881273]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "7",
-          "name": "Gebäude"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "7",
+                "name": "Gebäude"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.64694,
+                            51.897091
+                        ],
+                        [
+                            7.648743,
+                            51.896826
+                        ],
+                        [
+                            7.650975,
+                            51.896455
+                        ],
+                        [
+                            7.654237,
+                            51.897038
+                        ],
+                        [
+                            7.653894,
+                            51.899051
+                        ],
+                        [
+                            7.650074,
+                            51.898521
+                        ],
+                        [
+                            7.64694,
+                            51.897091
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.64694, 51.897091],
-              [7.648743, 51.896826],
-              [7.650975, 51.896455],
-              [7.654237, 51.897038],
-              [7.653894, 51.899051],
-              [7.650074, 51.898521],
-              [7.64694, 51.897091]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "8",
-          "name": "Gebäude"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "8",
+                "name": "Gebäude"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.631659,
+                            51.903501
+                        ],
+                        [
+                            7.62917,
+                            51.902676
+                        ],
+                        [
+                            7.629428,
+                            51.901193
+                        ],
+                        [
+                            7.632518,
+                            51.901802
+                        ],
+                        [
+                            7.631659,
+                            51.903501
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.631659, 51.903501],
-              [7.62917, 51.902676],
-              [7.629428, 51.901193],
-              [7.632518, 51.901802],
-              [7.631659, 51.903501]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "9",
-          "name": "Gebäude"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "9",
+                "name": "Gebäude"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.629084,
+                            51.89412
+                        ],
+                        [
+                            7.624234,
+                            51.893749
+                        ],
+                        [
+                            7.624749,
+                            51.89171
+                        ],
+                        [
+                            7.629471,
+                            51.891974
+                        ],
+                        [
+                            7.629084,
+                            51.89412
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.629084, 51.89412],
-              [7.624234, 51.893749],
-              [7.624749, 51.89171],
-              [7.629471, 51.891974],
-              [7.629084, 51.89412]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "10",
-          "name": "Pflanzen"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "10",
+                "name": "Pflanzen"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.656041,
+                            51.884
+                        ],
+                        [
+                            7.655097,
+                            51.881218
+                        ],
+                        [
+                            7.663639,
+                            51.880608
+                        ],
+                        [
+                            7.663811,
+                            51.88347
+                        ],
+                        [
+                            7.656041,
+                            51.884
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.656041, 51.884],
-              [7.655097, 51.881218],
-              [7.663639, 51.880608],
-              [7.663811, 51.88347],
-              [7.656041, 51.884]
-            ]
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "11",
-          "name": "Pflanzen"
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "11",
+                "name": "Pflanzen"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.6296,
+                            51.884132
+                        ],
+                        [
+                            7.626638,
+                            51.884291
+                        ],
+                        [
+                            7.623719,
+                            51.883443
+                        ],
+                        [
+                            7.624534,
+                            51.881986
+                        ],
+                        [
+                            7.630115,
+                            51.882596
+                        ],
+                        [
+                            7.6296,
+                            51.884132
+                        ]
+                    ]
+                ]
+            }
         },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.6296, 51.884132],
-              [7.626638, 51.884291],
-              [7.623719, 51.883443],
-              [7.624534, 51.881986],
-              [7.630115, 51.882596],
-              [7.6296, 51.884132]
-            ]
-          ]
+        {
+            "type": "Feature",
+            "properties": {
+                "classID": "12",
+                "name": "Pflanzen"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            7.665184,
+                            51.892743
+                        ],
+                        [
+                            7.667674,
+                            51.893061
+                        ],
+                        [
+                            7.66746,
+                            51.89571
+                        ],
+                        [
+                            7.662867,
+                            51.894862
+                        ],
+                        [
+                            7.665184,
+                            51.892743
+                        ]
+                    ]
+                ]
+            }
         }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "classID": "12",
-          "name": "Pflanzen"
-        },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [7.665184, 51.892743],
-              [7.667674, 51.893061],
-              [7.66746, 51.89571],
-              [7.662867, 51.894862],
-              [7.665184, 51.892743]
-            ]
-          ]
-        }
-      }
     ]
-  }
+}
   const DEMO_resolutionInput = "30"
 
   let DEMODATAJSON = {
@@ -970,6 +1172,10 @@ function demoButton() {
   console.log(DEMODATAJSON);
   //HIER PROZESSAUFRUF
   send_backend_json(DEMODATAJSON)
+  setTimeout(() => {
+    classification()
+
+  }, 10000)
 }
 
 
