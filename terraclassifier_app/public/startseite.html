@@ -1,98 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Startseite</title>
-        <link rel="stylesheet" type="text/css" href="/css/startseite.css">
 
-        <!--Bootstrap CSS-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-        <!--Bootstrap JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startseite</title>
+    <link rel="stylesheet" type="text/css" href="/css/startseite.css">
 
-    </head>
-    <body>
-        <header>
-            <nav class="navbar navbar-expand-md navbar-dark bg-dark" id="mynavbar">
-                <div class="container-fluid">
-                    <!-- <a class="navbar-brand fs-4 fw-bold">Terra Classifier</a> -->
-                    <img id="logo" src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/TerraClassifier_LOGO_weiss.png" alt="Logo">
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                    <!-- add a collapsible section -->
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <div class="navbar-nav">
-                            <a class="nav-link active fw-bold" href="startseite.html">Home</a>
-                            <a class="nav-link fw-bold" href="klassifikation.html">Modeltraining und Klassifikation</a>                   
-                            <a class="nav-link fw-bold" href="beispiel.html">Beispiel</a>
-                            <a class="nav-link fw-bold" href="dokumentation.html">Dokumentation</a>
-                            <a class="nav-link fw-bold" href="impressum.html">Impressum</a>
-                        </div>                  
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!--Bootstrap JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark" id="mynavbar">
+            <div class="container-fluid">
+                <!-- <a class="navbar-brand fs-4 fw-bold">Terra Classifier</a> -->
+                <img id="logo"
+                    src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/TerraClassifier_LOGO_weiss.png"
+                    alt="Logo">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- add a collapsible section -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav">
+                        <a class="nav-link active fw-bold" href="startseite.html">Home</a>
+                        <a class="nav-link fw-bold" href="klassifikation.html">Modeltraining und Klassifikation</a>
+                        <a class="nav-link fw-bold" href="beispiel.html">Beispiel</a>
+                        <a class="nav-link fw-bold" href="dokumentation.html">Dokumentation</a>
+                        <a class="nav-link fw-bold" href="impressum.html">Impressum</a>
                     </div>
                 </div>
-            </nav>
-        </header>
+            </div>
+        </nav>
+    </header>
 
-
-        <main>
-            
-                    <!-- Hier muss verbessert werden wie mit dem padding/margin umgegangen wird. die zusätzlichen "col"-Elemente sind eine Übergangslösung, funktionieren aber nicht für mittlere Bildschirmgrößen -->
-            <div class="container-fluid text-justify">
-                <div class="row py-2">
-                    <div class="col"></div>
-                        <div class="col text-center" style="font-family:Impact, Haettenschweiler, 'Arial Narrow Bold'">
-                            <h3 style="color: aliceblue;">Willkommen bei Terra Classifier - </h3>
-                            <h4 style="color: aliceblue;"> Ihr Portal für überwachte Klassifikation von Fernerkundungsdaten!</h4>
-                        </div>
-                    <div class="col"></div>
+    <main>
+        <!-- Hier muss verbessert werden wie mit dem padding/margin umgegangen wird. die zusätzlichen "col"-Elemente sind eine Übergangslösung, funktionieren aber nicht für mittlere Bildschirmgrößen -->
+        <div class="container-fluid text-justify">
+            <div class="row py-2">
+                <div class="col" id="headleft"></div>
+                <div class="col-xl-6 text-center" id="heading"
+                    style="font-family:Impact, Haettenschweiler, 'Arial Narrow Bold';">
+                    <h3>Willkommen bei Terra Classifier!</h3>
+                    <br>
+                    <h4> Ihr Portal für überwachte Klassifikation von Fernerkundungsdaten</h4>
                 </div>
-                <div class="row">
-                    <div class="col"></div>
-                    <div class="col-xl-5 text-justify"  style="color: aliceblue;">
-                            
-                        <p>  Terra Classifier ist eine Webapplikation, welche das Klassifizieren von Satellitendaten revolutionieren soll.</p>
-
-                       <div>
-                            <p> 
-                                <h3>Wer wir sind: Das Team hinter Terra Classifier</h3>
-
-                                    Unser engagiertes Team von sechs qualifizierten Studierenden aus dem Bereich Geoinformatik arbeitet leidenschaftlich daran, Innovationen voranzutreiben.
-                                    Wir verstehen die Bedeutung präziser Umweltinformationen und sind stolz darauf, Ihnen mit dem Terra Classifier eine dafür geeignete Plattform zu präsentieren.
-                            </p>
-                        </div>
-                        <div>
-                            <h3>Warum Terra Classifier:</h3>
-                            <p>
-                             <ul>
-                                <li>Schnelligkeit und Effizienz: Klassifizieren Sie Satellitenbilder und Trainingsdaten direkt
-                                    in Ihrem Webbrowser.</li>
-
-                                 <li>Benutzerfreundlichkeit: Unsere Plattform ist intuitiv und einfach zu bedienen.</li>
-
-                                </ul>
-                            </p>
-                        </div>
+                <div class="col" id="headright"></div>
+            </div>
+            <div class="row pb-5" style="padding: 20px;">
+                <div class="col" id="left"></div>
+                <div class="col-xl-4 text-justify" style="color: aliceblue; min-width: 50vw;">
+                    <div class="col mb-5">
+                        <p>
+                        <h3>Was ist Terra Classifier?:</h3>
+                        Terra Classifier ist eine Webapplikation, welche das Klassifizieren von Satellitendaten
+                        revolutionieren soll.
+                        Wir bieten eine Reihe an verschiedenen Klassifikationsmöglichkeiten wie bspw. dem NDVI.
+                        Sie haben bei der Klassifikation die Wahl zwischen dem Random-Forest- und dem ...-Algorithmus.
+                        <br><br>
+                        Sollten sich bei Ihnen Fragen zur Nutzung dieses Service auftun, können Sie einen Blick in
+                        unsere ausführliche <a href="dokumentation.html" style="color: white;"><b>Dokumentation</b></a>
+                        werfen.
+                        </p>
+                    </div>
+                    <div class="col mb-2">
+                        <p>
+                        <h3>Wer wir sind: Das Team hinter Terra Classifier</h3>
+                        Unser engagiertes Team von sechs qualifizierten Studierenden aus dem Bereich Geoinformatik
+                        arbeitet leidenschaftlich daran, Innovationen voranzutreiben.
+                        Wir verstehen die Bedeutung präziser Umweltinformationen und sind stolz darauf, Ihnen mit dem
+                        Terra Classifier eine dafür geeignete Plattform zu präsentieren.
+                        </p>
+                    </div>
+                    <div class="col mb-3" id="videocontainer">
+                        <video></video>
+                    </div>
+                    <div class="col pb-3">
+                        <h3>Warum Terra Classifier:</h3>
+                        <p>
+                        <ul>
+                            <li>Schnelligkeit und Effizienz: Klassifizieren Sie Satellitenbilder und Trainingsdaten
+                                direkt
+                                in Ihrem Webbrowser.</li>
+                            <li>Benutzerfreundlichkeit: Unsere Plattform ist intuitiv und einfach zu bedienen.</li>
+                        </ul>
+                        </p>
                         <p>
                             Entdecken Sie mit Terra Classifier eine neue Dimension der Umweltklassifizierung.
                         </p>
-                     </div>
-                        <div class="col"></div>
                     </div>
-             </div>
-        </main>       
-
-    
-        
-            <footer class="sticky bottom-0 fixed text-center text-light" style="background-color: rgb(54, 54, 54)">
-                <div class="container">
-                    <h6 class="text-uppercase fw-bold pt-2">Autoren:</h6>
-                        <p>
-                        Terra Classifier GmbH
-                        </p>  
-                </div>    
-            </footer>
-       
-    </body>
+                </div>
+                <div class="col" id="right"></div>
+            </div>
+        </div>
+    </main>
+</body>

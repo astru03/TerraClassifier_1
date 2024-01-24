@@ -1,47 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dokumentation</title>
-        <link rel="stylesheet" type="text/css" href="/css/dokumentation.css">
 
-        <!--Bootstrap CSS-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-        <!--Bootstrap JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentation</title>
+    <link rel="stylesheet" type="text/css" href="/css/dokumentation.css">
 
-    </head>
-    <body>
-        <header>
-            <nav class="navbar navbar-expand-md navbar-dark bg-dark" id="mynavbar">
-                <div class="container-fluid">
-                                        <!-- <a class="navbar-brand fs-4 fw-bold">Terra Classifier</a> -->
-                                        <img id="logo" src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/TerraClassifier_LOGO_weiss.png" alt="Logo">
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                    <!-- add a collapsible section -->
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <div class="navbar-nav">
-                            <a class="nav-link fw-bold" href="startseite.html">Home</a>
-                            <a class="nav-link fw-bold" href="klassifikation.html">Modeltraining und Klassifikation</a>                   
-                            <a class="nav-link fw-bold" href="beispiel.html">Beispiel</a>
-                            <a class="nav-link active fw-bold" href="dokumentation.html">Dokumentation</a>
-                            <a class="nav-link fw-bold" href="impressum.html">Impressum</a>
-                        </div>                  
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!--Bootstrap JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark" id="mynavbar">
+            <div class="container-fluid">
+                <!-- <a class="navbar-brand fs-4 fw-bold">Terra Classifier</a> -->
+                <img id="logo"
+                    src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/TerraClassifier_LOGO_weiss.png"
+                    alt="Logo">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- add a collapsible section -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav">
+                        <a class="nav-link fw-bold" href="startseite.html">Home</a>
+                        <a class="nav-link fw-bold" href="klassifikation.html">Modeltraining und Klassifikation</a>
+                        <a class="nav-link fw-bold" href="beispiel.html">Beispiel</a>
+                        <a class="nav-link active fw-bold" href="dokumentation.html">Dokumentation</a>
+                        <a class="nav-link fw-bold" href="impressum.html">Impressum</a>
                     </div>
                 </div>
-            </nav>
-        </header>
+            </div>
+        </nav>
+    </header>
 
-        <h1> Dokumentation </h1>
+    <main>
+        <div class="container-fluid text-justify" style="color: rgb(255, 255, 255); margin: 5px;">
 
-        <footer class="text-center text-light" style="background-color: rgb(54, 54, 54)">
-            <h6 class="text-uppercase fw-bold pt-2">Autoren:</h6>
-                <p>
-                  Terra Classifier GmbH
-                </p>  
-        </footer>
-    </body>
+            <div class="row my-3">
+                <div class="col-mx-3 text-center">
+                    <h1> Dokumentation </h1>
+                    <p>Vielen Dank, dass Sie sich für die Nutzung des Terra Classifiers entschieden haben. <br>Um Ihnen
+                        die bestmögliche Erfahrung mit unserem Produkt zu ermöglichen, haben wir Ihnen eine Übersicht
+                        aller Schaltflächen, inklusive ihrer Funktionsweise und Bedienungshinweise,
+                        zusammengestellt.<br>Die Applikation ist nach dem Prinzip einer Einbahnstraße aufgebaut. Auf der
+                        rechten Seite befinden sich sechs Buttons. Für eine erfolgreiche Klassifikation müssen alle
+                        Buttons abgearbeitet werden. Da die Reihenfolge unbedingt eingehalten werden muss
+                        (Einbahnstraße), sind die noch nicht bearbeiteten Buttons ausgegraut und nicht anwählbar.
+                        Gleichzeitig ist es Ihnen so möglich, jederzeit Ihren aktuellen Bearbeitungsschritt einzusehen.
+                        Bei Problemen können Sie so in dieser Dokumentation gezielt nach Ihrem aktuellen
+                        Bearbeitungsschritt suchen und schneller mögliche Anwendungsfehler beheben.<br>Die folgende
+                        Tabelle ist nach dem Ablauf der Anwendung und nicht nach dem Layout sortiert. Dies vereinfacht
+                        ebenfalls die Fehlerbehebung und -prävention.</p>
+                </div>
+            </div>
+
+            <div class="row mx-1">
+                <div class="col">
+                    <h2>Workflow</h2>
+                </div>
+            </div>
+
+            <div class="row mx-1">
+                <div class="col">
+                    <table id="doc_table" style="width: 100%;">
+                        <tr style="border: 3px solid white; text-align: center; background-color: black;">
+                            <th style="width: 20%;">
+                                <h5>Funktion</h5>
+                            </th>
+                            <th style="width: 10%;">Icon</th>
+                            <th style="width: 70%;">Beschreibung</th>
+                        </tr>
+                        <tr style="border: 3px solid rgb(255, 255, 255); text-align: justify;">
+                            <td style="padding-left: 5px; padding-right: 5px;">Satellitenbildbeschaffung</td>
+                            <td style="text-align: center;"> <img
+                                    src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/sentinal_icon.png"
+                                    style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img>
+                            </td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Mit diesem Button lösen Sie den Prozess
+                                der Satellitenbildbeschaffung aus. Nachdem Sie den Knopf betätigt haben, werden Sie
+                                aufgefordert ein Datum beziehungsweise einen Zeitraum auszuwählen, aus diesem das
+                                Satellitenbild stammen soll. Sobald Sie Ihr Datum innerhalb des Kalenderwidgets und
+                                einen Wert für die Wolkenbedeckung ausgewählt haben, bestätigen Sie mit „OK“. Das
+                                Satellitenbild wird nun geladen.</td>
+                        </tr>
+                        <tr style="border: 3px solid white; text-align: justify;">
+                            <td style="padding-left: 5px; padding-right: 5px;">Trainingsdaten hinzufügen</td>
+                            <td style="text-align: center;"><img
+                                    src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/trainigsdaten_icon.png"
+                                    style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img>
+                            </td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Für eine erfolgreiche Klassifikation,
+                                werden Trainingsdaten benötigt. Diese Trainingsdaten können Sie entweder per Upload im
+                                GeoJSON- oder GeoPackage-Format hochladen oder gleich hier in der Webanwendung
+                                erstellen. Dabei ist sicherzustellen, dass die Trainingsdaten nur innerhalb des vorher
+                                gewählten AOT liegen. Wählen Sie eine der beiden Optionen aus. <br>Upload: Nachdem sich
+                                das Fenster für den Upload geöffnet hat, suchen und wählen Sie Ihr Verzeichnis, in dem
+                                sich die Datei befindet. <br>Erstellen: Haben Sie sich für das Erstellen neuer
+                                Trainingsdaten innerhalb des Browsers entschieden, erscheint mittig am linken Rand der
+                                Karte ein neues Polygon-Symbol (Icon). Nach dem Klicken auf dasselbige, ist es nun
+                                möglich neue Trainingsdaten zu erstellen. Nach jedem erstellten Polygon werden Sie
+                                aufgefordert, eine passende Objekt-ID zu vergeben. <br>Wenn Sie mit dem Upload oder der
+                                Erstellung fertig sind, können Sie zum nächsten Bearbeitungsschritt übergehen, indem Sie
+                                auf der rechten Seite das Zahnrad-Symbol anklicken.
+                            </td>
+                        </tr>
+                        <tr style="border: 3px solid white; text-align: justify;">
+                            <td style="padding-left: 5px; padding-right: 5px;">Algorithmusauswahl</td>
+                            <td style="text-align: center;"><img
+                                    src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/algorithmus_icon.png"
+                                    style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img>
+                            </td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Nach dem Klicken auf dieses Symbol,
+                                können Sie zwischen zwei verschiedenen Algorithmen wählen. Zur Auswahl stehen der
+                                „Minimum Distance“- und der „Random Forest“-Algorithmus. Bestätigen Sie Ihre Wahl mit
+                                „OK“. Den nächsten Bearbeitungsschritt starten Sie durch Klicken des Positions-Symbols
+                                (Icon).</td>
+                        </tr>
+                        <tr style="border: 3px solid white; text-align: justify;">
+                            <td style="padding-left: 5px; padding-right: 5px;">AOI-Auswahl</td>
+                            <td style="text-align: center;"><img
+                                    src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/aoi_icon.png"
+                                    style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img>
+                            </td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Nachdem Sie die Schaltfläche betätigt
+                                haben, wird die Area Of Training unsichtbar. Nun können Sie durch Klicken auf das
+                                Rechteck-Symbol (Icon) eine Area Of Interest einzeichnen. Dies stellt den zu
+                                klassifizierenden Bereich dar. Ist Ihr AOI eingezeichnet, fahren sie mit dem nächsten
+                                Bearbeitungsschritt fort (Icon).</td>
+                        </tr>
+                        <tr style="border: 3px solid white; text-align: justify;">
+                            <td style="padding-left: 5px; padding-right: 5px;">Klassifikation starten</td>
+                            <td style="text-align: center;"><img
+                                    src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/modeltraining_icon.png"
+                                    style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img>
+                            </td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Mit Klick auf diesen Button werden Sie
+                                aufgefordert eine Auflösung (Meter pro Pixel) auszuwählen. Sie können zwischen drei
+                                Optionen wählen. Mit „OK“ bestätigen Sie Ihre Auswahl und starten gleichzeitig die
+                                Berechnung. Dies kann einige Sekunden in Anspruch nehmen. Sobald die Berechnung beendet
+                                ist, werden Sie durch ein Pop-Up gefragt, ob Sie die Klassifikation als GeoTiff
+                                herunterladen möchten. Nachdem Sie Ihre Wahl getroffen haben, wird die Klassifikation
+                                nach wenigen Sekunden in die Karte geladen. </td>
+                        </tr>
+                        <tr style="border: 3px solid white; text-align: justify;">
+                            <td style="padding-left: 5px; padding-right: 5px;">Hier Funktionsname einfügen</td>
+                            <td style="text-align: center;"><img
+                                    src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/TerraClassifier_app/public/images/klassifikation_icon.png"
+                                    style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img>
+                            </td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Hier Funktionsbeschreibung einfügen</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row mx-1">
+                <div class="col mt-5">
+                    <h2>Setup</h2>
+                </div>
+            </div>
+
+            <div class="row mx-1 pb-5">
+                <div class="col">
+                    <table id="setup_table" style="width: 100%;">
+                        <tr style="border: 3px solid white; text-align: center; background-color: black;">
+                            <th style="width: 10%;"> Schritt</th>
+                            <th>Anweisung</th>
+                        </tr>
+                        <tr style="border: 3px solid white; text-align: justify;">
+                            <td style="text-align: center; padding-left: 5px; padding-right: 5px;">1.</td>
+                            <td style="padding-left: 5px; padding-right: 5px;">Setup-Anweisungen</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Utilities -->
+    <link rel="stylesheet" type="text/css" href="/css/dokumentation.css">
+
+</body>
