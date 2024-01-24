@@ -397,7 +397,7 @@ app.get('/get-backend-data', (req, res) => {
  * https://www.npmjs.com/package/@ngageoint/geopackage
  * https://github.com/ngageoint/geopackage-js
  */
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', upload.single('file'), async(req, res) => {
   try {
     const file = req.file.path;
     const geoPackage = await GeoPackageAPI.open(file);
@@ -413,6 +413,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         features: geojsonFeatures
       };
     }
+
     res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
   } catch (error) {
     console.error('Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:', error);
