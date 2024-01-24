@@ -329,6 +329,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
                 keepBuffer: 8
               });
               layer.addTo(map);
+              satalite_layer = layer
               setTimeout(function () {
                 $('#loadingSpinner').hide();
                 checkConditionButton2();
