@@ -158,8 +158,8 @@ app.post('/satellite', (req, res) => {
 });
 
 
-app.post('/demo_builder', async (req, res) => {
-});
+//app.post('/demo_builder', async (req, res) => {
+//});
 
 /**
  * Function processGraph_erstellen
@@ -397,10 +397,11 @@ app.get('/get-backend-data', (req, res) => {
  * https://www.npmjs.com/package/@ngageoint/geopackage
  * https://github.com/ngageoint/geopackage-js
  */
-app.post('/upload', upload.single('file'), async(req, res) => {
+app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const file = req.file.path;
     const geoPackage = await GeoPackageAPI.open(file);
+    console.log('TEST2')
     const feature = geoPackage.getFeatureTables();
     const layers = {};
 
