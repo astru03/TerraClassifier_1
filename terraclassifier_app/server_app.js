@@ -28,7 +28,7 @@ if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 const bodyParser = require('body-parser');
-const { error } = require('console');
+const { error, table } = require('console');
 app.use(bodyParser.json());
 
 /**
@@ -171,10 +171,6 @@ async function processGraph_erstellen(data_all, train_data_path) {
     const trainigs_data = await fs.promises.readFile(train_data_path, "utf-8")
     console.log(trainigs_data)
 
-    
-
-
-
     const northEast = data_all.AOI._northEast
     const southWest = data_all.AOI._southWest
     const wgs84 = 'EPSG:4326'
@@ -200,12 +196,6 @@ async function processGraph_erstellen(data_all, train_data_path) {
     const north_AOT = proj_mercator_northEast_AOT[1]
 
 
-    //tarinig
-
-
-   
-
-    
     console.log(northEast_AOT, southWest_AOT)
 
     const connection = await OpenEO.connect("http://54.185.59.127:8080");
@@ -444,7 +434,41 @@ app.get('/get-backend-data', (req, res) => {
 /**
  * https://www.npmjs.com/package/@ngageoint/geopackage
  * https://github.com/ngageoint/geopackage-js
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter?retiredLocale=de
  */
+app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file.path;
+    const geoPackage = await GeoPackageAPI.open(file);
+    const featureTables = geoPackage.getFeatureTables();
+    const layers = {};
+
+    for (const table of featureTables) {
+      const featureDao = geoPackage.getFeatureDao(table);
+      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table); 
+
+      const filteredFeatures = geojsonFeatures.filter(feature => {
+        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
+        const classID_data = feature.properties && 'ClassID' in feature.properties;
+        return polygon_multipolygon && classID_data;
+      });
+
+      layers[table] = {
+        type: 'FeatureCollection',
+        features: filteredFeatures
+      };
+    }
+
+    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
+  } catch (error) {
+    console.error('Fehler beim verarbeiten der GeoPackage Datei:', error);
+    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei: ' + error.message });
+  }
+});
+
+/**
+ * 
+
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const file = req.file.path;
@@ -454,11 +478,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     for (const table of feature) {
       // Abfrage aller Features als GeoJSON
-      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
+      const allFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
+
+      const polygonFeatur = allFeatures.filter(feature => feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon')
 
       layers[table] = {
         type: 'FeatureCollection',
-        features: geojsonFeatures
+        features: polygonFeatur
       };
     }
 
@@ -468,35 +494,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:' + error.message });
   }
 });
-
-//https://github.com/Stuk/jszip
-
-/**
- * app.get('/download', async (req, res) => {
-  try{
-    if(fs.existsSync('data_geojson.json')){
-      const geojsonData = JSON.parse(fs.readFileSync('data_geojson.json', 'utf-8'))
-
-    //ZIP-Erstellen
-
-    const zip = new JSZIP();
-    zip.file('data_geojson', JSON.stringify(geojsonData))
-
-    //ZIP-Datei generieren
-    const Zip_data = await zip.generateAsync({ type: 'nodebuffer' });
-    res.set('Content-Type', 'application/zip')
-    res.set('Content-Disposition', 'attachment; filename="data.zip"')
-    res.send(Zip_data)
-    }else{
-      console.error('Es wurden noch keine Polygone eingezeichnet', error)
-    }
-
-  }
-  catch{
-    res.status(500).send({message: 'Fehler beim herunterladen der ZIP-Datei'})
-  }
-})
  */
+
 
 //Listener
 app.listen(port, () => {
