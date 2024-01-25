@@ -173,8 +173,7 @@ async function processGraph_erstellen(data_all, train_data_path) {
 
     
 
-
-
+    let resolution = Number(data_all.resolution)
     const northEast = data_all.AOI._northEast
     const southWest = data_all.AOI._southWest
     const wgs84 = 'EPSG:4326'
@@ -251,10 +250,10 @@ async function processGraph_erstellen(data_all, train_data_path) {
     console.log("train")
     let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
     console.log("classify")
-
     var reducer = function (data) { return this.mean(data) }
     datacube = builder.reduce_dimension(classify_cube_data, reducer, "t")
-    cube = builder.save_result(datacube, "GTiff")
+    resolutioncube = builder.resample_spatial(datacube, resolution)
+    cube = builder.save_result(resolutioncube, "GTiff")
     console.log("Bitte warten!")
     try {
       let datacube_tif = await connection.computeResult(cube)
