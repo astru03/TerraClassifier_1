@@ -28,6 +28,7 @@ if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 const bodyParser = require('body-parser');
+const { error } = require('console');
 app.use(bodyParser.json());
 
 /**
@@ -165,8 +166,132 @@ app.post('/satellite', (req, res) => {
  * Function processGraph_erstellen
  * @param {*} data_all
  */
-async function processGraph_erstellen(data_all) {
+async function processGraph_erstellen(data_all, train_data_path) {
   try {
+    const trainigs_data = await fs.promises.readFile(train_data_path, "utf-8")
+    console.log(trainigs_data)
+
+    
+
+
+
+    const northEast = data_all.AOI._northEast
+    const southWest = data_all.AOI._southWest
+    const wgs84 = 'EPSG:4326'
+    const mercator = 'EPSG:3857'
+    const proj_mercator_northEast = proj4(wgs84, mercator, [northEast.lng, northEast.lat])
+    const proj_mercator_southWest = proj4(wgs84, mercator, [southWest.lng, southWest.lat])
+    console.log(northEast)
+    console.log(southWest)
+    const west = proj_mercator_southWest[0]
+    const east = proj_mercator_northEast[0]
+    const south = proj_mercator_southWest[1]
+    const north = proj_mercator_northEast[1]
+
+    const northEast_AOT = data_all.AOT._northEast
+    const southWest_AOT = data_all.AOT._southWest
+
+    const proj_mercator_northEast_AOT = proj4(wgs84, mercator, [northEast_AOT.lng, northEast_AOT.lat])
+    const proj_mercator_southWest_AOT = proj4(wgs84, mercator, [southWest_AOT.lng, southWest_AOT.lat])
+
+    const west_AOT = proj_mercator_southWest_AOT[0]
+    const east_AOT = proj_mercator_northEast_AOT[0]
+    const south_AOT = proj_mercator_southWest_AOT[1]
+    const north_AOT = proj_mercator_northEast_AOT[1]
+
+
+    //tarinig
+
+
+   
+
+    
+    console.log(northEast_AOT, southWest_AOT)
+
+    const connection = await OpenEO.connect("http://54.185.59.127:8080");
+    // Basic login
+    await connection.authenticateBasic("user", "password");
+    // Erstellen des Prozess-Builders
+    var builder = await connection.buildProcess();
+    let aoi = builder.load_collection(
+      "sentinel-s2-l2a-cogs",
+      {
+        "west": west,
+        "east": east,
+        "south": south,
+        "north": north,
+        "crs": 3857
+      },
+      ["2022-07-01", "2022-08-01"]
+      
+    );
+    
+    let aot = builder.load_collection(
+      "sentinel-s2-l2a-cogs",
+      {
+        "west": west_AOT,
+        "east": east_AOT,
+        "south": south_AOT,
+        "north": north_AOT,
+        "crs": 3857
+      },
+      ["2022-07-01", "2022-08-01"]
+    );
+
+
+
+
+
+
+    let filter_aoi = builder.filter_bands(aoi, ["B02", "B03", "B04"]);
+    let filter_aot = builder.filter_bands(aot, ["B02", "B03", "B04"]);
+    console.log("filter")
+    
+    let traininngsmodel_cube = builder.train_model_knn(filter_aot, trainigs_data)
+    console.log("train")
+    let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
+    console.log("classify")
+
+    var reducer = function (data) { return this.mean(data) }
+    datacube = builder.reduce_dimension(classify_cube_data, reducer, "t")
+    cube = builder.save_result(datacube, "GTiff")
+    console.log("Bitte warten!")
+    try {
+      let datacube_tif = await connection.computeResult(cube)
+      console.log(datacube_tif.data)
+      if (datacube_tif.data instanceof stream.Readable) {
+        console.log('datacube_tif.data ist ein lesbarer Stream.');
+        //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
+        const filePath = path.join(__dirname, 'test_js_1.tif');
+        const writeStream = fs.createWriteStream(filePath);
+        datacube_tif.data.pipe(writeStream);
+        datacube_tif.data.on('end', () => {
+          console.log('Stream zu Ende gelesen und Datei gespeichert.');
+        });
+      } else {
+        console.error('datacube_tif.data ist kein lesbarer Stream.');
+      }
+
+      //B02, B08, ndwi
+      //B11, B08  ndbi
+      //ndsi B02, B11
+
+      console.log("jetzt")
+    } catch {
+    }
+  } catch (err) {
+    console.error('Fehler beim verarbeiten', err)
+  }
+
+
+
+
+}
+
+
+
+/**
+ * try {
     const northEast = data_all.AOI._northEast
     const southWest = data_all.AOI._southWest
     const wgs84 = 'EPSG:4326'
@@ -225,101 +350,8 @@ async function processGraph_erstellen(data_all) {
       console.log("jetzt")
     } catch {
     }
-  } catch (err) {
-    console.error('Fehler beim verarbeiten', err)
   }
-}
-
-/**
- * 
- * @param {*} data_all 
- * 
- * 
- * 
-async function processGraph_erstellen(data_all){
-  try{
-  const northEast = data_all.AOI._northEast
-  const southWest = data_all.AOI._southWest
-
-  const wgs84 = 'EPSG:4326'
-  const mercator = 'EPSG:3857'
-
-  const proj_mercator_northEast = proj4(wgs84, mercator, [northEast.lng, northEast.lat])
-  const proj_mercator_southWest = proj4(wgs84, mercator, [southWest.lng, southWest.lat])
-
-
-
-
-  console.log(northEast) 
-  console.log(southWest)
-
-  const west = proj_mercator_southWest[0]
-  const east = proj_mercator_northEast[0]
-  const south = proj_mercator_southWest[1]
-  const north = proj_mercator_northEast[1]
-  const connection = await OpenEO.connect("http://54.185.59.127:8000");
-  // Basic login
-  await connection.authenticateBasic("user", "password");
-  // Erstellen des Prozess-Builders
-  var builder = await connection.buildProcess();
-  let load1 = builder.load_collection(
-    "sentinel-s2-l2a-cogs",
-     {
-        "west" : west,
-          "east": east,
-          "south": south,
-          "north": north,
-          "crs" : 3857
-    },
-    ["2022-01-01", "2022-12-31"], 
-    ["B02","B04", "B08"]
-  );
-
-  let filter2 = builder.filter_bands(load1, ["B04", "B08"]);
-  let ndvi = builder.ndvi(filter2, "B04", "B08")
-
-  var reducer = function(data){return this.mean(data)}
-  datacube = builder.reduce_dimension(ndvi, reducer, "t")
-  cube = builder.save_result(datacube, "GTiff")
-  console.log("Bitte warten!")
-
-  try{
-    let datacube_tif = await connection.computeResult(cube)
-    console.log(datacube_tif.data)
-
-    if (datacube_tif.data instanceof stream.Readable) {
-      console.log('datacube_tif.data ist ein lesbarer Stream.');
-
-      //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
-      const filePath = path.join(__dirname, 'test_js_1.tif');
-      const writeStream = fs.createWriteStream(filePath);
-
-      datacube_tif.data.pipe(writeStream);
-
-      datacube_tif.data.on('end', () => {
-        console.log('Stream zu Ende gelesen und Datei gespeichert.');
-      });
-
-    } else {
-      console.error('datacube_tif.data ist kein lesbarer Stream.');
-    }
-
-    //B02, B08, ndwi
-    //B11, B08  ndbi
-    //ndsi B02, B11
-
-    console.log("jetzt")
-  }catch{
-
-  }
-
-  }catch(err){
-    console.error('Fehler beim verarbeiten', err)
-  }
-}
-
-*/
-
+ */
 
 app.post('/processgraph', (req, res) => {
   const processgraph_data = 'send_data.json';
@@ -327,13 +359,29 @@ app.post('/processgraph', (req, res) => {
     if (err) {
       return res.status(500).send({ message: 'Fehler beim Lesen' });
     }
-    const processgraph_data_parsed = JSON.parse(data);
-    try {
-      await processGraph_erstellen(processgraph_data_parsed);
-      res.send({ message: "Geschafft!" })
-    } catch (error) {
-      console.error('Fehler bei der Verarbeitung', error);
-      res.status(500).send({ message: 'Fehler bei der Verarbeitung' });
+    const data_all = JSON.parse(data);
+    if(data_all.trainigsdata && data_all.trainigsdata.features){
+      const train_data_path = "train_data_all.geojson"
+      const geo_train_data = {
+        type:"FeatureCollection",
+        features: data_all.trainigsdata.features
+      }
+
+      fs.writeFile(train_data_path, JSON.stringify(geo_train_data), async (err) => {
+        if(err){
+          res.status(500).send({message: "Fehler beim konverteiren zu einem String"})
+        }
+        try{
+          await processGraph_erstellen(data_all, train_data_path)
+          res.send({message:"Erfolgreich durchgeführt"})
+        }catch{
+          console.error("Fehler", error)
+          res.status(500).send({message:"Fehler"})
+        }
+      })
+    } else {
+      console.error('Traingsdaten nicht im Path gefunden')
+      return res.status(500).send({message: "Trainingsdaten konnten nicht unter dem Path gefunden werden"})
     }
   });
 });
