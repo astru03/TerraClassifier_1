@@ -1201,10 +1201,10 @@ function reset_AOI() {
 
 // create easyButtons for the menu-functions
 // Button Sentinel-2 Data -----------------------------
-var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
+var button1 = L.easyButton('<img src="../images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
 
 // Button Trainigsdata -----------------------------
-var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
+var button2 = L.easyButton('<img src="../images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
 button2.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton2
@@ -1220,7 +1220,7 @@ function checkConditionButton2() {
 }
 
 // Button algorithem -----------------------------
-var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
+var button3 = L.easyButton('<img src="../images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
 button3.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton3
@@ -1236,7 +1236,7 @@ function checkConditionButton3() {
 }
 
 // Button area of intrest -----------------------------
-var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
+var button4 = L.easyButton('<img src="../images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
   areaOfIntrest()
   remove_satalite_layer()
 }, 'AOI');
@@ -1255,7 +1255,7 @@ function checkConditionButton4() {
 }
 
 // Button modeltrainig -----------------------------
-var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining
+var button5 = L.easyButton('<img src="../images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining
   , 'Modeltraining');
 button5.disable(); // by default the button is disabled
 /**
@@ -1272,7 +1272,7 @@ function checkConditionButton5() {
 }
 
 // Button classification -----------------------------
-var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
+var button6 = L.easyButton('<img src="../images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
 button6.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton4
@@ -1293,7 +1293,7 @@ var toggleMenuButton = L.easyButton({
   position: 'topright',
   states: [{
     stateName: 'closed',
-    icon: '<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/menu_icon.png" style="width: 20px; height: 20px;">',
+    icon: '<img src="../images/menu_icon.png" style="width: 20px; height: 20px;">',
     title: 'Öffne Menü',
     onClick: function (btn, map) {
       btn.state('open');
@@ -1306,7 +1306,7 @@ var toggleMenuButton = L.easyButton({
     }
   }, {
     stateName: 'open',
-    icon: '<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/menu_icon.png" style="width: 20px; height: 20px;">',
+    icon: '<img src="../images/menu_icon.png" style="width: 20px; height: 20px;">',
     title: 'Schließe Menü',
     onClick: function (btn, map) {
       btn.state('closed');
