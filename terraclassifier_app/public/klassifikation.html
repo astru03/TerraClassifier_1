@@ -379,7 +379,20 @@
             <div class="mb-3">
               <label for="objectNameInput" class="form-label">Bitte für das Polygon die passende Bezeichnung
                 eingeben.</label>
-              <input type="text" class="form-control" id="objectNameInput" placeholder="Objektname eingeben" required>
+                <input type="text" class="form-control" id="objectNameInput" onkeypress="return checkEntryObjectName(event)" onpaste="return checkEntryObjectName(event)"
+                onchange="return checkEntryObjectName(event)" placeholder="Objektname eingeben" required>
+                <!-- Script that prohibits the use of special characters -->
+                <script>
+                  function checkEntryObjectName(e) {
+                    var k;
+                    document.all ? k = e.keyCode : k = e.which;
+                    if ((k >= 65 && k <= 90) || (k >= 97 && k <= 122) || k == 8 || (k >= 37 && k <= 40)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                </script>
             </div>
           </div>
           <!-- Modal Footer -->

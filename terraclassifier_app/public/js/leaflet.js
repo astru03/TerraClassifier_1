@@ -77,6 +77,7 @@ let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
 let modelBoolean = false;
+let classBoolean = false;
 
 function object_id() {
   return new Promise((resolve) => {
@@ -583,6 +584,8 @@ function classification() {
       if (response.ok) {
         downloadTiff()
         showTiff()
+        classBoolean = true;
+        checkConditionButton7()
       } else {
         console.log("Fehler bei der Verarbeitung der Datei!")
       }
@@ -1199,6 +1202,10 @@ function reset_AOI() {
   }
 }
 
+function reload (){
+  location.reload();
+}
+
 // create easyButtons for the menu-functions
 // Button Sentinel-2 Data -----------------------------
 var button1 = L.easyButton('<img src="../images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
@@ -1287,6 +1294,21 @@ function checkConditionButton6() {
   }
 }
 
+// Button reload -----------------------------
+var button7 = L.easyButton('<img src="../images/reload.png" style="width: 20px; height: 20px;">', reload, 'Reload');
+button7.disable(); // by default the button is disabled
+/**
+ * Function checkConditionButton4
+ * only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ */
+function checkConditionButton7() {
+  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && classBoolean === true && rectangleCoordinates) {
+    //button5.disable();
+    button7.enable();
+  } else {
+    button7.disable();
+  }
+}
 
 // create the main toggle menu
 var toggleMenuButton = L.easyButton({
@@ -1303,6 +1325,7 @@ var toggleMenuButton = L.easyButton({
       button4.addTo(map).setPosition('topright');
       button5.addTo(map).setPosition('topright');
       button6.addTo(map).setPosition('topright');
+      button7.addTo(map).setPosition('topright');
     }
   }, {
     stateName: 'open',
@@ -1315,7 +1338,8 @@ var toggleMenuButton = L.easyButton({
       button3.remove();
       button4.remove();
       button5.remove();
-      button6.remove()
+      button6.remove();
+      button7.remove()
     }
   }]
 });
