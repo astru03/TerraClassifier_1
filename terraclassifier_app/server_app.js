@@ -401,7 +401,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const file = req.file.path;
     const geoPackage = await GeoPackageAPI.open(file);
-    console.log('TEST2')
     const feature = geoPackage.getFeatureTables();
     const layers = {};
 

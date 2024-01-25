@@ -574,7 +574,7 @@ async function modelTraining() {
  * tion
  */
 function classification() {
-  console.log("kommt");
+  //console.log("kommt");
   $('#loadingSpinner').show();
   fetch('/processgraph', {
     method: 'POST'
@@ -619,12 +619,12 @@ function downloadTiff() {
   }
 }
 
-var geladen = false;
+//var geladen = false;
 /**
  * Function showTiff
  */
 function showTiff() {
-  geladen = true;
+  //geladen = true;
   setTimeout(() => {
     fetch('/show-tiff')
       .then(response => {
