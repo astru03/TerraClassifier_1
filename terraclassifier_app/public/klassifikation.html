@@ -379,7 +379,20 @@
             <div class="mb-3">
               <label for="objectNameInput" class="form-label">Bitte für das Polygon die passende Bezeichnung
                 eingeben.</label>
-              <input type="text" class="form-control" id="objectNameInput" placeholder="Objektname eingeben" required>
+                <input type="text" class="form-control" id="objectNameInput" onkeypress="return checkEntryObjectName(event)" onpaste="return checkEntryObjectName(event)"
+                onchange="return checkEntryObjectName(event)" placeholder="Objektname eingeben" required>
+                <!-- Script that prohibits the use of special characters -->
+                <script>
+                  function checkEntryObjectName(e) {
+                    var k;
+                    document.all ? k = e.keyCode : k = e.which;
+                    if ((k >= 65 && k <= 90) || (k >= 97 && k <= 122) || k == 8 || (k >= 37 && k <= 40)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                </script>
             </div>
           </div>
           <!-- Modal Footer -->
@@ -466,22 +479,27 @@
       </div>
     </div>
 
+    
     <!-- Setting the hyperparameters if Random forest was selected -->
+    <!--
     <div class="modal fade" id="popup_EnterHyperparameterRandomForest" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content"> -->
           <!-- Modal Header -->
+           <!--
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">Hyperparameter für Random Forest</h4>
-          </div>
+          </div> -->
           <!-- Modal Body -->
+           <!--
           <div class="modal-body">
             <label for="RandomForestNTreeInput" class="form-label">Anzahl der Entscheidungsbäume (ntree)</label>
             <input type="number" step="0.01" class="form-control" id="RandomForestNTreeInput"
               onkeypress="return checkEntryNTree(event)" onpaste="return checkEntryNTree(event)"
               onchange="return checkEntryNTree(event)" placeholder="Bitte eine ganze Zahl zwischen 10 und 500 eingeben"
-              required>
+              required> -->
             <!-- Script that prohibits the use of special characters -->
+             <!--
             <script>
               function checkEntryNTree(e) {
                 var k;
@@ -493,8 +511,9 @@
                 }
               }
             </script>
-          </div>
+          </div> -->
           <!-- Modal Footer -->
+           <!--
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" data-dismiss="modal"
               onclick="closePopup('popup_EnterHyperparameterRandomForest')">Abbrechen</button>
@@ -502,44 +521,52 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- If hyperparameter from Random Forest is not between 10 and 500 -->
+    <!--
     <div class="modal fade" id="popup_NotBetween10And500" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content"> -->
           <!-- Modal Header -->
+          <!--
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">Fehler</h4>
-          </div>
+          </div> -->
           <!-- Modal Body -->
+          <!--
           <div class="modal-body">
             Der Wert darf nur zwischen 10 und 500 liegen.
-          </div>
+          </div> -->
           <!-- Modal Footer -->
+          <!--
           <div class="modal-footer">
             <button type="button" class="btn btn-info" onclick="closePopup('popup_NotBetween10And500')">Ok</button>
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Setting the hyperparameters if Random forest was selected -->
+     <!--
     <div class="modal fade" id="popup_EnterHyperparameterMinimumDistance" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content"> -->
           <!-- Modal Header -->
+           <!--
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">Hyperparameter für Minimum Distanz</h4>
-          </div>
+          </div> -->
           <!-- Modal Body -->
+           <!--
           <div class="modal-body">
             <label for="MinimumDistanceTuneLengthInput" class="form-label">Anzahl der Nachbarn (TuneLength):</label>
             <input type="number" step="0.01" class="form-control" id="MinimumDistanceTuneLengthInput"
               onkeypress="return checkEntryTuneLengt(event)" onpaste="return checkEntryTuneLengt(event)"
               onchange="return checkEntryTuneLengt(event)"
-              placeholder="Bitte eine ganze Zahl zwischen 10 und 50 eingeben" required>
+              placeholder="Bitte eine ganze Zahl zwischen 10 und 50 eingeben" required> -->
             <!-- Script that prohibits the use of special characters -->
+             <!--
             <script>
               function checkEntryTuneLengt(e) {
                 var k;
@@ -551,8 +578,9 @@
                 }
               }
             </script>
-          </div>
+          </div> -->
           <!-- Modal Footer -->
+           <!--
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" data-dismiss="modal"
               onclick="closePopup('popup_EnterHyperparameterMinimumDistance')">Abbrechen</button>
@@ -560,27 +588,31 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- If hyperparameter from Minimum Distance is not between 10 and 50 -->
+    <!--
     <div class="modal fade" id="popup_NotBetween10And50" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content"> -->
           <!-- Modal Header -->
+          <!--
           <div class="modal-header">
             <h4 class="modal-title" id="myModalLabel">Fehler</h4>
-          </div>
+          </div> -->
           <!-- Modal Body -->
+          <!--
           <div class="modal-body">
             Der Wert darf nur zwischen 10 und 50 liegen.
-          </div>
+          </div> -->
           <!-- Modal Footer -->
+          <!--
           <div class="modal-footer">
             <button type="button" class="btn btn-info" onclick="closePopup('popup_NotBetween10And50')">Ok</button>
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Enter Resolution for the calculation -->
     <div class="modal fade" id="popup_EnterResolution" role="dialog" aria-labelledby="myModalLabel">

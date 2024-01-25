@@ -72,11 +72,12 @@ let drawPolygone
 let AOTCOORD;
 let drawDataChoiceBoolean;
 let algorithem;
-let hyperparameter;
+//let hyperparameter;
 let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
 let modelBoolean = false;
+let classBoolean = false;
 
 function object_id() {
   return new Promise((resolve) => {
@@ -460,9 +461,9 @@ function algorithm() {
     } else {
       if (algorithmMD) {
         algorithem = 'MD';
+        /*
         $('#popup_algo').modal('hide');
         $('#popup_EnterHyperparameterMinimumDistance').modal('show');
-
         $('#saveTuneLength').on('click', function () {
           var MinimumDistanceTuneLengthInput = document.getElementById('MinimumDistanceTuneLengthInput').value;
           if (MinimumDistanceTuneLengthInput === '') {
@@ -479,12 +480,12 @@ function algorithm() {
             console.log("hyperparameter: " + hyperparameter);
           }
           
-        })
+        }) */
       } else {
         algorithem = 'RF';
+        /*
         $('#popup_algo').modal('hide');
         $('#popup_EnterHyperparameterRandomForest').modal('show');
-
         $('#saveNTree').on('click', function () {
           var RandomForestNTreeInput = document.getElementById('RandomForestNTreeInput').value;
           if (RandomForestNTreeInput === '') {
@@ -500,8 +501,11 @@ function algorithm() {
             $('#popup_EnterHyperparameterRandomForest').modal('hide');
             console.log("hyperparameter: " + hyperparameter);
           }
-        })
+        }) */
       }
+      $('#popup_algo').modal('hide');
+      algoBoolean = true;
+      checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
     }
   })
 }
@@ -545,7 +549,7 @@ async function modelTraining() {
     let NewStartDate = `${year}-${month}-${day}`;
 
     let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-    startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+    startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
     let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
 
     try {
@@ -555,7 +559,7 @@ async function modelTraining() {
         "StartDate": NewStartDate,
         "Enddate": endDate,
         "algorithm": algorithem,
-        "hyperparameter": hyperparameter,
+        //"hyperparameter": hyperparameter,
         "trainigsdata": allDrawnFeatures,
         "resolution": resolutionInput
       };
@@ -583,6 +587,8 @@ function classification() {
       if (response.ok) {
         downloadTiff()
         showTiff()
+        classBoolean = true;
+        checkConditionButton7()
       } else {
         console.log("Fehler bei der Verarbeitung der Datei!")
       }
@@ -677,7 +683,7 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
     $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
+  /* } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
     $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
     $('#popup_algo').modal('show');
   } else if (ID_Popup == 'popup_NotBetween10And50') {
@@ -688,7 +694,7 @@ function closePopup(ID_Popup) {
     $('#popup_algo').modal('show');
   } else if (ID_Popup == 'popup_NotBetween10And500') {
     $('#popup_NotBetween10And500').modal('hide');
-    $('#popup_EnterHyperparameterRandomForest').modal('show');
+    $('#popup_EnterHyperparameterRandomForest').modal('show'); */
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
   } else if (ID_Popup == 'popup_EnterObjektID') {
@@ -1199,6 +1205,10 @@ function reset_AOI() {
   }
 }
 
+function reload (){
+  location.reload();
+}
+
 // create easyButtons for the menu-functions
 // Button Sentinel-2 Data -----------------------------
 var button1 = L.easyButton('<img src="../images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
@@ -1287,6 +1297,21 @@ function checkConditionButton6() {
   }
 }
 
+// Button reload -----------------------------
+var button7 = L.easyButton('<img src="../images/reload.png" style="width: 20px; height: 20px;">', reload, 'Reload');
+button7.disable(); // by default the button is disabled
+/**
+ * Function checkConditionButton4
+ * only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ */
+function checkConditionButton7() {
+  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && classBoolean === true && rectangleCoordinates) {
+    //button5.disable();
+    button7.enable();
+  } else {
+    button7.disable();
+  }
+}
 
 // create the main toggle menu
 var toggleMenuButton = L.easyButton({
@@ -1303,6 +1328,7 @@ var toggleMenuButton = L.easyButton({
       button4.addTo(map).setPosition('topright');
       button5.addTo(map).setPosition('topright');
       button6.addTo(map).setPosition('topright');
+      button7.addTo(map).setPosition('topright');
     }
   }, {
     stateName: 'open',
@@ -1315,7 +1341,8 @@ var toggleMenuButton = L.easyButton({
       button3.remove();
       button4.remove();
       button5.remove();
-      button6.remove()
+      button6.remove();
+      button7.remove()
     }
   }]
 });

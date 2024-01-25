@@ -103,7 +103,7 @@ app.post('/satellite', (req, res) => {
   let NewStartDate = `${year}-${month}-${day}`;
 
   let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-  startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+  startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
   let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
   let startTime = 'T00:00:00Z';
   let endTime = 'T23:59:59Z';
@@ -171,6 +171,11 @@ async function processGraph_erstellen(data_all, train_data_path) {
     const trainigs_data = await fs.promises.readFile(train_data_path, "utf-8")
     console.log(trainigs_data)
 
+
+
+    
+
+    let resolution = Number(data_all.resolution)
     const northEast = data_all.AOI._northEast
     const southWest = data_all.AOI._southWest
     const wgs84 = 'EPSG:4326'
@@ -241,10 +246,10 @@ async function processGraph_erstellen(data_all, train_data_path) {
     console.log("train")
     let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
     console.log("classify")
-
     var reducer = function (data) { return this.mean(data) }
     datacube = builder.reduce_dimension(classify_cube_data, reducer, "t")
-    cube = builder.save_result(datacube, "GTiff")
+    resolutioncube = builder.resample_spatial(datacube, resolution)
+    cube = builder.save_result(resolutioncube, "GTiff")
     console.log("Bitte warten!")
     try {
       let datacube_tif = await connection.computeResult(cube)
