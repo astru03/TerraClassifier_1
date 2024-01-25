@@ -72,7 +72,7 @@ let drawPolygone
 let AOTCOORD;
 let drawDataChoiceBoolean;
 let algorithem;
-let hyperparameter;
+//let hyperparameter;
 let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
@@ -461,9 +461,9 @@ function algorithm() {
     } else {
       if (algorithmMD) {
         algorithem = 'MD';
+        /*
         $('#popup_algo').modal('hide');
         $('#popup_EnterHyperparameterMinimumDistance').modal('show');
-
         $('#saveTuneLength').on('click', function () {
           var MinimumDistanceTuneLengthInput = document.getElementById('MinimumDistanceTuneLengthInput').value;
           if (MinimumDistanceTuneLengthInput === '') {
@@ -480,12 +480,12 @@ function algorithm() {
             console.log("hyperparameter: " + hyperparameter);
           }
           
-        })
+        }) */
       } else {
         algorithem = 'RF';
+        /*
         $('#popup_algo').modal('hide');
         $('#popup_EnterHyperparameterRandomForest').modal('show');
-
         $('#saveNTree').on('click', function () {
           var RandomForestNTreeInput = document.getElementById('RandomForestNTreeInput').value;
           if (RandomForestNTreeInput === '') {
@@ -501,8 +501,11 @@ function algorithm() {
             $('#popup_EnterHyperparameterRandomForest').modal('hide');
             console.log("hyperparameter: " + hyperparameter);
           }
-        })
+        }) */
       }
+      $('#popup_algo').modal('hide');
+      algoBoolean = true;
+      checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
     }
   })
 }
@@ -556,7 +559,7 @@ async function modelTraining() {
         "StartDate": NewStartDate,
         "Enddate": endDate,
         "algorithm": algorithem,
-        "hyperparameter": hyperparameter,
+        //"hyperparameter": hyperparameter,
         "trainigsdata": allDrawnFeatures,
         "resolution": resolutionInput
       };
@@ -680,7 +683,7 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
     $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
+  /* } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
     $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
     $('#popup_algo').modal('show');
   } else if (ID_Popup == 'popup_NotBetween10And50') {
@@ -691,7 +694,7 @@ function closePopup(ID_Popup) {
     $('#popup_algo').modal('show');
   } else if (ID_Popup == 'popup_NotBetween10And500') {
     $('#popup_NotBetween10And500').modal('hide');
-    $('#popup_EnterHyperparameterRandomForest').modal('show');
+    $('#popup_EnterHyperparameterRandomForest').modal('show'); */
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
   } else if (ID_Popup == 'popup_EnterObjektID') {
