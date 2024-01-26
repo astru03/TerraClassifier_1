@@ -1451,21 +1451,36 @@ async function handleFileUpload() {
             return
           }
       }
-      
+      const filteredGeometry = data_geojson.features.filter(feature => 
+        (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') &&
+        feature.properties && 'ClassID' in feature.properties
+      );
+       let finalFetaures = filteredGeometry 
       if (rectangleCoordinates) {
-        const filteredFeatures = data_geojson.features.filter(feature => 
+         finalFetaures = filteredGeometry.filter(feature => 
           isUploadinRectangle(feature, rectangleCoordinates)
         );
-        data_geojson.features = filteredFeatures;
       }else{
         console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
       }
+      let classID_counts = {}
+      finalFetaures.forEach(feature => {
+        const classID = feature.properties.ClassID
+        classID_counts[classID] = (classID_counts[classID] || 0) + 1
+      })
+      const all_classID = Object.values(classID_counts).every(count => count >= 3)
+      if(!all_classID){
+        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
+        return
+      }
+
+
 
 
       merge_choice(
         //Wenn man auf Ok drückt
          () => {
-          addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
+          addToMap({ type: 'FeatureCollection', features: finalFetaures }) // GeoJSON zur Leaflet-Karte hinzufügen
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
           // Aktualisiere drawPolygone und die Zeichenkontrollen
@@ -1475,8 +1490,8 @@ async function handleFileUpload() {
         }, 
         //Wenn man abbricht
         () => {
-          L.geoJSON(data_geojson).addTo(map)
-          console.log('GeoJSON', data_geojson)
+          L.geoJSON({ type: 'FeatureCollection', features: finalFetaures }).addTo(map)
+          console.log('GeoJSON', { type: 'FeatureCollection', features: finalFetaures })
         }
         
       )
@@ -1512,14 +1527,23 @@ async function handleFileUpload() {
             }
           }
 
-          let filtered_geojson = []
-          if(rectangleCoordinates){
-            filtered_geojson = geojson_data.features.filter(feature => 
-              isUploadinRectangle(feature, rectangleCoordinates)
-          )
-          } 
-          geojson_data.features = filtered_geojson
-          addToMap(geojson_data)
+          let classID_counts = {}
+          const filteredGeometry = geojson_data.features.filter(feature => {
+            const rectangle_control = rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates)
+            if(rectangle_control && 'ClassID' in feature.properties){
+              const classID = feature.properties.ClassID
+              classID_counts[classID] = (classID_counts[classID] || 0) + 1
+
+            } 
+            return rectangle_control  
+          })
+          const all_classID_gpkg = Object.values(classID_counts).every(count => count >= 3)
+          if(!all_classID_gpkg){
+            alert('Es müssen mindestens dreimal innerhalb des Rechtecks eine ClassID vorkommen, um das Model zu trainiern!')
+            return
+            
+          }
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry });
         }else{
           console.error('Kein gültiges Format!')
         }

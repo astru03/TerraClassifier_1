@@ -440,6 +440,8 @@ app.get('/get-backend-data', (req, res) => {
  * https://www.npmjs.com/package/@ngageoint/geopackage
  * https://github.com/ngageoint/geopackage-js
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter?retiredLocale=de
+ * 
+ * values classID: https://stackoverflow.com/questions/47214800/every-function-with-object-values-not-working
  */
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
@@ -447,6 +449,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const geoPackage = await GeoPackageAPI.open(file);
     const featureTables = geoPackage.getFeatureTables();
     const layers = {};
+    var classID_counts = {}
 
     for (const table of featureTables) {
       const featureDao = geoPackage.getFeatureDao(table);
@@ -455,6 +458,9 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       const filteredFeatures = geojsonFeatures.filter(feature => {
         const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
         const classID_data = feature.properties && 'ClassID' in feature.properties;
+        if(classID_data){
+          classID_counts[feature.properties.ClassID] = (classID_counts[feature.properties.ClassID] || 0) + 1
+        }
         return polygon_multipolygon && classID_data;
       });
 
@@ -462,6 +468,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         type: 'FeatureCollection',
         features: filteredFeatures
       };
+    }
+    const all_classID = Object.values(classID_counts).every(count => count >=3)
+    if(!all_classID){
+      throw new Error('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
     }
 
     res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
