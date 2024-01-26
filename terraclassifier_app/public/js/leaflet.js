@@ -1452,6 +1452,93 @@ async function handleFileUpload() {
       console.log('GeoJSON Datei wurde erfolgreich geladen');
       try{
         const data_geojson = JSON.parse(event.target.result);
+        let classID_counts = {}
+        let classID_miss = false
+
+      
+      for(const feature of data_geojson.features){
+          if(!feature.properties || Object.keys(feature.properties).length === 0){
+            alert('Die Daten müssen gelabelt sein!')
+            delete_data()
+            return
+          }
+      }
+
+      const filteredGeometry = data_geojson.features.filter(feature => {
+        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' 
+        const classID_data = feature.properties && 'ClassID' in feature.properties
+        const polygon_rectangle = rectangleCoordinates && isUploadinRectangle(feature,rectangleCoordinates)
+      
+      if (polygon_rectangle && polygon_multipolygon && classID_data) {
+        const classID = feature.properties.ClassID
+        classID_counts[classID] = (classID_counts[classID] || 0) + 1
+        
+        
+      }else{
+        
+        classID_miss = true
+        return false
+      }
+      return polygon_rectangle && classID_data && polygon_multipolygon
+    });
+
+
+
+  if(classID_miss){
+      alert("Einige der Daten haben keine ClassID oder kommen nicht dreimal vor!")
+      delete_data()
+     // setFileInput()
+      return
+    }
+
+      
+  const all_classID = Object.values(classID_counts).every(count => count >= 3)
+      if(!all_classID){
+        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
+        delete_data()
+        //setFileInput()
+        return
+      }
+
+
+
+
+  merge_choice(
+        //Wenn man auf Ok drückt
+         () => {
+          console.log("Nun bei der anzeige")
+
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry }) // GeoJSON zur Leaflet-Karte hinzufügen
+          console.log('GeoJSON Daten zur Karte hinzugefügt');
+
+          // Aktualisiere drawPolygone und die Zeichenkontrollen
+          drawPolygone = true;
+          localStorage.setItem('drawPolygone', 'true');
+          update_drawing();
+        }, 
+        //Wenn man abbricht
+        () => {
+          L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map)
+          console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry })
+        }
+        
+      )
+      }catch{
+        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
+        delete_data()
+        //setFileInput()
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /**
+   * if (fileType === 'json' || fileType === 'geojson') {
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+      console.log('GeoJSON Datei wurde erfolgreich geladen');
+      try{
+        const data_geojson = JSON.parse(event.target.result);
 
       
       for(const feature of data_geojson.features){
@@ -1460,6 +1547,11 @@ async function handleFileUpload() {
             return
           }
       }
+
+      let classID_counts = {}
+      let classID_miss = {}
+
+
       const filteredGeometry = data_geojson.features.filter(feature => 
         (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') &&
         feature.properties && 'ClassID' in feature.properties
@@ -1472,7 +1564,7 @@ async function handleFileUpload() {
       }else{
         console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
       }
-      let classID_counts = {}
+
       finalFetaures.forEach(feature => {
         const classID = feature.properties.ClassID
         classID_counts[classID] = (classID_counts[classID] || 0) + 1
@@ -1480,6 +1572,7 @@ async function handleFileUpload() {
       const all_classID = Object.values(classID_counts).every(count => count >= 3)
       if(!all_classID){
         alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
+        delete_data()
         return
       }
 
@@ -1510,6 +1603,7 @@ async function handleFileUpload() {
     };
     reader.readAsText(file);
   }
+   */
   else if (fileType === 'gpkg') {
     console.log('GeoPackage Datei auswählen');
     const formData = new FormData()
@@ -1537,18 +1631,31 @@ async function handleFileUpload() {
           }
 
           let classID_counts = {}
+          let classID_miss = false
           const filteredGeometry = geojson_data.features.filter(feature => {
             const rectangle_control = rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates)
             if(rectangle_control && 'ClassID' in feature.properties){
               const classID = feature.properties.ClassID
               classID_counts[classID] = (classID_counts[classID] || 0) + 1
 
+            }else{
+              classID_miss = true
+              return false
+              
             } 
             return rectangle_control  
           })
+
+          if(classID_miss){
+            alert('Es gibt einige Polygone die keine ClassID haben, bitte ändern sie dies!')
+            delete_data()
+            return
+          }
+
           const all_classID_gpkg = Object.values(classID_counts).every(count => count >= 3)
           if(!all_classID_gpkg){
             alert('Es müssen mindestens dreimal innerhalb des Rechtecks eine ClassID vorkommen, um das Model zu trainiern!')
+            delete_data()
             return
             
           }
@@ -1561,6 +1668,7 @@ async function handleFileUpload() {
     })
     .catch(error => {
       console.error('Fehler', error)
+      delete_data()
       
     })
 
@@ -1569,7 +1677,16 @@ async function handleFileUpload() {
 } else {
       alert('Nicht unterstütztes Dateiformat. Bitte laden Sie eine GeoJSON- oder GeoPackage-Datei hoch.');
   }
+  fileInput.value = '';
 }
+
+/**
+ *function  setFileInput(){
+  fileInput.removeEventListener('change', handleFileUpload)
+  fileInput.addEventListener('change', handleFileUpload)
+} 
+ */
+
 
 
 /**
