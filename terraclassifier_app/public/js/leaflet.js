@@ -1452,8 +1452,6 @@ async function handleFileUpload() {
       console.log('GeoJSON Datei wurde erfolgreich geladen');
       try{
         const data_geojson = JSON.parse(event.target.result);
-        let classID_counts = {}
-        let classID_miss = false
 
       
       for(const feature of data_geojson.features){
@@ -1464,41 +1462,32 @@ async function handleFileUpload() {
           }
       }
 
-      const filteredGeometry = data_geojson.features.filter(feature => {
-        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' 
-        const classID_data = feature.properties && 'ClassID' in feature.properties
-        const polygon_rectangle = rectangleCoordinates && isUploadinRectangle(feature,rectangleCoordinates)
-      
-      if (polygon_rectangle && polygon_multipolygon && classID_data) {
-        const classID = feature.properties.ClassID
-        classID_counts[classID] = (classID_counts[classID] || 0) + 1
-        
-        
-      }else{
-        
-        classID_miss = true
-        return false
+      const filteredGeometry = data_geojson.features.filter(feature => 
+        rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates) &&
+        feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' 
+      );
+      let classID_counts = {};
+      let classID_miss = false;
+      filteredGeometry.forEach(feature => {
+          if ('ClassID' in feature.properties) {
+          const classID = feature.properties.ClassID;
+            classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+      } else {
+          classID_miss = true;
       }
-      return polygon_rectangle && classID_data && polygon_multipolygon
     });
-
-
-
-  if(classID_miss){
-      alert("Einige der Daten haben keine ClassID oder kommen nicht dreimal vor!")
-      delete_data()
-     // setFileInput()
-      return
+    if (classID_miss) {
+      alert('Einige der Daten haben keine ClassID!');
+      delete_data();
+      return;
     }
-
-      
-  const all_classID = Object.values(classID_counts).every(count => count >= 3)
-      if(!all_classID){
-        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
-        delete_data()
-        //setFileInput()
-        return
+    const all_classID = Object.values(classID_counts).every(count => count >= 3);
+    if (!all_classID) {
+        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!');
+        delete_data();
+        return;
       }
+
 
 
 
@@ -1630,35 +1619,32 @@ async function handleFileUpload() {
             }
           }
 
-          let classID_counts = {}
-          let classID_miss = false
-          const filteredGeometry = geojson_data.features.filter(feature => {
-            const rectangle_control = rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates)
-            if(rectangle_control && 'ClassID' in feature.properties){
-              const classID = feature.properties.ClassID
-              classID_counts[classID] = (classID_counts[classID] || 0) + 1
-
-            }else{
-              classID_miss = true
-              return false
-              
-            } 
-            return rectangle_control  
-          })
-
-          if(classID_miss){
-            alert('Es gibt einige Polygone die keine ClassID haben, bitte ändern sie dies!')
-            delete_data()
-            return
+          const filteredGeometry = geojson_data.features.filter(feature => 
+            rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates) 
+          );
+          let classID_counts = {};
+          let classID_miss = false;
+          filteredGeometry.forEach(feature => {
+              if ('ClassID' in feature.properties) {
+              const classID = feature.properties.ClassID;
+                classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+          } else {
+              classID_miss = true;
+          }
+        });
+        if (classID_miss) {
+          alert('Einige der Daten haben keine ClassID!');
+          delete_data();
+          return;
+        }
+        const all_classID = Object.values(classID_counts).every(count => count >= 3);
+        if (!all_classID) {
+            alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!');
+            delete_data();
+            return;
           }
 
-          const all_classID_gpkg = Object.values(classID_counts).every(count => count >= 3)
-          if(!all_classID_gpkg){
-            alert('Es müssen mindestens dreimal innerhalb des Rechtecks eine ClassID vorkommen, um das Model zu trainiern!')
-            delete_data()
-            return
-            
-          }
+          
           addToMap({ type: 'FeatureCollection', features: filteredGeometry });
         }else{
           console.error('Kein gültiges Format!')

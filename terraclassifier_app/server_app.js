@@ -351,14 +351,33 @@ async function processGraph_erstellen(data_all, train_data_path) {
  */
 
 
-async function color_geotiff(){
-  try{
-    const filePath = path.join(__dirname, 'test_js_1.tif')
-  const tiff = await GeoTIFF.fromFile(filePath)
-  const image = await tiff.getImage()
-  console.log(image)
-  }catch (error){
-    console.log("Fehler beim lesen der tif:", error)
+  async function color_geotiff() {
+    try {
+      const filePath = path.join(__dirname, 'test_js_1.tif');
+      const tiff = await GeoTIFF.fromFile(filePath);
+      const image = await tiff.getImage();
+      const width = image.getWidth();
+      const height = image.getHeight();
+      const numBands = image.getSamplesPerPixel();
+
+      console.log(`Breite: ${width}, Höhe: ${height}, Bänder: ${numBands}`);
+
+
+      const redBand = await image.readRasters({ samples: [0] }); // B04
+      const greenBand = await image.readRasters({ samples: [1] }); // B03
+      const blueBand = await image.readRasters({ samples: [2] }); // B02
+
+      console.log(redBand)
+      console.log(greenBand)
+      console.log(blueBand)
+  
+      for (let i = 0; i < numBands; i++) {
+        const band = await image.readRasters({ samples: [i] });
+        console.log(`Band ${i + 1}:`, band);
+      }
+    } catch (error) {
+      console.log("Fehler beim Lesen der TIFF-Datei:", error);
+    }
   }
   
 
@@ -376,7 +395,7 @@ async function color_geotiff(){
   console.log(`Breite: ${width}, Höhe: ${height}`)
    */
  
-}
+
 
 
 
