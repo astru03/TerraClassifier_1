@@ -4,6 +4,8 @@ const port = process.env.PORT || 3000
 const fetch = require('node-fetch');
 const proj4 = require('proj4')
 const path = require('path');
+const GeoTIFF = require('geotiff');
+
 
 
 const fs = require('fs');
@@ -242,7 +244,7 @@ async function processGraph_erstellen(data_all, train_data_path) {
     let filter_aot = builder.filter_bands(aot, ["B02", "B03", "B04"]);
     console.log("filter")
     
-    let traininngsmodel_cube = builder.train_model_knn(filter_aot, trainigs_data)
+    let traininngsmodel_cube = builder.train_model_rf(filter_aot, trainigs_data)
     console.log("train")
     let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
     console.log("classify")
@@ -348,6 +350,36 @@ async function processGraph_erstellen(data_all, train_data_path) {
   }
  */
 
+
+async function color_geotiff(){
+  try{
+    const filePath = path.join(__dirname, 'test_js_1.tif')
+  const tiff = await GeoTIFF.fromFile(filePath)
+  const image = await tiff.getImage()
+  console.log(image)
+  }catch (error){
+    console.log("Fehler beim lesen der tif:", error)
+  }
+  
+
+  
+
+  /**
+   *  const number_bands = image.getSamplesPerPixel()
+  for (let i = 0; i < number_bands; i++) {
+    const band = await image.readRasters({ samples: [i] });
+    console.log(`Band ${i + 1}:`, band);
+}
+  const width = image.getWidth()
+  const height = image.getHeight()
+
+  console.log(`Breite: ${width}, Höhe: ${height}`)
+   */
+ 
+}
+
+
+
 app.post('/processgraph', (req, res) => {
   const processgraph_data = 'send_data.json';
   fs.readFile(processgraph_data, 'utf-8', async (err, data) => {
@@ -394,6 +426,11 @@ app.get('/show-tiff', (req, res) => {
   const filePath = path.join(__dirname, 'test_js_1.tif')
   res.sendFile(filePath)
 
+})
+
+app.get('/color-tiff', async (req, res) => {
+  await color_geotiff()
+  res.send({message: "Hat geklappt!"})
 })
 
 //löschen alles, nicht einzeln!
@@ -457,6 +494,38 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
       const filteredFeatures = geojsonFeatures.filter(feature => {
         const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
+        
+        return polygon_multipolygon
+      });
+
+      layers[table] = {
+        type: 'FeatureCollection',
+        features: filteredFeatures
+      };
+    }
+    
+    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
+  } catch (error) {
+    console.error('Fehler beim verarbeiten der GeoPackage Datei:', error);
+    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei: ' + error.message });
+  }
+});
+
+/**
+ * app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file.path;
+    const geoPackage = await GeoPackageAPI.open(file);
+    const featureTables = geoPackage.getFeatureTables();
+    const layers = {};
+    var classID_counts = {}
+
+    for (const table of featureTables) {
+      const featureDao = geoPackage.getFeatureDao(table);
+      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table); 
+
+      const filteredFeatures = geojsonFeatures.filter(feature => {
+        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
         const classID_data = feature.properties && 'ClassID' in feature.properties;
         if(classID_data){
           classID_counts[feature.properties.ClassID] = (classID_counts[feature.properties.ClassID] || 0) + 1
@@ -480,6 +549,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei: ' + error.message });
   }
 });
+ */
 
 /**
  * 

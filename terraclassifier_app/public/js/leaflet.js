@@ -587,6 +587,7 @@ function classification() {
       if (response.ok) {
         downloadTiff()
         showTiff()
+        color_tiff()
         classBoolean = true;
         checkConditionButton7()
       } else {
@@ -653,6 +654,14 @@ function showTiff() {
       })
       $('#loadingSpinner').hide();
   }, 10000)
+}
+
+function color_tiff(){
+  setTimeout(() => {
+    fetch('/color-tiff')
+      .then(response => response)
+  }, 3000)
+  
 }
 
 /**
