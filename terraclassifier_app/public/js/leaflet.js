@@ -1468,11 +1468,15 @@ async function handleFileUpload() {
       );
       let classID_counts = {};
       let classID_miss = false;
+      let class_ID_set = new Set()
       filteredGeometry.forEach(feature => {
           if ('ClassID' in feature.properties) {
           const classID = feature.properties.ClassID;
-            classID_counts[classID] = (classID_counts[classID] || 0) + 1;
-      } else {
+          classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+          if(classID_counts[classID] >= 3){
+            class_ID_set.add(classID)
+          }
+        } else {
           classID_miss = true;
       }
     });
@@ -1482,11 +1486,12 @@ async function handleFileUpload() {
       return;
     }
     const all_classID = Object.values(classID_counts).every(count => count >= 3);
-    if (!all_classID) {
-        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!');
-        delete_data();
-        return;
-      }
+    const classID_three = class_ID_set.size >= 3
+      if (!all_classID || !classID_three) {
+          alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
+          delete_data();
+          return;
+          }
 
 
 
@@ -1624,10 +1629,14 @@ async function handleFileUpload() {
           );
           let classID_counts = {};
           let classID_miss = false;
+          let class_ID_set = new Set()
           filteredGeometry.forEach(feature => {
               if ('ClassID' in feature.properties) {
               const classID = feature.properties.ClassID;
-                classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+              classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+              if(classID_counts[classID] >= 3){
+                class_ID_set.add(classID)
+              }
           } else {
               classID_miss = true;
           }
@@ -1638,8 +1647,9 @@ async function handleFileUpload() {
           return;
         }
         const all_classID = Object.values(classID_counts).every(count => count >= 3);
-        if (!all_classID) {
-            alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!');
+        const classID_three = class_ID_set.size >= 3
+        if (!all_classID || !classID_three) {
+            alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
             delete_data();
             return;
           }
