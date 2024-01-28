@@ -730,8 +730,8 @@ function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
   const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
   const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
-  const DEMO_NewStartDate = "2023-07-01"
-  const DEMO_endDate = "2023-07-15"
+  const DEMO_NewStartDate = "2022-07-01"
+  const DEMO_endDate = "2022-08-01"
   const DEMO_algorithem = "MD"
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
@@ -1174,7 +1174,7 @@ function demoButton() {
         }
     ]
 }
-  const DEMO_resolutionInput = "30"
+  const DEMO_resolutionInput = "100"
 
   let DEMODATAJSON = {
     "AOI": DEMO_AOICOORD,
