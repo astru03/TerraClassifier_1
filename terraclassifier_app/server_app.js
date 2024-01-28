@@ -4,6 +4,8 @@ const port = process.env.PORT || 3000
 const fetch = require('node-fetch');
 const proj4 = require('proj4')
 const path = require('path');
+const GeoTIFF = require('geotiff');
+
 
 
 const fs = require('fs');
@@ -28,6 +30,7 @@ if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 const bodyParser = require('body-parser');
+const { error, table } = require('console');
 app.use(bodyParser.json());
 
 /**
@@ -102,7 +105,7 @@ app.post('/satellite', (req, res) => {
   let NewStartDate = `${year}-${month}-${day}`;
 
   let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-  startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+  startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
   let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
   let startTime = 'T00:00:00Z';
   let endTime = 'T23:59:59Z';
@@ -158,15 +161,135 @@ app.post('/satellite', (req, res) => {
 });
 
 
-app.post('/demo_builder', async (req, res) => {
-});
+//app.post('/demo_builder', async (req, res) => {
+//});
 
 /**
  * Function processGraph_erstellen
  * @param {*} data_all
  */
-async function processGraph_erstellen(data_all) {
+async function processGraph_erstellen(data_all, train_data_path) {
   try {
+    const trainigs_data = await fs.promises.readFile(train_data_path, "utf-8")
+    console.log(trainigs_data)
+
+
+
+    
+
+    let resolution = Number(data_all.resolution)
+    const northEast = data_all.AOI._northEast
+    const southWest = data_all.AOI._southWest
+    const wgs84 = 'EPSG:4326'
+    const mercator = 'EPSG:3857'
+    const proj_mercator_northEast = proj4(wgs84, mercator, [northEast.lng, northEast.lat])
+    const proj_mercator_southWest = proj4(wgs84, mercator, [southWest.lng, southWest.lat])
+    console.log(northEast)
+    console.log(southWest)
+    const west = proj_mercator_southWest[0]
+    const east = proj_mercator_northEast[0]
+    const south = proj_mercator_southWest[1]
+    const north = proj_mercator_northEast[1]
+
+    const northEast_AOT = data_all.AOT._northEast
+    const southWest_AOT = data_all.AOT._southWest
+
+    const proj_mercator_northEast_AOT = proj4(wgs84, mercator, [northEast_AOT.lng, northEast_AOT.lat])
+    const proj_mercator_southWest_AOT = proj4(wgs84, mercator, [southWest_AOT.lng, southWest_AOT.lat])
+
+    const west_AOT = proj_mercator_southWest_AOT[0]
+    const east_AOT = proj_mercator_northEast_AOT[0]
+    const south_AOT = proj_mercator_southWest_AOT[1]
+    const north_AOT = proj_mercator_northEast_AOT[1]
+
+
+    console.log(northEast_AOT, southWest_AOT)
+
+    const connection = await OpenEO.connect("http://54.185.59.127:8080");
+    //const connection = await OpenEO.connect("http://localhost:8080");
+    // Basic login
+    await connection.authenticateBasic("user", "password");
+    // Erstellen des Prozess-Builders
+    var builder = await connection.buildProcess();
+    let aoi = builder.load_collection(
+      "sentinel-s2-l2a-cogs",
+      {
+        "west": west,
+        "east": east,
+        "south": south,
+        "north": north,
+        "crs": 3857
+      },
+      ["2022-07-01", "2022-08-01"]
+      
+    );
+    
+    let aot = builder.load_collection(
+      "sentinel-s2-l2a-cogs",
+      {
+        "west": west_AOT,
+        "east": east_AOT,
+        "south": south_AOT,
+        "north": north_AOT,
+        "crs": 3857
+      },
+      ["2022-07-01", "2022-08-01"]
+    );
+
+
+
+
+
+
+    let filter_aoi = builder.filter_bands(aoi, ["B02", "B03", "B04"]);
+    let filter_aot = builder.filter_bands(aot, ["B02", "B03", "B04"]);
+    console.log("filter")
+    
+    let traininngsmodel_cube = builder.train_model_rf(filter_aot, trainigs_data)
+    console.log("train")
+    let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
+    console.log("classify")
+    var reducer = function (data) { return this.mean(data) }
+    datacube = builder.reduce_dimension(classify_cube_data, reducer, "t")
+    resolutioncube = builder.resample_spatial(datacube, resolution)
+    cube = builder.save_result(resolutioncube, "GTiff")
+    console.log("Bitte warten!")
+    try {
+      let datacube_tif = await connection.computeResult(cube)
+      console.log(datacube_tif.data)
+      if (datacube_tif.data instanceof stream.Readable) {
+        console.log('datacube_tif.data ist ein lesbarer Stream.');
+        //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
+        const filePath = path.join(__dirname, 'test_js_1.tif');
+        const writeStream = fs.createWriteStream(filePath);
+        datacube_tif.data.pipe(writeStream);
+        datacube_tif.data.on('end', () => {
+          console.log('Stream zu Ende gelesen und Datei gespeichert.');
+        });
+      } else {
+        console.error('datacube_tif.data ist kein lesbarer Stream.');
+      }
+
+      //B02, B08, ndwi
+      //B11, B08  ndbi
+      //ndsi B02, B11
+
+      console.log("jetzt")
+    } catch {
+    }
+  } catch (err) {
+    console.error('Fehler beim verarbeiten', err)
+  }
+
+
+
+
+}
+
+
+
+/**
+ * try {
     const northEast = data_all.AOI._northEast
     const southWest = data_all.AOI._southWest
     const wgs84 = 'EPSG:4326'
@@ -225,100 +348,56 @@ async function processGraph_erstellen(data_all) {
       console.log("jetzt")
     } catch {
     }
-  } catch (err) {
-    console.error('Fehler beim verarbeiten', err)
   }
-}
-
-/**
- * 
- * @param {*} data_all 
- * 
- * 
- * 
-async function processGraph_erstellen(data_all){
-  try{
-  const northEast = data_all.AOI._northEast
-  const southWest = data_all.AOI._southWest
-
-  const wgs84 = 'EPSG:4326'
-  const mercator = 'EPSG:3857'
-
-  const proj_mercator_northEast = proj4(wgs84, mercator, [northEast.lng, northEast.lat])
-  const proj_mercator_southWest = proj4(wgs84, mercator, [southWest.lng, southWest.lat])
+ */
 
 
-
-
-  console.log(northEast) 
-  console.log(southWest)
-
-  const west = proj_mercator_southWest[0]
-  const east = proj_mercator_northEast[0]
-  const south = proj_mercator_southWest[1]
-  const north = proj_mercator_northEast[1]
-  const connection = await OpenEO.connect("http://54.185.59.127:8000");
-  // Basic login
-  await connection.authenticateBasic("user", "password");
-  // Erstellen des Prozess-Builders
-  var builder = await connection.buildProcess();
-  let load1 = builder.load_collection(
-    "sentinel-s2-l2a-cogs",
-     {
-        "west" : west,
-          "east": east,
-          "south": south,
-          "north": north,
-          "crs" : 3857
-    },
-    ["2022-01-01", "2022-12-31"], 
-    ["B02","B04", "B08"]
-  );
-
-  let filter2 = builder.filter_bands(load1, ["B04", "B08"]);
-  let ndvi = builder.ndvi(filter2, "B04", "B08")
-
-  var reducer = function(data){return this.mean(data)}
-  datacube = builder.reduce_dimension(ndvi, reducer, "t")
-  cube = builder.save_result(datacube, "GTiff")
-  console.log("Bitte warten!")
-
-  try{
-    let datacube_tif = await connection.computeResult(cube)
-    console.log(datacube_tif.data)
-
-    if (datacube_tif.data instanceof stream.Readable) {
-      console.log('datacube_tif.data ist ein lesbarer Stream.');
-
-      //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
+  async function color_geotiff() {
+    try {
       const filePath = path.join(__dirname, 'test_js_1.tif');
-      const writeStream = fs.createWriteStream(filePath);
+      const tiff = await GeoTIFF.fromFile(filePath);
+      const image = await tiff.getImage();
+      const width = image.getWidth();
+      const height = image.getHeight();
+      const numBands = image.getSamplesPerPixel();
 
-      datacube_tif.data.pipe(writeStream);
+      console.log(`Breite: ${width}, Höhe: ${height}, Bänder: ${numBands}`);
 
-      datacube_tif.data.on('end', () => {
-        console.log('Stream zu Ende gelesen und Datei gespeichert.');
-      });
 
-    } else {
-      console.error('datacube_tif.data ist kein lesbarer Stream.');
+      const redBand = await image.readRasters({ samples: [0] }); // B04
+      const greenBand = await image.readRasters({ samples: [1] }); // B03
+      const blueBand = await image.readRasters({ samples: [2] }); // B02
+
+      console.log(redBand)
+      console.log(greenBand)
+      console.log(blueBand)
+  
+      for (let i = 0; i < numBands; i++) {
+        const band = await image.readRasters({ samples: [i] });
+        console.log(`Band ${i + 1}:`, band);
+      }
+    } catch (error) {
+      console.log("Fehler beim Lesen der TIFF-Datei:", error);
     }
-
-    //B02, B08, ndwi
-    //B11, B08  ndbi
-    //ndsi B02, B11
-
-    console.log("jetzt")
-  }catch{
-
   }
+  
 
-  }catch(err){
-    console.error('Fehler beim verarbeiten', err)
-  }
+  
+
+  /**
+   *  const number_bands = image.getSamplesPerPixel()
+  for (let i = 0; i < number_bands; i++) {
+    const band = await image.readRasters({ samples: [i] });
+    console.log(`Band ${i + 1}:`, band);
 }
+  const width = image.getWidth()
+  const height = image.getHeight()
 
-*/
+  console.log(`Breite: ${width}, Höhe: ${height}`)
+   */
+ 
+
+
 
 
 app.post('/processgraph', (req, res) => {
@@ -327,13 +406,29 @@ app.post('/processgraph', (req, res) => {
     if (err) {
       return res.status(500).send({ message: 'Fehler beim Lesen' });
     }
-    const processgraph_data_parsed = JSON.parse(data);
-    try {
-      await processGraph_erstellen(processgraph_data_parsed);
-      res.send({ message: "Geschafft!" })
-    } catch (error) {
-      console.error('Fehler bei der Verarbeitung', error);
-      res.status(500).send({ message: 'Fehler bei der Verarbeitung' });
+    const data_all = JSON.parse(data);
+    if(data_all.trainigsdata && data_all.trainigsdata.features){
+      const train_data_path = "train_data_all.geojson"
+      const geo_train_data = {
+        type:"FeatureCollection",
+        features: data_all.trainigsdata.features
+      }
+
+      fs.writeFile(train_data_path, JSON.stringify(geo_train_data), async (err) => {
+        if(err){
+          res.status(500).send({message: "Fehler beim konverteiren zu einem String"})
+        }
+        try{
+          await processGraph_erstellen(data_all, train_data_path)
+          res.send({message:"Erfolgreich durchgeführt"})
+        }catch{
+          console.error("Fehler", error)
+          res.status(500).send({message:"Fehler"})
+        }
+      })
+    } else {
+      console.error('Traingsdaten nicht im Path gefunden')
+      return res.status(500).send({message: "Trainingsdaten konnten nicht unter dem Path gefunden werden"})
     }
   });
 });
@@ -351,6 +446,11 @@ app.get('/show-tiff', (req, res) => {
   const filePath = path.join(__dirname, 'test_js_1.tif')
   res.sendFile(filePath)
 
+})
+
+app.get('/color-tiff', async (req, res) => {
+  await color_geotiff()
+  res.send({message: "Hat geklappt!"})
 })
 
 //löschen alles, nicht einzeln!
@@ -396,7 +496,84 @@ app.get('/get-backend-data', (req, res) => {
 /**
  * https://www.npmjs.com/package/@ngageoint/geopackage
  * https://github.com/ngageoint/geopackage-js
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter?retiredLocale=de
+ * 
+ * values classID: https://stackoverflow.com/questions/47214800/every-function-with-object-values-not-working
  */
+app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file.path;
+    const geoPackage = await GeoPackageAPI.open(file);
+    const featureTables = geoPackage.getFeatureTables();
+    const layers = {};
+    var classID_counts = {}
+
+    for (const table of featureTables) {
+      const featureDao = geoPackage.getFeatureDao(table);
+      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table); 
+
+      const filteredFeatures = geojsonFeatures.filter(feature => {
+        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
+        
+        return polygon_multipolygon
+      });
+
+      layers[table] = {
+        type: 'FeatureCollection',
+        features: filteredFeatures
+      };
+    }
+    
+    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
+  } catch (error) {
+    console.error('Fehler beim verarbeiten der GeoPackage Datei:', error);
+    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei: ' + error.message });
+  }
+});
+
+/**
+ * app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file.path;
+    const geoPackage = await GeoPackageAPI.open(file);
+    const featureTables = geoPackage.getFeatureTables();
+    const layers = {};
+    var classID_counts = {}
+
+    for (const table of featureTables) {
+      const featureDao = geoPackage.getFeatureDao(table);
+      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table); 
+
+      const filteredFeatures = geojsonFeatures.filter(feature => {
+        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
+        const classID_data = feature.properties && 'ClassID' in feature.properties;
+        if(classID_data){
+          classID_counts[feature.properties.ClassID] = (classID_counts[feature.properties.ClassID] || 0) + 1
+        }
+        return polygon_multipolygon && classID_data;
+      });
+
+      layers[table] = {
+        type: 'FeatureCollection',
+        features: filteredFeatures
+      };
+    }
+    const all_classID = Object.values(classID_counts).every(count => count >=3)
+    if(!all_classID){
+      throw new Error('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
+    }
+
+    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
+  } catch (error) {
+    console.error('Fehler beim verarbeiten der GeoPackage Datei:', error);
+    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei: ' + error.message });
+  }
+});
+ */
+
+/**
+ * 
+
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const file = req.file.path;
@@ -406,48 +583,24 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     for (const table of feature) {
       // Abfrage aller Features als GeoJSON
-      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
+      const allFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
+
+      const polygonFeatur = allFeatures.filter(feature => feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon')
 
       layers[table] = {
         type: 'FeatureCollection',
-        features: geojsonFeatures
+        features: polygonFeatur
       };
     }
+
     res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
   } catch (error) {
     console.error('Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:', error);
     res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:' + error.message });
   }
 });
-
-//https://github.com/Stuk/jszip
-
-/**
- * app.get('/download', async (req, res) => {
-  try{
-    if(fs.existsSync('data_geojson.json')){
-      const geojsonData = JSON.parse(fs.readFileSync('data_geojson.json', 'utf-8'))
-
-    //ZIP-Erstellen
-
-    const zip = new JSZIP();
-    zip.file('data_geojson', JSON.stringify(geojsonData))
-
-    //ZIP-Datei generieren
-    const Zip_data = await zip.generateAsync({ type: 'nodebuffer' });
-    res.set('Content-Type', 'application/zip')
-    res.set('Content-Disposition', 'attachment; filename="data.zip"')
-    res.send(Zip_data)
-    }else{
-      console.error('Es wurden noch keine Polygone eingezeichnet', error)
-    }
-
-  }
-  catch{
-    res.status(500).send({message: 'Fehler beim herunterladen der ZIP-Datei'})
-  }
-})
  */
+
 
 //Listener
 app.listen(port, () => {

@@ -5,6 +5,15 @@ services:
     build: ./terraclassifier_app            # Pfad zum Dockerfile der Webanwendung. Baut daraus ein Image 
     # image: astru/terraclassifier_app:latest
     ports:
-      - "3000:3000"            # Port 4000 des Host wird gemappt auf Port 4000 des Container, der das Image ausführt
-  
-  
+      - "3000:3000"
+
+  # openeocubes_custom:
+  #  container_name: openeocubes_custom
+  #  image: astru/openeocubes_custom:1.0
+  #  environment:
+  #    - AWSHOST=
+  #    - TZ=Etc/UTC
+  #    - DEBIAN_FRONTEND=noninteractive
+  #  ports:
+  #    - "8080:8080"
+  #  restart: always

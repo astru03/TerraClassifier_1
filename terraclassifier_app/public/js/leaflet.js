@@ -72,11 +72,12 @@ let drawPolygone
 let AOTCOORD;
 let drawDataChoiceBoolean;
 let algorithem;
-let hyperparameter;
+//let hyperparameter;
 let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
 let modelBoolean = false;
+let classBoolean = false;
 
 function object_id() {
   return new Promise((resolve) => {
@@ -329,6 +330,7 @@ async function getSatelliteImages(datum, NorthEastCoordinates, SouthwestCoordina
                 keepBuffer: 8
               });
               layer.addTo(map);
+              satalite_layer = layer
               setTimeout(function () {
                 $('#loadingSpinner').hide();
                 checkConditionButton2();
@@ -459,9 +461,9 @@ function algorithm() {
     } else {
       if (algorithmMD) {
         algorithem = 'MD';
+        /*
         $('#popup_algo').modal('hide');
         $('#popup_EnterHyperparameterMinimumDistance').modal('show');
-
         $('#saveTuneLength').on('click', function () {
           var MinimumDistanceTuneLengthInput = document.getElementById('MinimumDistanceTuneLengthInput').value;
           if (MinimumDistanceTuneLengthInput === '') {
@@ -478,12 +480,12 @@ function algorithm() {
             console.log("hyperparameter: " + hyperparameter);
           }
           
-        })
+        }) */
       } else {
         algorithem = 'RF';
+        /*
         $('#popup_algo').modal('hide');
         $('#popup_EnterHyperparameterRandomForest').modal('show');
-
         $('#saveNTree').on('click', function () {
           var RandomForestNTreeInput = document.getElementById('RandomForestNTreeInput').value;
           if (RandomForestNTreeInput === '') {
@@ -499,8 +501,11 @@ function algorithm() {
             $('#popup_EnterHyperparameterRandomForest').modal('hide');
             console.log("hyperparameter: " + hyperparameter);
           }
-        })
+        }) */
       }
+      $('#popup_algo').modal('hide');
+      algoBoolean = true;
+      checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
     }
   })
 }
@@ -544,7 +549,7 @@ async function modelTraining() {
     let NewStartDate = `${year}-${month}-${day}`;
 
     let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-    startDate.setDate(startDate.getDate() + 14); // to the selected date will add 14 days to the start date
+    startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
     let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
 
     try {
@@ -554,7 +559,7 @@ async function modelTraining() {
         "StartDate": NewStartDate,
         "Enddate": endDate,
         "algorithm": algorithem,
-        "hyperparameter": hyperparameter,
+        //"hyperparameter": hyperparameter,
         "trainigsdata": allDrawnFeatures,
         "resolution": resolutionInput
       };
@@ -573,7 +578,7 @@ async function modelTraining() {
  * tion
  */
 function classification() {
-  console.log("kommt");
+  //console.log("kommt");
   $('#loadingSpinner').show();
   fetch('/processgraph', {
     method: 'POST'
@@ -582,6 +587,9 @@ function classification() {
       if (response.ok) {
         downloadTiff()
         showTiff()
+        color_tiff()
+        classBoolean = true;
+        checkConditionButton7()
       } else {
         console.log("Fehler bei der Verarbeitung der Datei!")
       }
@@ -618,12 +626,12 @@ function downloadTiff() {
   }
 }
 
-var geladen = false;
+//var geladen = false;
 /**
  * Function showTiff
  */
 function showTiff() {
-  geladen = true;
+  //geladen = true;
   setTimeout(() => {
     fetch('/show-tiff')
       .then(response => {
@@ -646,6 +654,14 @@ function showTiff() {
       })
       $('#loadingSpinner').hide();
   }, 10000)
+}
+
+function color_tiff(){
+  setTimeout(() => {
+    fetch('/color-tiff')
+      .then(response => response)
+  }, 3000)
+  
 }
 
 /**
@@ -676,7 +692,7 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
     $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
+  /* } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
     $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
     $('#popup_algo').modal('show');
   } else if (ID_Popup == 'popup_NotBetween10And50') {
@@ -687,7 +703,7 @@ function closePopup(ID_Popup) {
     $('#popup_algo').modal('show');
   } else if (ID_Popup == 'popup_NotBetween10And500') {
     $('#popup_NotBetween10And500').modal('hide');
-    $('#popup_EnterHyperparameterRandomForest').modal('show');
+    $('#popup_EnterHyperparameterRandomForest').modal('show'); */
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
   } else if (ID_Popup == 'popup_EnterObjektID') {
@@ -714,8 +730,8 @@ function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
   const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
   const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
-  const DEMO_NewStartDate = "2023-07-01"
-  const DEMO_endDate = "2023-07-15"
+  const DEMO_NewStartDate = "2022-07-01"
+  const DEMO_endDate = "2022-08-01"
   const DEMO_algorithem = "MD"
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
@@ -1158,7 +1174,7 @@ function demoButton() {
         }
     ]
 }
-  const DEMO_resolutionInput = "30"
+  const DEMO_resolutionInput = "100"
 
   let DEMODATAJSON = {
     "AOI": DEMO_AOICOORD,
@@ -1198,12 +1214,16 @@ function reset_AOI() {
   }
 }
 
+function reload (){
+  location.reload();
+}
+
 // create easyButtons for the menu-functions
 // Button Sentinel-2 Data -----------------------------
-var button1 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
+var button1 = L.easyButton('<img src="../images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
 
 // Button Trainigsdata -----------------------------
-var button2 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
+var button2 = L.easyButton('<img src="../images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
 button2.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton2
@@ -1219,7 +1239,7 @@ function checkConditionButton2() {
 }
 
 // Button algorithem -----------------------------
-var button3 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
+var button3 = L.easyButton('<img src="../images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
 button3.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton3
@@ -1235,7 +1255,7 @@ function checkConditionButton3() {
 }
 
 // Button area of intrest -----------------------------
-var button4 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
+var button4 = L.easyButton('<img src="../images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
   areaOfIntrest()
   remove_satalite_layer()
 }, 'AOI');
@@ -1254,7 +1274,7 @@ function checkConditionButton4() {
 }
 
 // Button modeltrainig -----------------------------
-var button5 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining
+var button5 = L.easyButton('<img src="../images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining
   , 'Modeltraining');
 button5.disable(); // by default the button is disabled
 /**
@@ -1271,7 +1291,7 @@ function checkConditionButton5() {
 }
 
 // Button classification -----------------------------
-var button6 = L.easyButton('<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
+var button6 = L.easyButton('<img src="../images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
 button6.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton4
@@ -1286,13 +1306,28 @@ function checkConditionButton6() {
   }
 }
 
+// Button reload -----------------------------
+var button7 = L.easyButton('<img src="../images/reload.png" style="width: 20px; height: 20px;">', reload, 'Reload');
+button7.disable(); // by default the button is disabled
+/**
+ * Function checkConditionButton4
+ * only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ */
+function checkConditionButton7() {
+  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && classBoolean === true && rectangleCoordinates) {
+    //button5.disable();
+    button7.enable();
+  } else {
+    button7.disable();
+  }
+}
 
 // create the main toggle menu
 var toggleMenuButton = L.easyButton({
   position: 'topright',
   states: [{
     stateName: 'closed',
-    icon: '<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/menu_icon.png" style="width: 20px; height: 20px;">',
+    icon: '<img src="../images/menu_icon.png" style="width: 20px; height: 20px;">',
     title: 'Öffne Menü',
     onClick: function (btn, map) {
       btn.state('open');
@@ -1302,10 +1337,11 @@ var toggleMenuButton = L.easyButton({
       button4.addTo(map).setPosition('topright');
       button5.addTo(map).setPosition('topright');
       button6.addTo(map).setPosition('topright');
+      button7.addTo(map).setPosition('topright');
     }
   }, {
     stateName: 'open',
-    icon: '<img src="https://raw.githubusercontent.com/astru03/TerraClassifier_1/main/terraclassifier_app/public/images/menu_icon.png" style="width: 20px; height: 20px;">',
+    icon: '<img src="../images/menu_icon.png" style="width: 20px; height: 20px;">',
     title: 'Schließe Menü',
     onClick: function (btn, map) {
       btn.state('closed');
@@ -1314,7 +1350,8 @@ var toggleMenuButton = L.easyButton({
       button3.remove();
       button4.remove();
       button5.remove();
-      button6.remove()
+      button6.remove();
+      button7.remove()
     }
   }]
 });
@@ -1397,97 +1434,256 @@ function isUploadinRectangle(feature, rectangleCoordinates) {
  */
 async function handleFileUpload() {
   console.log('file_upload');
+
   const fileInput = document.getElementById('fileInput');
   const file = fileInput.files[0];
+
   if (!file) {
-    alert('Datei auswählen!');
-    return;
+      alert('Datei auswählen!');
+      return;
   }
+
   // Datentyp filtern 
   const fileType = file.name.split('.').pop().toLowerCase();
+
   if (fileType === 'json' || fileType === 'geojson') {
     const reader = new FileReader();
-    reader.onload = async function (event) {
+    reader.onload = async function(event) {
       console.log('GeoJSON Datei wurde erfolgreich geladen');
-      try {
+      try{
         const data_geojson = JSON.parse(event.target.result);
-        for (const feature of data_geojson.features) {
-          if (!feature.properties || Object.keys(feature.properties).length === 0) {
+
+      
+      for(const feature of data_geojson.features){
+          if(!feature.properties || Object.keys(feature.properties).length === 0){
+            alert('Die Daten müssen gelabelt sein!')
+            delete_data()
+            return
+          }
+      }
+
+      const filteredGeometry = data_geojson.features.filter(feature => 
+        rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates) &&
+        feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' 
+      );
+      let classID_counts = {};
+      let classID_miss = false;
+      let class_ID_set = new Set()
+      filteredGeometry.forEach(feature => {
+          if ('ClassID' in feature.properties) {
+          const classID = feature.properties.ClassID;
+          classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+          if(classID_counts[classID] >= 3){
+            class_ID_set.add(classID)
+          }
+        } else {
+          classID_miss = true;
+      }
+    });
+    if (classID_miss) {
+      alert('Einige der Daten haben keine ClassID!');
+      delete_data();
+      return;
+    }
+    const all_classID = Object.values(classID_counts).every(count => count >= 3);
+    const classID_three = class_ID_set.size >= 3
+      if (!all_classID || !classID_three) {
+          alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
+          delete_data();
+          return;
+          }
+
+
+
+
+
+  merge_choice(
+        //Wenn man auf Ok drückt
+         () => {
+          console.log("Nun bei der anzeige")
+
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry }) // GeoJSON zur Leaflet-Karte hinzufügen
+          console.log('GeoJSON Daten zur Karte hinzugefügt');
+
+          // Aktualisiere drawPolygone und die Zeichenkontrollen
+          drawPolygone = true;
+          localStorage.setItem('drawPolygone', 'true');
+          update_drawing();
+        }, 
+        //Wenn man abbricht
+        () => {
+          L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map)
+          console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry })
+        }
+        
+      )
+      }catch{
+        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
+        delete_data()
+        //setFileInput()
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /**
+   * if (fileType === 'json' || fileType === 'geojson') {
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+      console.log('GeoJSON Datei wurde erfolgreich geladen');
+      try{
+        const data_geojson = JSON.parse(event.target.result);
+
+      
+      for(const feature of data_geojson.features){
+          if(!feature.properties || Object.keys(feature.properties).length === 0){
             alert('Die Daten müssen gelabelt sein!')
             return
           }
+      }
+
+      let classID_counts = {}
+      let classID_miss = {}
+
+
+      const filteredGeometry = data_geojson.features.filter(feature => 
+        (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') &&
+        feature.properties && 'ClassID' in feature.properties
+      );
+       let finalFetaures = filteredGeometry 
+      if (rectangleCoordinates) {
+         finalFetaures = filteredGeometry.filter(feature => 
+          isUploadinRectangle(feature, rectangleCoordinates)
+        );
+      }else{
+        console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
+      }
+
+      finalFetaures.forEach(feature => {
+        const classID = feature.properties.ClassID
+        classID_counts[classID] = (classID_counts[classID] || 0) + 1
+      })
+      const all_classID = Object.values(classID_counts).every(count => count >= 3)
+      if(!all_classID){
+        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
+        delete_data()
+        return
+      }
+
+
+
+
+      merge_choice(
+        //Wenn man auf Ok drückt
+         () => {
+          addToMap({ type: 'FeatureCollection', features: finalFetaures }) // GeoJSON zur Leaflet-Karte hinzufügen
+          console.log('GeoJSON Daten zur Karte hinzugefügt');
+
+          // Aktualisiere drawPolygone und die Zeichenkontrollen
+          drawPolygone = true;
+          localStorage.setItem('drawPolygone', 'true');
+          update_drawing();
+        }, 
+        //Wenn man abbricht
+        () => {
+          L.geoJSON({ type: 'FeatureCollection', features: finalFetaures }).addTo(map)
+          console.log('GeoJSON', { type: 'FeatureCollection', features: finalFetaures })
         }
-        if (rectangleCoordinates) {
-          const filteredFeatures = data_geojson.features.filter(feature =>
-            isUploadinRectangle(feature, rectangleCoordinates)
-          );
-          data_geojson.features = filteredFeatures;
-        } else {
-          console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
-        }
-        merge_choice(
-          //Wenn man auf Ok drückt
-          () => {
-            addToMap(data_geojson) // GeoJSON zur Leaflet-Karte hinzufügen
-            console.log('GeoJSON Daten zur Karte hinzugefügt');
-            // Aktualisiere drawPolygone und die Zeichenkontrollen
-            drawPolygone = true;
-            localStorage.setItem('drawPolygone', 'true');
-            update_drawing();
-          },
-          //Wenn man abbricht
-          () => {
-            L.geoJSON(data_geojson).addTo(map)
-            console.log('GeoJSON', data_geojson)
-          }
-        )
-      } catch {
+        
+      )
+      }catch{
         alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
       }
     };
     reader.readAsText(file);
   }
+   */
   else if (fileType === 'gpkg') {
     console.log('GeoPackage Datei auswählen');
     const formData = new FormData()
     formData.append('file', file)
-    fetch('/upload', {
-      method: 'POST',
-      body: formData,
+
+    fetch('/upload' , {
+      method : 'POST' , 
+      body : formData ,
+
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-        const layers = data.data
-        for (layer in layers) {
-          const geojson_data = layers[layer]
-          if (geojson_data.type === 'FeatureCollection') {
-            for (const feature of geojson_data.features) {
-              if (!feature.properties || Object.keys(feature.properties).length === 0) {
-                alert("Die Daten müssen gelabelt sein!")
-                return
-              }
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      const layers = data.data 
+      for(layer in layers){
+        const geojson_data = layers[layer]
+        if(geojson_data.type === 'FeatureCollection'){
+          //let filter = geojson_data.features
+
+          for(const feature of geojson_data.features){
+            if(!feature.properties || Object.keys(feature.properties).length === 0){
+              alert("Die Daten müssen gelabelt sein!")
+              return
             }
-            let filtered_geojson = []
-            if (rectangleCoordinates) {
-              filtered_geojson = geojson_data.features.filter(feature =>
-                isUploadinRectangle(feature, rectangleCoordinates)
-              )
-            }
-            geojson_data.features = filtered_geojson
-            addToMap(geojson_data)
-          } else {
-            console.error('Kein gültiges Format!')
           }
+
+          const filteredGeometry = geojson_data.features.filter(feature => 
+            rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates) 
+          );
+          let classID_counts = {};
+          let classID_miss = false;
+          let class_ID_set = new Set()
+          filteredGeometry.forEach(feature => {
+              if ('ClassID' in feature.properties) {
+              const classID = feature.properties.ClassID;
+              classID_counts[classID] = (classID_counts[classID] || 0) + 1;
+              if(classID_counts[classID] >= 3){
+                class_ID_set.add(classID)
+              }
+          } else {
+              classID_miss = true;
+          }
+        });
+        if (classID_miss) {
+          alert('Einige der Daten haben keine ClassID!');
+          delete_data();
+          return;
         }
-      })
-      .catch(error => {
-        console.error('Fehler', error)
-      })
-  } else {
-    alert('Nicht unterstütztes Dateiformat. Bitte laden Sie eine GeoJSON- oder GeoPackage-Datei hoch.');
+        const all_classID = Object.values(classID_counts).every(count => count >= 3);
+        const classID_three = class_ID_set.size >= 3
+        if (!all_classID || !classID_three) {
+            alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
+            delete_data();
+            return;
+          }
+
+          
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry });
+        }else{
+          console.error('Kein gültiges Format!')
+        }
+      }
+      
+    })
+    .catch(error => {
+      console.error('Fehler', error)
+      delete_data()
+      
+    })
+
+    
+    
+} else {
+      alert('Nicht unterstütztes Dateiformat. Bitte laden Sie eine GeoJSON- oder GeoPackage-Datei hoch.');
   }
+  fileInput.value = '';
 }
+
+/**
+ *function  setFileInput(){
+  fileInput.removeEventListener('change', handleFileUpload)
+  fileInput.addEventListener('change', handleFileUpload)
+} 
+ */
+
+
 
 /**
  * Function addToMap
