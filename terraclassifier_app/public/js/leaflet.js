@@ -77,7 +77,8 @@ let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
 let modelBoolean = false;
-let classBoolean = false;
+var classBoolean = false;
+var demoBoolean = false;
 
 function object_id() {
   return new Promise((resolve) => {
@@ -590,7 +591,10 @@ function classification() {
         showTiff()
         color_tiff()
         classBoolean = true;
-        checkConditionButton7()
+        // Darf nur in checkconditionButton7 wenn nicht Demo gedrpck wurde
+        if (demoBoolean === false) {
+            checkConditionButton7()
+        }
       } else {
         console.log("Fehler bei der Verarbeitung der Datei!")
       }
@@ -729,9 +733,10 @@ function closePopup(ID_Popup) {
  */
 function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
+  demoBoolean = true;
   $('#loadingSpinner').show();
   //const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
-  const DEMO_AOICOORD = { _northEast: { lat: 51.950933, lng: 7.595411 }, _southWest: { lat: 51.943733, lng: 7.585114 } }
+  const DEMO_AOICOORD = { _northEast: { lat: 51.954582, lng: 7.607768 }, _southWest: { lat: 51.943571, lng: 7.585886 } }
   //const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
   const DEMO_AOTCOORD = { _northEast: { lat: 51.572593, lng: 7.608034 }, _southWest: { lat: 51.428018, lng: 7.267525 } }
   const DEMO_NewStartDate = "2022-07-01"
