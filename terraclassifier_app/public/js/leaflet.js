@@ -133,10 +133,10 @@ map.on("draw:created", function(event) {
     numberOfPolygons++;
     if (rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())) {
       object_id().then(classID => {
-        newFeature.properties = { classID: classID };
+        newFeature.properties = { ClassID: classID };
         return object_name();
       }).then(objectName => {
-        newFeature.properties.name = objectName;
+        newFeature.properties.Label = objectName;
         console.log(newFeature);
         polygonToGeoJSON(newFeature);
         drawnFeatures.addLayer(layer);
