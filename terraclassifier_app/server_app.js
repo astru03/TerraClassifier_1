@@ -105,7 +105,7 @@ app.post('/satellite', (req, res) => {
   let NewStartDate = `${year}-${month}-${day}`;
 
   let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-  startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
+  startDate.setMonth(startDate.getMonth() + 1); // the selected date will add 1 month to the start date
   let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
   let startTime = 'T00:00:00Z';
   let endTime = 'T23:59:59Z';
