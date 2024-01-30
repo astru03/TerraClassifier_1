@@ -562,16 +562,11 @@ function classification() {
         downloadTiff()
         showTiff()
         color_tiff()
-<<<<<<< HEAD
-        //classBoolean = true;
-        //checkConditionButton7()
-=======
         classBoolean = true;
         // Darf nur in checkconditionButton7 wenn nicht Demo gedrpck wurde
         if (demoBoolean === false) {
             checkConditionButton7()
         }
->>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
       } else {
         console.log("Fehler bei der Verarbeitung der Datei!")
       }
@@ -727,13 +722,6 @@ function closePopup(ID_Popup) {
  */
 function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
-<<<<<<< HEAD
-  const DEMO_AOICOORD = { _northEast: { lat: 51.954582, lng: 7.607768 }, _southWest: { lat: 51.943571, lng: 7.585886 } }
-  const DEMO_AOTCOORD = { _northEast: { lat: 51.572593, lng: 7.608034 }, _southWest: { lat: 51.428018, lng: 7.267525 } }
-  const DEMO_NewStartDate = "2022-07-01"
-  const DEMO_endDate = "2022-08-01"
-  const DEMO_algorithem = "MD"
-=======
   demoBoolean = true;
   $('#loadingSpinner').show();
   //const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
@@ -743,58 +731,26 @@ function demoButton() {
   const DEMO_NewStartDate = "2022-07-01"
   const DEMO_endDate = "2022-08-01"
   const DEMO_algorithem = "RF"
->>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
     "features": [
       {
         "type": "Feature",
-<<<<<<< HEAD
         "properties": {
           "fid": 1,
           "Label": "Wald",
           "ClassID": 1
         },
-=======
-        "properties": { "fid": 1, "Label": "Wald", "ClassID": 1 },
->>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
         "geometry": {
           "type": "Polygon",
           "coordinates": [
             [
-<<<<<<< HEAD
-              [
-                7.4530336,
-                51.5693962
-              ],
-              [
-                7.4520832,
-                51.5625256
-              ],
-              [
-                7.4611466,
-                51.5589562
-              ],
-              [
-                7.4601393,
-                51.5680142
-              ],
-              [
-                7.4601393,
-                51.5680142
-              ],
-              [
-                7.4530336,
-                51.5693962
-              ]
-=======
               [7.4530336, 51.5693962],
               [7.4520832, 51.5625256],
               [7.4611466, 51.5589562],
               [7.4601393, 51.5680142],
               [7.4601393, 51.5680142],
               [7.4530336, 51.5693962]
->>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
             ]
           ]
         }
