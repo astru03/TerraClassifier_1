@@ -23,7 +23,7 @@
             <div class="container-fluid">
                 <!-- <a class="navbar-brand fs-4 fw-bold">Terra Classifier</a> -->
                 <img id="logo"
-                    src="https://raw.githubusercontent.com/astru03/TerraClassifier/main/public/images/TerraClassifier_LOGO_weiss.png"
+                    src="../images/TerraClassifier_LOGO_weiss.png"
                     alt="Logo">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,8 +81,10 @@
                         Terra Classifier eine dafür geeignete Plattform zu präsentieren.
                         </p>
                     </div>
-                    <div class="col mb-3" id="videocontainer">
-                        <video></video>
+                    <div class="col mb-5" id="videoContainer">
+                        <video id="videoPlayer" width="100%" height="100%" controls="controls" onclick="playPause();">
+                            <source src="./images/Terra.mp4" type="video/mp4">
+                        </video>
                     </div>
                     <div class="col pb-3">
                         <h3>Warum Terra Classifier:</h3>

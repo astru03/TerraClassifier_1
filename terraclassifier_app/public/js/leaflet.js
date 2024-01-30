@@ -77,7 +77,8 @@ let trainigBooelan = false;
 let algoBoolean = false;
 let aoiBoolean = false;
 let modelBoolean = false;
-let classBoolean = false;
+var classBoolean = false;
+var demoBoolean = false;
 
 function object_id() {
   return new Promise((resolve) => {
@@ -133,10 +134,10 @@ map.on("draw:created", function(event) {
     numberOfPolygons++;
     if (rectangleCoordinates && rectangleCoordinates.contains(layer.getBounds())) {
       object_id().then(classID => {
-        newFeature.properties = { classID: classID };
+        newFeature.properties = { ClassID: classID };
         return object_name();
       }).then(objectName => {
-        newFeature.properties.name = objectName;
+        newFeature.properties.Label = objectName;
         console.log(newFeature);
         polygonToGeoJSON(newFeature);
         drawnFeatures.addLayer(layer);
@@ -521,7 +522,8 @@ async function modelTraining() {
     let NewStartDate = `${year}-${month}-${day}`;
 
     let startDate = new Date(NewStartDate); // The format “2023-12-03T00:00:00.000Z” comes out here
-    startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
+    //startDate.setDate(startDate.getDate() + 30); // to the selected date will add 30 days to the start date
+    startDate.setMonth(startDate.getMonth() + 1); // the selected date will add 1 month to the start date
     let endDate = startDate.toISOString().split('T')[0]; // Format so that only the format YYYY-MM-DD is available
 
     try {
@@ -560,8 +562,16 @@ function classification() {
         downloadTiff()
         showTiff()
         color_tiff()
+<<<<<<< HEAD
         //classBoolean = true;
         //checkConditionButton7()
+=======
+        classBoolean = true;
+        // Darf nur in checkconditionButton7 wenn nicht Demo gedrpck wurde
+        if (demoBoolean === false) {
+            checkConditionButton7()
+        }
+>>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
       } else {
         console.log("Fehler bei der Verarbeitung der Datei!")
       }
@@ -717,25 +727,42 @@ function closePopup(ID_Popup) {
  */
 function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
+<<<<<<< HEAD
   const DEMO_AOICOORD = { _northEast: { lat: 51.954582, lng: 7.607768 }, _southWest: { lat: 51.943571, lng: 7.585886 } }
   const DEMO_AOTCOORD = { _northEast: { lat: 51.572593, lng: 7.608034 }, _southWest: { lat: 51.428018, lng: 7.267525 } }
   const DEMO_NewStartDate = "2022-07-01"
   const DEMO_endDate = "2022-08-01"
   const DEMO_algorithem = "MD"
+=======
+  demoBoolean = true;
+  $('#loadingSpinner').show();
+  //const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
+  const DEMO_AOICOORD = { _northEast: { lat: 51.954582, lng: 7.607768 }, _southWest: { lat: 51.943571, lng: 7.585886 } }
+  //const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
+  const DEMO_AOTCOORD = { _northEast: { lat: 51.572593, lng: 7.608034 }, _southWest: { lat: 51.428018, lng: 7.267525 } }
+  const DEMO_NewStartDate = "2022-07-01"
+  const DEMO_endDate = "2022-08-01"
+  const DEMO_algorithem = "RF"
+>>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
     "features": [
       {
         "type": "Feature",
+<<<<<<< HEAD
         "properties": {
           "fid": 1,
           "Label": "Wald",
           "ClassID": 1
         },
+=======
+        "properties": { "fid": 1, "Label": "Wald", "ClassID": 1 },
+>>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
         "geometry": {
           "type": "Polygon",
           "coordinates": [
             [
+<<<<<<< HEAD
               [
                 7.4530336,
                 51.5693962
@@ -760,6 +787,14 @@ function demoButton() {
                 7.4530336,
                 51.5693962
               ]
+=======
+              [7.4530336, 51.5693962],
+              [7.4520832, 51.5625256],
+              [7.4611466, 51.5589562],
+              [7.4601393, 51.5680142],
+              [7.4601393, 51.5680142],
+              [7.4530336, 51.5693962]
+>>>>>>> 9832eebc7495f488fd4eecd8c74cd12a600367c0
             ]
           ]
         }
