@@ -402,7 +402,7 @@ $(document).ready(function () {
       trainigBooelan = true;
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
-      checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
+      //checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
       // only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
       // if the training data should be uploaded
       if (trainigBooelan === true && rectangleCoordinates) {
@@ -1517,6 +1517,7 @@ function merge_choice(onConfirm, onCancel) {
   var userChoice = confirm("Möchten Sie die hochgeladene GeoJSON-Datei mit den vorhandenen Daten zusammenführen?");
   if (userChoice) {
     onConfirm();
+    checkConditionButton3();
   } else {
     onCancel();
   }
@@ -1761,6 +1762,7 @@ async function handleFileUpload() {
 
           
           addToMap({ type: 'FeatureCollection', features: filteredGeometry });
+          checkConditionButton3();
         }else{
           console.error('Kein gültiges Format!')
         }
@@ -1770,7 +1772,6 @@ async function handleFileUpload() {
     .catch(error => {
       console.error('Fehler', error)
       delete_data()
-      
     })
 
     
