@@ -402,7 +402,7 @@ $(document).ready(function () {
       trainigBooelan = true;
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
-      checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
+      //checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
       // only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
       // if the training data should be uploaded
       if (trainigBooelan === true && rectangleCoordinates) {
@@ -456,58 +456,30 @@ function algorithm() {
   $('#confirmSelectionAlg').on('click', function () {
     var algorithmMD = document.getElementById('algorithm1').checked;
     var algorithmRF = document.getElementById('algorithm2').checked;
-    if ((algorithmMD && algorithmRF) || (!algorithmMD && !algorithmRF)) {  // if neither or both algorithms are selected
+    var algorithmGBM = document.getElementById('algorithm3').checked
+    var algorithmSVM = document.getElementById('algorithm4').checked
+
+    var selected_alg = [algorithmMD, algorithmRF, algorithmGBM, algorithmSVM].filter(Boolean).length
+    if (selected_alg !== 1) {  // if neither or both algorithms are selected
       $('#popup_algo').modal('hide');
       $('#popup_NoAlgorithm').modal('show');
-    } else {
-      if (algorithmMD) {
-        algorithem = 'MD';
-        /*
-        $('#popup_algo').modal('hide');
-        $('#popup_EnterHyperparameterMinimumDistance').modal('show');
-        $('#saveTuneLength').on('click', function () {
-          var MinimumDistanceTuneLengthInput = document.getElementById('MinimumDistanceTuneLengthInput').value;
-          if (MinimumDistanceTuneLengthInput === '') {
-            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
-            $('#popup_NotBetween10And50').modal('show');
-          } else if (MinimumDistanceTuneLengthInput > 50 || MinimumDistanceTuneLengthInput < 10) {
-            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
-            $('#popup_NotBetween10And50').modal('show');
-          } else if (MinimumDistanceTuneLengthInput < 50 || MinimumDistanceTuneLengthInput > 10) {
-            hyperparameter = MinimumDistanceTuneLengthInput;
-            algoBoolean = true;
-            checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
-            $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
-            console.log("hyperparameter: " + hyperparameter);
-          }
-          
-        }) */
-      } else {
-        algorithem = 'RF';
-        /*
-        $('#popup_algo').modal('hide');
-        $('#popup_EnterHyperparameterRandomForest').modal('show');
-        $('#saveNTree').on('click', function () {
-          var RandomForestNTreeInput = document.getElementById('RandomForestNTreeInput').value;
-          if (RandomForestNTreeInput === '') {
-            $('#popup_EnterHyperparameterRandomForest').modal('hide');
-            $('#popup_NotBetween10And500').modal('show');
-          } else if (RandomForestNTreeInput > 500 || RandomForestNTreeInput < 10) {
-            $('#popup_EnterHyperparameterRandomForest').modal('hide');
-            $('#popup_NotBetween10And500').modal('show');
-          } else if (RandomForestNTreeInput < 500 || RandomForestNTreeInput > 10) {
-            hyperparameter = RandomForestNTreeInput;
-            algoBoolean = true;
-            checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
-            $('#popup_EnterHyperparameterRandomForest').modal('hide');
-            console.log("hyperparameter: " + hyperparameter);
-          }
-        }) */
-      }
-      $('#popup_algo').modal('hide');
-      algoBoolean = true;
-      checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+      return
+    } 
+    
+    if(algorithmMD){
+      algorithem = 'MD'
+    }else if(algorithmRF){
+      algorithem = 'RF'
+    }else if(algorithmGBM){
+      algorithem = 'GBM'
+    }else if(algorithmSVM){
+      algorithem = 'SVM'
     }
+      
+    $('#popup_algo').modal('hide');
+    algoBoolean = true;
+    checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+    
   })
 }
 
@@ -625,7 +597,7 @@ function downloadTiff() {
             a.remove(); // removing the element after the download
           });
         })
-    }, 5000)
+    }, 2000)
   } else {
     console.log("Download wurde verweigert!")
   }
@@ -658,15 +630,32 @@ function showTiff() {
           })
       })
       $('#loadingSpinner').hide();
-  }, 10000)
+  }, 2000)
 }
 
-function color_tiff(){
+function color_tiff() {
   setTimeout(() => {
     fetch('/color-tiff')
-      .then(response => response)
-  }, 3000)
-  
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Netzwerkantwort war nicht ok');
+      }
+      return response.blob();
+    })
+    .then(blob => { 
+      let url = window.URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.href = url;
+      a.download = 'image.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove(); // Entfernen des Elements nach dem Download
+    })
+    .catch(error => {
+      console.error('Fehler beim Herunterladen der TIFF-Datei:', error);
+    });
+  },1000)
+
 }
 
 /**
@@ -747,7 +736,11 @@ function demoButton() {
     "features": [
       {
         "type": "Feature",
-        "properties": { "fid": 1, "Label": "Wald", "ClassID": 1 },
+        "properties": {
+          "fid": 1,
+          "Label": "Wald",
+          "ClassID": 1
+        },
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -1303,7 +1296,7 @@ function demoButton() {
   setTimeout(() => {
     classification()
 
-  }, 10000)
+  }, 1000)
 }
 
 
@@ -1524,6 +1517,7 @@ function merge_choice(onConfirm, onCancel) {
   var userChoice = confirm("Möchten Sie die hochgeladene GeoJSON-Datei mit den vorhandenen Daten zusammenführen?");
   if (userChoice) {
     onConfirm();
+    checkConditionButton3();
   } else {
     onCancel();
   }
@@ -1768,6 +1762,7 @@ async function handleFileUpload() {
 
           
           addToMap({ type: 'FeatureCollection', features: filteredGeometry });
+          checkConditionButton3();
         }else{
           console.error('Kein gültiges Format!')
         }
@@ -1777,7 +1772,6 @@ async function handleFileUpload() {
     .catch(error => {
       console.error('Fehler', error)
       delete_data()
-      
     })
 
     
