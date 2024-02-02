@@ -181,7 +181,8 @@ async function processGraph_erstellen(data_all, train_data_path) {
     console.log(trainigs_data)
 
 
-
+    let startdate = data_all.StartDate;
+    let enddate = data_all.Enddate;
     
 
     let resolution = Number(data_all.resolution)
@@ -229,8 +230,8 @@ async function processGraph_erstellen(data_all, train_data_path) {
         "north": north,
         "crs": 3857
       },
-      ["2022-07-01", "2022-08-01"]
-      
+      //["2023-07-01", "2023-08-01"]
+      [startdate,enddate]
     );
     
     let aot = builder.load_collection(
@@ -242,7 +243,8 @@ async function processGraph_erstellen(data_all, train_data_path) {
         "north": north_AOT,
         "crs": 3857
       },
-      ["2022-07-01", "2022-08-01"]
+      //["2023-07-01", "2023-08-01"]
+      [startdate,enddate]
     );
 
 
@@ -277,7 +279,7 @@ async function processGraph_erstellen(data_all, train_data_path) {
     console.log("train")
     let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
     console.log("classify")
-    var reducer = function (data) { return this.mean(data) }
+    var reducer = function (data) { return this.median(data) }
     datacube = builder.reduce_dimension(classify_cube_data, reducer, "t")
     resolutioncube = builder.resample_spatial(datacube, resolution)
     cube = builder.save_result(resolutioncube, "GTiff")
