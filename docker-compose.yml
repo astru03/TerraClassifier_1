@@ -6,22 +6,22 @@ services:
     # image: astru/terraclassifier_app:latest
     ports:
       - "3000:3000"
-    networks:
-      - my_network 
+#  networks:
+  #    - my_network 
 
-  openeocubes_custom:
-    container_name: openeocubes_custom
-    image: astru/openeocubes_custom:1.0
-    environment:
-      - AWSHOST=openeocubes_custom  
-      - TZ=Etc/UTC
-      - DEBIAN_FRONTEND=noninteractive
-    ports:
-      - "8080:8080"
-    restart: always
-    networks:
-      - my_network
+  #openeocubes_custom:
+  #  container_name: openeocubes_custom
+  #  image: astru/openeocubes_custom:1.0
+  #  environment:
+  #    - AWSHOST=openeocubes_custom  
+  #    - TZ=Etc/UTC
+  #    - DEBIAN_FRONTEND=noninteractive
+  #  ports:
+  #    - "8080:8080"
+  #  restart: always
+  #  networks:
+  #    - my_network
 
-networks:
-  my_network:  # Definiere ein benutzerdefiniertes Docker-Netzwerk
-    driver: bridge
+#networks:
+#  my_network:  # Definiere ein benutzerdefiniertes Docker-Netzwerk
+#    driver: bridge
