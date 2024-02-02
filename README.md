@@ -11,12 +11,18 @@ Wir verstehen die Bedeutung präziser Umweltinformationen und sind stolz darauf,
 Schnelligkeit und Effizienz: Klassifizieren Sie Satellitenbilder und Trainingsdaten direkt in Ihrem Webbrowser.
 Benutzerfreundlichkeit: Unsere Plattform ist intuitiv und einfach zu bedienen.
 
-## Installation und Start der Webanwendung:
-1. Klonen Sie das folgende [GitHub-Repository](https://github.com/astru03/TerraClassifier_1) in eine IDE (zum Beispiel VS Code).
-2. Navigieren Sie im Terminal mit dem Befehl "cd terraclassifier_app" in das gleichnamige Verzeichnis.
-3. Nutzen Sie den Befehl "npm install", um alle notwenidgen Module und Komponenten zu installieren. Die Installation kann bis zu zwei Minuten in Anspruch nehmen.
-4. Nachdem die Installation erfolgreich abgeschlossen wurde, können Sie die Anwendung starten. Geben Sie dafür den Befehl "npm start" ein. Nach wenigen Sekunden ist die Anwendung im Browser unter der URL: http://localhost:3000 abrufbar.
+## Installation und Start der Webanwendung von diesem GitHub-Repository mit Docker:
+1. Klonen Sie das folgende [GitHub-Repository](https://github.com/astru03/TerraClassifier_1) in eine IDE (zum Beispiel VS Code) oder auf Ihre AWS EC2 Instanz.
+2. Unter der Annahme, dass Docker auf Ihrem System installiert und läuft führen Sie den folgenden Befehl aus:
+```bash
+docker-compose up --build -d
+```
+3. Von der Anwendung wird ein Image erstellt und im gleichen Zuge das Auf Dockerhub veröffentlichte Image von "openeocubes_custom" herangezogen. Beide Images werden zusammen in einem Container gestartet.
+4. Nach erfolgreichem Download und start der Container ist die Anwendung im Browser unter der URL http://IP-Ihrer-EC2-Instanz:3000 abrufbar.
 Bitte für den Start die Browser Chrome oder Edge verwenden.
+
+## Installation und Start der Webanwendung von DockerHub:
+
 
 ## Funktionsweise der Webanwendung:
 ### Home
