@@ -658,6 +658,38 @@
     </div>
 
 
+    <!-- Note if you want to draw the training data yourself -->
+    <div class="modal fade" id="popup_NoteDrawTrainigsData" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">Bitte beachten Sie folgenden Hinweis</h4>
+          </div>
+          <!-- Modal Body -->
+          <div class="modal-body">
+            Sie müssen insgesamt mindestens neun Trainigsgebiete einzeichnen, damit eine klassifizierung möglich ist!<br>
+            Dabei müssen mindestens von jeder "ClassID" und "Objektnamen" drei vorliegen
+            und es müssen mindestens drei verschiedene Kateogrie erstellt werden.<br>
+            Beispiel:<br>
+            ClassID: 1 Objektmane: Acker<br>
+            ClassID: 1 Objektmane: Acker<br>
+            ClassID: 1 Objektmane: Acker<br>
+            ClassID: 2 Objektmane: Wasser<br>
+            ClassID: 2 Objektmane: Wasser<br>
+            ClassID: 2 Objektmane: Wasser<br>
+            ClassID: 3 Objektmane: Wald<br>
+            ClassID: 3 Objektmane: Wald<br>
+            ClassID: 3 Objektmane: Wald<br>
+          </div>
+          <!-- Modal Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="closePopup('popup_NoteDrawTrainigsData')">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
     <div class="container-fluid mt-2" id="mapcontainer">
       <div id="map"></div>

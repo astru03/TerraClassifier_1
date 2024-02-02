@@ -417,6 +417,8 @@ $(document).ready(function () {
   $('#drawDataChoice').click(function () {
     trainigBooelan = true;
     $('#popup_TrainingDataChoice').modal('hide')
+    // Note if you want to draw the training data yourself
+    $('#popup_NoteDrawTrainigsData').modal('show')
     reset_AOI()
     drawPolygone = true
     localStorage.setItem('drawPolygone', 'true')
@@ -698,6 +700,8 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NotBetween10And500') {
     $('#popup_NotBetween10And500').modal('hide');
     $('#popup_EnterHyperparameterRandomForest').modal('show'); */
+  } else if (ID_Popup == 'popup_NoteDrawTrainigsData') {
+    $('#popup_NoteDrawTrainigsData').modal('hide');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
     $('#popup_TrainingDataChoice').modal('hide');
   } else if (ID_Popup == 'popup_EnterObjektID') {
