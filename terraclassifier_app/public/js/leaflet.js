@@ -73,7 +73,8 @@ let AOTCOORD;
 let drawDataChoiceBoolean;
 let algorithem;
 //let hyperparameter;
-let trainigBooelan = false;
+let resolutionBooelan = false;
+let downloadModel = false;
 let algoBoolean = false;
 let aoiBoolean = false;
 let modelBoolean = false;
@@ -117,13 +118,13 @@ map.on("draw:created", function(event) {
     rectangleCoordinates = layer.getBounds();
     checkConditionButton5(); // Check Condition to activate easybutton 5 (modeltraining)
     
-    // only when everything is trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
-    if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+    // only when everything is resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates --> Then save AOI in AOICOORD for the JSON that is sent to R
+    if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       AOICOORD = rectangleCoordinates;
-    // only when everything is trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+    // only when everything is resolutionBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
     
     // for drawing in training data yourself
-    } else if (trainigBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
+    } else if (resolutionBooelan === true && drawDataChoiceBoolean === true && rectangleCoordinates) {
       AOTCOORD = rectangleCoordinates;
     }
 
@@ -399,13 +400,13 @@ $(document).ready(function () {
   $('#uploadFileChoice').click(function () {
 
     if (rectangleCoordinates) {
-      trainigBooelan = true;
+      resolutionBooelan = true;
       $('#popup_TrainingDataChoice').modal('hide')
       document.getElementById('fileInput').click()
       //checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
-      // only when everything is trainigBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
+      // only when everything is resolutionBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
       // if the training data should be uploaded
-      if (trainigBooelan === true && rectangleCoordinates) {
+      if (resolutionBooelan === true && rectangleCoordinates) {
         AOTCOORD = rectangleCoordinates;
       }
     } else {
@@ -415,7 +416,7 @@ $(document).ready(function () {
     }
   })
   $('#drawDataChoice').click(function () {
-    trainigBooelan = true;
+    resolutionBooelan = true;
     $('#popup_TrainingDataChoice').modal('hide')
     // Note if you want to draw the training data yourself
     $('#popup_NoteDrawTrainigsData').modal('show')
@@ -502,14 +503,14 @@ function areaOfIntrest() {
 }
 
 /**
- * Function modelTraining from easyButton5
+ * Function resolutionData from easyButton5
  */
-async function modelTraining() {
+async function resolutionData() {
   $('#popup_EnterResolution').modal('show');
 
   $('#saveResolution').on('click', async function () {
     let resolutionInput = document.getElementById('objectResolutionInput').value;
-    if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+    if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       modelBoolean = true;
       checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
     } else {
@@ -551,7 +552,7 @@ async function modelTraining() {
 
 /**
  * Function classification
- * tion
+ * 
  */
 function classification() {
   //console.log("kommt");
@@ -565,7 +566,7 @@ function classification() {
         showTiff()
         color_tiff()
         classBoolean = true;
-        // Darf nur in checkconditionButton7 wenn nicht Demo gedrpck wurde
+        // Darf nur in checkConditionButton7 wenn nicht Demo gedrück wurde
         if (demoBoolean === false) {
             checkConditionButton7()
         }
@@ -578,6 +579,16 @@ function classification() {
     });
     
 }
+
+/**
+ * Function downloadModeltraining
+ * 
+ */
+function downloadModeltraining() {
+  downloadModel = true;
+  checkConditionButton8();
+}
+
 
 /**
  * Function downloadTiff
@@ -1336,7 +1347,7 @@ var button2 = L.easyButton('<img src="../images/trainigsdaten_icon.png" style="w
 button2.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton2
- * only active when variable trainigBooelan = true
+ * only active when variable resolutionBooelan = true
  */
 function checkConditionButton2() {
   if (sentinelBooelan === true) {
@@ -1352,10 +1363,10 @@ var button3 = L.easyButton('<img src="../images/algorithmus_icon.png" style="wid
 button3.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton3
- * only active when variable trainigBooelan = true
+ * only active when variable resolutionBooelan = true
  */
 function checkConditionButton3() {
-  if (trainigBooelan === true) {
+  if (resolutionBooelan === true) {
     //button2.disable();
     button3.enable();
   } else {
@@ -1371,10 +1382,10 @@ var button4 = L.easyButton('<img src="../images/aoi_icon.png" style="width: 20px
 button4.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton4
- * only active when variable trainigBooelan = true and algoBoolean = true
+ * only active when variable resolutionBooelan = true and algoBoolean = true
  */
 function checkConditionButton4() {
-  if (trainigBooelan === true && algoBoolean === true) {
+  if (resolutionBooelan === true && algoBoolean === true) {
     //button3.disable();
     button4.enable();
   } else {
@@ -1382,16 +1393,16 @@ function checkConditionButton4() {
   }
 }
 
-// Button modeltrainig -----------------------------
-var button5 = L.easyButton('<img src="../images/modeltraining_icon.png" style="width: 20px; height: 20px;">', modelTraining
-  , 'Modeltraining');
+// Button resolution -----------------------------
+var button5 = L.easyButton('<img src="../images/resolution_icon.png" style="width: 20px; height: 20px;">', resolutionData
+  , 'Auflösung');
 button5.disable(); // by default the button is disabled
 /**
- * Function checkConditionButton4
- * only active when variable trainigBooelan = truen, algoBoolean = true and aoiBoolean = true and a rectangle has been drawn
+ * Function checkConditionButton5
+ * only active when variable resolutionBooelan = truen, algoBoolean = true and aoiBoolean = true and a rectangle has been drawn
  */
 function checkConditionButton5() {
-  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
+  if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
     //button4.disable();
     button5.enable();
   } else {
@@ -1403,31 +1414,46 @@ function checkConditionButton5() {
 var button6 = L.easyButton('<img src="../images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
 button6.disable(); // by default the button is disabled
 /**
- * Function checkConditionButton4
- * only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ * Function checkConditionButton6
+ * only active when variable resolutionBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
  */
 function checkConditionButton6() {
-  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
+  if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
     //button5.disable();
     button6.enable();
   } else {
     button6.disable();
   }
 }
-
-// Button reload -----------------------------
-var button7 = L.easyButton('<img src="../images/reload.png" style="width: 20px; height: 20px;">', reload, 'Reload');
+// Button download modeltraining -----------------------------
+var button7 = L.easyButton('<img src="../images/modeltraining_icon.png" style="width: 20px; height: 20px;">', downloadModeltraining, 'Download Model');
 button7.disable(); // by default the button is disabled
 /**
- * Function checkConditionButton4
- * only active when variable trainigBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ * Function checkConditionButton7
+ * only active when variable resolutionBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
  */
 function checkConditionButton7() {
-  if (trainigBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && classBoolean === true && rectangleCoordinates) {
+  if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && classBoolean === true && rectangleCoordinates) {
     //button5.disable();
     button7.enable();
   } else {
     button7.disable();
+  }
+}
+
+// Button reload -----------------------------
+var button8 = L.easyButton('<img src="../images/reload.png" style="width: 20px; height: 20px;">', reload, 'Reload');
+button8.disable(); // by default the button is disabled
+/**
+ * Function checkConditionButton8
+ * only active when variable resolutionBooelan = truen, algoBoolean = true, aoiBoolean = true and modelBoolean = true and a rectangle has been drawn
+ */
+function checkConditionButton8() {
+  if (downloadModel === true && resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && classBoolean === true && rectangleCoordinates) {
+    //button5.disable();
+    button8.enable();
+  } else {
+    button8.disable();
   }
 }
 
@@ -1447,6 +1473,7 @@ var toggleMenuButton = L.easyButton({
       button5.addTo(map).setPosition('topright');
       button6.addTo(map).setPosition('topright');
       button7.addTo(map).setPosition('topright');
+      button8.addTo(map).setPosition('topright');
     }
   }, {
     stateName: 'open',
@@ -1460,7 +1487,8 @@ var toggleMenuButton = L.easyButton({
       button4.remove();
       button5.remove();
       button6.remove();
-      button7.remove()
+      button7.remove();
+      button8.remove()
     }
   }]
 });
