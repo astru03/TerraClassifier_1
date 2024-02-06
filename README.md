@@ -1,28 +1,40 @@
 # TerraClassifier_1
 
-Willkommen bei Terra Classifier - Ihr Portal für überwachte Klassifikation von Fernerkundungsdaten!
-Terra Classifier ist eine Webapplikation, welche das Klassifizieren von Satellitendaten revolutionieren soll.
+Welcome to Terra Classifier - your portal for supervised classification of remote sensing data!
+Terra Classifier is a web application designed to revolutionize the classification of satellite data.
 
-## Wer wir sind: Das Team hinter Terra Classifier: 
-Unser engagiertes Team von sechs qualifizierten Studierenden aus dem Bereich Geoinformatik arbeitet leidenschaftlich daran, Innovationen voranzutreiben.
-Wir verstehen die Bedeutung präziser Umweltinformationen und sind stolz darauf, Ihnen mit dem Terra Classifier eine dafür geeignete Plattform zu präsentieren.
+## Who we are: The team behind Terra Classifier: 
+Our dedicated team of six qualified geoinformatics students are passionate about driving innovation.
+We understand the importance of accurate environmental information and are proud to present you with Terra Classifier, a platform dedicated to this.
 
-## Warum Terra Classifier?
-Schnelligkeit und Effizienz: Klassifizieren Sie Satellitenbilder und Trainingsdaten direkt in Ihrem Webbrowser.
-Benutzerfreundlichkeit: Unsere Plattform ist intuitiv und einfach zu bedienen.
+## Why Terra Classifier?
+Speed and efficiency: Classify satellite images and training data directly in your web browser.
+Ease of use: Our platform is intuitive and easy to use.
 
-## Installation und Start der Webanwendung von diesem GitHub-Repository mit Docker:
-1. Klonen Sie das folgende [GitHub-Repository](https://github.com/astru03/TerraClassifier_1) in eine IDE (zum Beispiel VS Code) oder auf Ihre AWS EC2 Instanz.
-2. Unter der Annahme, dass Docker auf Ihrem System installiert und läuft führen Sie den folgenden Befehl aus:
+## Installing and launching the web application from this GitHub repository with Docker:
+1. Clone the following [GitHub repository](https://github.com/astru03/TerraClassifier_1) to an IDE (for example VS Code) or to your AWS EC2 instance.
+2. Assuming that Docker is installed and running on your system, execute the following command:
 ```bash
 docker-compose up --build -d
 ```
-3. Von der Anwendung wird ein Image erstellt und im gleichen Zuge das Auf Dockerhub veröffentlichte Image von "openeocubes_custom" herangezogen. Beide Images werden zusammen in einem Container gestartet.
-4. Nach erfolgreichem Download und start der Container ist die Anwendung im Browser unter der URL http://IP-Ihrer-EC2-Instanz:3000 abrufbar.
-Bitte für den Start die Browser Chrome oder Edge verwenden.
+3. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
+4. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
+If the application was started locally under the URL: http://localhost:3000
+If the application was started via an AWS EC2 instance under the URL: http://IP-of-your-EC2-Instance:3000
 
-## Installation und Start der Webanwendung von DockerHub:
+Please use the Chrome or Edge browser to start the application.
 
+## Installing and starting the DockerHub web application:
+You can get a hosted Docker image of the platform on DockerHub https://hub.docker.com/r/astru/terraclassifier
+
+You can expose port 3000 of the EC2 instance to deploy and communicate with the service.
+```bash
+docker run -p 3000:3000  astru/terraclassifier
+```
+For light tasks and processes you can host the service on pc and therefore you don't need AWS IPv4 Address
+```bash
+docker run -p 3000:3000  astru/terraclassifier
+```
 
 ## Funktionsweise der Webanwendung:
 ### Home
