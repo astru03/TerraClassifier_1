@@ -692,6 +692,43 @@
       </div>
     </div>
 
+    <!-- Note if you cloud-cover in calculation is over 30% -->
+    <div class="modal fade" id="popup_NoteCloudCoverCalculation" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">Hinweis</h4>
+          </div>
+          <!-- Modal Body -->
+          <div class="modal-body">
+            Leider ist die berechnete Wolkenbedeckung für den einen Monat den sie als Zeitraum angegeben haben über 30 %<br>
+            Daher ist eine Klassifikation für den Zeitraum nicht möglich.<br>
+            Bitte versuchen Sie einen anderen Zeitraum.<br>
+            Hinweis: Folgende Zeitraume haben eine geringe Wolkenbedeckung und sind daher für die Berechnung gut geeignet.<br>
+            01.02.2022<br>
+            01.03.2022<br>
+            01.04.2022<br>
+            01.05.2022<br>
+            01.06.2022<br>
+            01.07.2022<br>
+            01.08.2022<br>
+            01.09.2022<br>
+            01.10.2022<br>
+            01.11.2022<br>
+            01.12.2022<br>
+            01.02.2023<br>
+            01.03.2023<br>
+            01.04.2023<br>
+          </div>
+          <!-- Modal Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="closePopup('popup_NoteCloudCoverCalculation')">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Nach dem Mock-up sollte die Karte den ganzen Bildschirm einnehmen und das Menü darüber liegen. Um die Höhe der Karte über den ganzen Bildschirm zu ziehen wird womöglich eine custom Funktion nötig sein. -->
     <div class="container-fluid mt-2" id="mapcontainer">
       <div id="map"></div>

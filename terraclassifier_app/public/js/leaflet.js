@@ -572,7 +572,8 @@ function classification() {
       } else {
         //console.log("Fehler bei der Verarbeitung der Datei!")
         $('#loadingSpinner').hide();
-        alert('Die Wolkenbedeckung für den angegebenen Zeitraum ist > 30%')
+        //alert('Die Wolkenbedeckung für den angegebenen Zeitraum ist > 30%')
+        $('#popup_NoteCloudCoverCalculation').modal('show');
       }
     })
     .catch(error => {
@@ -720,6 +721,9 @@ function closePopup(ID_Popup) {
     $('#popup_EnterObjektID').modal('hide');
   } else if (ID_Popup == 'popup_ObjectName') {
     $('#popup_ObjectName').modal('hide');
+  } else if (ID_Popup == 'popup_NoteCloudCoverCalculation') {
+    $('#popup_NoteCloudCoverCalculation').modal('hide');
+    location.reload();
   } else if (ID_Popup == 'popup_EnterResolution') {
     $('#popup_EnterResolution').modal('hide');
   } else if (ID_Popup == 'popup_NotInAOT') {
