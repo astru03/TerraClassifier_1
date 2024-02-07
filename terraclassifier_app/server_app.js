@@ -306,7 +306,8 @@ async function processGraph_erstellen(data_all, train_data_path) {
       //ndsi B02, B11
 
       console.log("jetzt")
-    } catch {
+    } catch (err) {
+      reject(err)
     }
   } catch (err) {
     console.error('Fehler beim verarbeiten', err)
@@ -829,8 +830,8 @@ app.post('/processgraph', (req, res) => {
         try{
           await processGraph_erstellen(data_all, train_data_path)
           res.send({message:"Erfolgreich durchgeführt"})
-        }catch{
-          console.error("Fehler", error)
+        }catch (error) {
+          //console.error("Fehler", error)
           res.status(500).send({message:"Fehler"})
         }
       })

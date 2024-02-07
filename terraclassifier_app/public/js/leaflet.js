@@ -555,7 +555,6 @@ async function resolutionData() {
  * 
  */
 function classification() {
-  //console.log("kommt");
   $('#loadingSpinner').show();
   fetch('/processgraph', {
     method: 'POST'
@@ -571,7 +570,7 @@ function classification() {
             checkConditionButton7()
         }
       } else {
-        console.log("Fehler bei der Verarbeitung der Datei!")
+        //console.log("Fehler bei der Verarbeitung der Datei!")
         $('#loadingSpinner').hide();
         alert('Die Wolkenbedeckung für den angegebenen Zeitraum ist > 30%')
       }
