@@ -35,13 +35,13 @@ Please use the Chrome or Edge browser to start the application.
 You can get a hosted Docker image of the platform on DockerHub https://hub.docker.com/r/astru/terraclassifier
 It is highly recommended to deploy the service on an AWS EC2 machine that is in us-west-2 region (Oregon) as that is the data centre where the Earth Observation(EO) datasets found in AWS STAC search are stored.
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
-
+First, the image must be pulled from Dockerhub with the command:
 ```bash
-docker run -p 3000:3000  astru/terraclassifier
+docker pull astru/terraclassifier:latest
 ```
-For light tasks and processes you can host the service on pc and therefore you don't need AWS IPv4 Address
+After pulling the image can be started with the command:
 ```bash
-docker run -p 3000:3000  astru/terraclassifier
+docker-compose up -d
 ```
 
 ## Funktionsweise der Webanwendung:
