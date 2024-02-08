@@ -16,7 +16,7 @@ It is highly recommended to deploy the service on an AWS EC2 machine that is in 
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
 
 1. Clone the following [GitHub repository](https://github.com/astru03/TerraClassifier_1) to an IDE (for example VS Code) or to your AWS EC2 instance.
-2. Navigate to the TerraClassifier folder. To the directory where the docker-compose.yml is located. On the AWS EC2 instance, this can be done with the following command: 
+2. Navigate to the TerraClassifier folder to the directory where the docker-compose.yml is located. On the AWS EC2 instance, this can be done with the following command: 
 ```bash
 cd TerraClassifier_1
 ```
