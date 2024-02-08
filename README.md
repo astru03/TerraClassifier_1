@@ -16,12 +16,16 @@ It is highly recommended to deploy the service on an AWS EC2 machine that is in 
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
 
 1. Clone the following [GitHub repository](https://github.com/astru03/TerraClassifier_1) to an IDE (for example VS Code) or to your AWS EC2 instance.
-2. Assuming that Docker is installed and running on your system, execute the following command:
+2. Navigate to the TerraClassifier folder to the directory where the docker-compose.yml is located. On the AWS EC2 instance, this can be done with the following command: 
+```bash
+cd TerraClassifier_1
+```
+3. Assuming that Docker is installed and running on your system, execute the following command:
 ```bash
 docker-compose up --build -d
 ```
-3. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
-4. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
+4. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
+5. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
 If the application has been started locally, it can be accessed at the following URL: http://localhost:3000
 If the application has been started via an AWS EC2 instance, it can be accessed at the following URL: http://IP-of-your-EC2-Instance:3000
 
@@ -31,13 +35,13 @@ Please use the Chrome or Edge browser to start the application.
 You can get a hosted Docker image of the platform on DockerHub https://hub.docker.com/r/astru/terraclassifier
 It is highly recommended to deploy the service on an AWS EC2 machine that is in us-west-2 region (Oregon) as that is the data centre where the Earth Observation(EO) datasets found in AWS STAC search are stored.
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
-
+First, the image must be pulled from Dockerhub with the command:
 ```bash
-docker run -p 3000:3000  astru/terraclassifier
+docker pull astru/terraclassifier:latest
 ```
-For light tasks and processes you can host the service on pc and therefore you don't need AWS IPv4 Address
+After pulling the image can be started with the command:
 ```bash
-docker run -p 3000:3000  astru/terraclassifier
+docker-compose up -d
 ```
 
 ## Funktionsweise der Webanwendung:
