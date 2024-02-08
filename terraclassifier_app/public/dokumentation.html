@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dokumentation</title>
+        <title>Documentation</title>
         <link rel="stylesheet" type="text/css" href="/css/dokumentation.css">
 
         <!--Bootstrap CSS-->
@@ -42,7 +42,9 @@
                 <div class="row my-3">
                     <div class="col-mx-3 text-center">
                         <h1> Dokumentation </h1>
-                        <p>Vielen Dank, dass Sie sich für die Nutzung des Terra Classifiers entschieden haben. <br>Um Ihnen die bestmögliche Erfahrung mit unserem Produkt zu ermöglichen, haben wir Ihnen eine Übersicht aller Schaltflächen, inklusive ihrer Funktionsweise und Bedienungshinweise, zusammengestellt.<br>Die Applikation ist nach dem Prinzip einer Einbahnstraße aufgebaut. Auf der rechten Seite befinden sich sechs Buttons. Für eine erfolgreiche Klassifikation müssen alle Buttons abgearbeitet werden. Da die Reihenfolge unbedingt eingehalten werden muss (Einbahnstraße), sind die noch nicht bearbeiteten Buttons ausgegraut und nicht anwählbar. Gleichzeitig ist es Ihnen so möglich, jederzeit Ihren aktuellen Bearbeitungsschritt einzusehen. Bei Problemen können Sie so in dieser Dokumentation gezielt nach Ihrem aktuellen Bearbeitungsschritt suchen und schneller mögliche Anwendungsfehler beheben.<br>Die folgende Tabelle ist nach dem Ablauf der Anwendung und nicht nach dem Layout sortiert. Dies vereinfacht ebenfalls die Fehlerbehebung und -prävention.</p>
+                        <p>Thank you for choosing to use the Terra Classifier. <br>To give you the best possible experience with our product, we have put together an overview of all the buttons, including how they work and operating instructions.
+                            <br>The application is structured according to the principle of a one-way street. There are eight buttons on the right-hand side. For a successful classification, the first six buttons must be processed. As the order must be strictly adhered to (one-way street), the buttons that have not yet been processed are grayed out and cannot be selected. At the same time, you can view your current processing step at any time. In the event of problems, you can use this documentation to search specifically for your current processing step and rectify possible application errors more quickly.
+                            <br>The following table is sorted according to the sequence of the application and not according to the layout. This also simplifies troubleshooting and error prevention.</p>
                     </div>
                 </div>
 
@@ -56,77 +58,61 @@
                     <div class="col">
                         <table id="doc_table" style="width: 100%;">
                             <tr style="border: 3px solid white; text-align: center; background-color: black;">
-                                <th style="width: 20%;"><h5>Funktion</h5></th>
+                                <th style="width: 20%;"><h5>Function</h5></th>
                                 <th style="width: 10%;">Icon</th>
-                                <th style="width: 70%;">Beschreibung</th>
+                                <th style="width: 70%;">Description</th>
                             </tr>
                             <tr style="border: 3px solid rgb(255, 255, 255); text-align: justify;">
-                                <td style="padding-left: 5px; padding-right: 5px;">Satellitenbildbeschaffung</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">Sentinal-2</td>
                                 <td style="text-align: center;"> <img src="../images/sentinal_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img> </td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Mit diesem Button lösen Sie den Prozess der Satellitenbildbeschaffung aus. Bevor Sie diesen Button betätigen können, müssen Sie zuerst ein Bereich auswählen, für den ein Satellitenbild geladen werden soll. Um Maschinelles Lernen für die Klassifikation nutzen zu können, braucht das Programm ein Satellitenbild, das ausgewertet werden kann. Mit dem Rechteck-Button am linken Kartenrand, können Sie das gewünschte Gebiet einzeichnen. Nachdem Sie nun den Satelliten-Knopf betätigt haben, werden Sie aufgefordert ein Datum auszuwählen, aus diesem das Satellitenbild stammen soll. Sobald Sie Ihr Datum innerhalb des Kalenderwidgets und einen Wert für die Wolkenbedeckung ausgewählt haben, bestätigen Sie mit „OK“. Das Satellitenbild wird nun geladen.</td>
-                            </tr>
-                            <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="padding-left: 5px; padding-right: 5px;">Trainingsdaten hinzufügen</td>
-                                <td style="text-align: center;"><img src="../images/trainigsdaten_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Für eine erfolgreiche Klassifikation, werden Trainingsdaten benötigt. Diese Trainingsdaten können Sie entweder per Upload im GeoJSON- oder GeoPackage-Format hochladen oder gleich hier in der Webanwendung erstellen. Dabei ist sicherzustellen, dass die Trainingsdaten nur innerhalb des vorher gewählten Area Of Training (AOT) liegen. Zeichnen Sie mit dem Rechteck-Button am linken Kartenrand ein AOT. Lösen Sie nun den Trainingsdaten-Button aus und wählen eine der beiden Optionen aus. <br>Upload: Nachdem sich das Fenster für den Upload geöffnet hat, suchen und wählen Sie Ihr Verzeichnis, in dem sich die Datei befindet. <br>Erstellen: Haben Sie sich für das Erstellen neuer Trainingsdaten innerhalb des Browsers entschieden, erscheint mittig am linken Rand der Karte ein neues Polygon-Symbol (Icon). Nach dem Klicken auf dasselbige, ist es nun möglich neue Trainingsdaten zu erstellen. Nach jedem erstellten Polygon werden Sie aufgefordert, eine passende Objekt-ID zu vergeben. <br>Wenn Sie mit dem Upload oder der Erstellung fertig sind, können Sie zum nächsten Bearbeitungsschritt übergehen, indem Sie auf der rechten Seite das Zahnrad-Symbol anklicken.
+                                <td style="padding-left: 5px; padding-right: 5px;">This button triggers the process of obtaining sentinel -2 images. Before you can press this button, you must first select an area in the leaflet map for which a sentinel -2 image should be loaded. In order to be able to use machine learning for classification, the program needs a sentinel-2 image that can be evaluated. You can draw the desired area using the "draw a rectangle" button on the left-hand edge of the map. Once you have clicked on the sentinel-2 button, you will be asked to select a date in the " time period from:" field. Based on the selected date, a period of exactly 1 month is taken into account and the corresponding sentinel-2 images are used for this period. You can also enter a cloud cover in %. It goes without saying that a low cloud cover is best suited for drawing training-areas and performing a classification. If you confirm your selection with "Ok", another pop-up window "make selection" appears. Here you can select the sentinel-2 images available for the selected area, time period and cloud cover. By pressing "Ok" the sentinel-2 image is now loaded.
                                     </td>
                             </tr>
                             <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="padding-left: 5px; padding-right: 5px;">Algorithmusauswahl</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">Training data</td>
+                                <td style="text-align: center;"><img src="../images/trainigsdaten_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
+                                <td style="padding-left: 5px; padding-right: 5px;">Training datas are required for a successful classification. You can either upload this training data via "File upload" or create it right here in the web application. Please ensure that the training datas are only located within the previously selected "Area Of Training" (AOT). If the "File upload" button is clicked, a pop-up window informs you that an AOT must first be available before you can continue with the upload function. If you click on the "Draw your own training data" button, a pop-up window will first inform you of what you need to do. You will be shown that at least nine training areas must be drawn. There must be at least three of each "ClassID" and " Label" and at least three different categories must be created. An example is also shown in the pop-up window. If you confirm the pop-up window with "Ok", you can now define an AOT with "Draw Rectangle" and then draw the training datas with "Draw Polygon". With "File upload" of training datas, you have the option of uploading files in GeoJSON or GeoPackage format. Important note: The format and structure of the data is validated. The fields "ClassID" and "Label" are mandatory. Furthermore, it is necessary that a „ClassID“ must occur at least three times and there must be at least three different of it.
+                                    </td>
+                            </tr>
+                            <tr style="border: 3px solid white; text-align: justify;">
+                                <td style="padding-left: 5px; padding-right: 5px;">Algorithm</td>
                                 <td style="text-align: center;"><img src="../images/algorithmus_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Nach dem Klicken auf dieses Symbol, können Sie zwischen zwei verschiedenen Algorithmen wählen. Zur Auswahl stehen der „Minimum Distance“- und der „Random Forest“-Algorithmus. Bestätigen Sie Ihre Wahl mit „OK“. Den nächsten Bearbeitungsschritt starten Sie durch Klicken des Positions-Symbols (Icon).</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">After clicking on this symbol, you can choose between four different algorithms. You can choose between the "Minimum Distance", "Random Forest", "Gradient Boosting Machine" and "Support Vector Machine" algorithms. You can only select one algorithm at a time. Confirm your selection with "OK".
+                                    </td>
                             </tr>
                             <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="padding-left: 5px; padding-right: 5px;">AOI-Auswahl</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">AOI</td>
                                 <td style="text-align: center;"><img src="../images/aoi_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Nachdem Sie die Schaltfläche betätigt haben, wird die Area Of Training unsichtbar. Nun können Sie durch Klicken auf das Rechteck-Symbol (Icon) eine Area Of Interest einzeichnen. Dies stellt den zu klassifizierenden Bereich dar. Ist Ihr AOI eingezeichnet, fahren sie mit dem nächsten Bearbeitungsschritt fort (Icon).</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">Once you have clicked the button, the "Area Of Training" disappears. Now you can draw an "Area Of Interest" by clicking on "Draw a rectangle". This represents the area to be classified. The larger the area, the longer the calculation takes.
+                                    </td>
                             </tr>
                             <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="padding-left: 5px; padding-right: 5px;">Klassifikation starten</td>
-                                <td style="text-align: center;"><img src="../images/modeltraining_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Mit Klick auf diesen Button werden Sie aufgefordert eine Auflösung (Meter pro Pixel) auszuwählen. Sie können zwischen drei Optionen wählen. Mit „OK“ bestätigen Sie Ihre Auswahl und starten gleichzeitig die Berechnung. Dies kann einige Sekunden in Anspruch nehmen. Sobald die Berechnung beendet ist, werden Sie durch ein Pop-Up gefragt, ob Sie die Klassifikation als GeoTiff herunterladen möchten. Nachdem Sie Ihre Wahl getroffen haben, wird die Klassifikation nach wenigen Sekunden in die Karte geladen. </td>
-                            </tr>
+                                <td style="padding-left: 5px; padding-right: 5px;">Resolution</td>
+                                <td style="text-align: center;"><img src="../images/resolution_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
+                                <td style="padding-left: 5px; padding-right: 5px;">You can use the "Resolution" function to determine the resolution in which the classification is to be carried out. The smaller the resolution, the longer the calculation takes. Please note that a resolution of 30x30, 60x60 and 100x100 should only be used for small "AOI's", otherwise the classification will take too long. For larger areas, a resolution of 200x200 and 500x500 has been added.
+                                    </td>
+                            </tr>                            
                             <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="padding-left: 5px; padding-right: 5px;">Hier Funktionsname einfügen</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">Classification</td>
                                 <td style="text-align: center;"><img src="../images/klassifikation_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Hier Funktionsbeschreibung einfügen</td>
+                                <td style="padding-left: 5px; padding-right: 5px;">Click on this button to start the calculation for the monitored classification. A loading symbol appears, indicating that the calculation is being carried out. After successful completion, you will be asked in a pop-up window whether you want to download the classification as a GeoTiff. The result of the monitored classification for the AOI is then displayed on the map.
+                                    </td>
+                            </tr>
+                            <tr style="border: 3px solid white; text-align: justify;">
+                                <td style="padding-left: 5px; padding-right: 5px;">Download Model</td>
+                                <td style="text-align: center;"><img src="../images/modeltraining_icon.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
+                                <td style="padding-left: 5px; padding-right: 5px;">You can use the "Download Model" function to download the trained model for the classification performed as rds.</td>
+                            </tr>
+                            <tr style="border: 3px solid white; text-align: justify;">
+                                <td style="padding-left: 5px; padding-right: 5px;">Reload</td>
+                                <td style="text-align: center;"><img src="../images/reload.png" style="width: 30px; height: 30px; background-color: white; border-radius: 2px;"></img></td>
+                                <td style="padding-left: 5px; padding-right: 5px;">You can use the last function "reload" to reload the website and thus carry out a new classification.
+                                    </td>
                             </tr>
                         </table>
                     </div>
                 </div>
 
-                <div class="row mx-1">
-                    <div class="col mt-5">
-                        <h2>Setup (lokal)</h2>
-                    </div>
-                </div>
-
-                <div class="row mx-1 pb-5">
-                    <div class="col">
-                        <table id="setup_table" style="width: 100%;">
-                            <tr style="border: 3px solid white; text-align: center; background-color: black;">
-                                <th style="width: 10%;"> Schritt</th>
-                                <th>Anweisung</th>
-                            </tr>
-                            <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="text-align: center; padding-left: 5px; padding-right: 5px;">1.</td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Klonen Sie das folgende <a href="https://github.com/astru03/TerraClassifier_1" target="_blank">GitHub-Repository</a> in eine IDE (zum Beispiel VS Code).</td>
-                            </tr>
-                            <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="text-align: center; padding-left: 5px; padding-right: 5px;">2.</td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Navigieren Sie im Terminal mit dem Befehl "cd terraclassifier_app" in das gleichnamige Verzeichnis.</td>
-                            </tr>
-                            <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="text-align: center; padding-left: 5px; padding-right: 5px;">3.</td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Nutzen Sie den Befehl "npm install", um alle notwenidgen Module und Komponenten zu installieren. Die Installation kann bis zu zwei Minuten in Anspruch nehmen.</td>
-                            </tr>
-                            <tr style="border: 3px solid white; text-align: justify;">
-                                <td style="text-align: center; padding-left: 5px; padding-right: 5px;">4.</td>
-                                <td style="padding-left: 5px; padding-right: 5px;">Nachdem die Installation erfolgreich abgeschlossen wurde, können Sie die Anwendung starten. Geben Sie dafür den Befehl "npm start" ein. Nach wenigen Sekunden ist die Anwendung im Browser unter der URL: http://localhost:3000 abrufbar.</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
             </div>
         </main>
         <!-- Utilities -->

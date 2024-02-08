@@ -555,7 +555,6 @@ async function resolutionData() {
  * 
  */
 function classification() {
-  //console.log("kommt");
   $('#loadingSpinner').show();
   fetch('/processgraph', {
     method: 'POST'
@@ -571,7 +570,10 @@ function classification() {
             checkConditionButton7()
         }
       } else {
-        console.log("Fehler bei der Verarbeitung der Datei!")
+        //console.log("Fehler bei der Verarbeitung der Datei!")
+        $('#loadingSpinner').hide();
+        //alert('Die Wolkenbedeckung für den angegebenen Zeitraum ist > 30%')
+        $('#popup_NoteCloudCoverCalculation').modal('show');
       }
     })
     .catch(error => {
@@ -719,6 +721,9 @@ function closePopup(ID_Popup) {
     $('#popup_EnterObjektID').modal('hide');
   } else if (ID_Popup == 'popup_ObjectName') {
     $('#popup_ObjectName').modal('hide');
+  } else if (ID_Popup == 'popup_NoteCloudCoverCalculation') {
+    $('#popup_NoteCloudCoverCalculation').modal('hide');
+    location.reload();
   } else if (ID_Popup == 'popup_EnterResolution') {
     $('#popup_EnterResolution').modal('hide');
   } else if (ID_Popup == 'popup_NotInAOT') {
@@ -1343,7 +1348,7 @@ function reload (){
 var button1 = L.easyButton('<img src="../images/sentinal_icon.png" style="width: 20px; height: 20px;">', sentinel2, 'Sentinal-2');
 
 // Button Trainigsdata -----------------------------
-var button2 = L.easyButton('<img src="../images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Trainigsdaten');
+var button2 = L.easyButton('<img src="../images/trainigsdaten_icon.png" style="width: 20px; height: 20px;">', trainingData, 'Training data');
 button2.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton2
@@ -1359,7 +1364,7 @@ function checkConditionButton2() {
 }
 
 // Button algorithem -----------------------------
-var button3 = L.easyButton('<img src="../images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithmus');
+var button3 = L.easyButton('<img src="../images/algorithmus_icon.png" style="width: 20px; height: 20px;">', algorithm, 'Algorithm');
 button3.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton3
@@ -1395,7 +1400,7 @@ function checkConditionButton4() {
 
 // Button resolution -----------------------------
 var button5 = L.easyButton('<img src="../images/resolution_icon.png" style="width: 20px; height: 20px;">', resolutionData
-  , 'Auflösung');
+  , 'Resolution');
 button5.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton5
@@ -1411,7 +1416,7 @@ function checkConditionButton5() {
 }
 
 // Button classification -----------------------------
-var button6 = L.easyButton('<img src="../images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Klassifikation');
+var button6 = L.easyButton('<img src="../images/klassifikation_icon.png" style="width: 20px; height: 20px;">', classification, 'Classification');
 button6.disable(); // by default the button is disabled
 /**
  * Function checkConditionButton6
