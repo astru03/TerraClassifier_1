@@ -16,12 +16,16 @@ It is highly recommended to deploy the service on an AWS EC2 machine that is in 
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
 
 1. Clone the following [GitHub repository](https://github.com/astru03/TerraClassifier_1) to an IDE (for example VS Code) or to your AWS EC2 instance.
-2. Assuming that Docker is installed and running on your system, execute the following command:
+2. Navigate to the TerraClassifier folder. To the directory where the docker-compose.yml is located. On the AWS EC2 instance, this can be done with the following command: 
+```bash
+cd TerraClassifier_1
+```
+3. Assuming that Docker is installed and running on your system, execute the following command:
 ```bash
 docker-compose up --build -d
 ```
-3. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
-4. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
+4. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
+5. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
 If the application has been started locally, it can be accessed at the following URL: http://localhost:3000
 If the application has been started via an AWS EC2 instance, it can be accessed at the following URL: http://IP-of-your-EC2-Instance:3000
 
