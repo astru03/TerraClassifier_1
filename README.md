@@ -95,5 +95,5 @@ In the "Documentation" tab, you will find detailed documentation on the function
 The contact details can be found in the "Imprint" tab.
 
 Licensing:
-The license used is the GNU Affero General Public License version 3.
+The license used is the GNU Affero General Public License version 3.<br>
 https://opensource.org/license/agpl-v3/
