@@ -44,61 +44,56 @@ After pulling the image can be started with the command:
 docker-compose up -d
 ```
 
-## Funktionsweise der Webanwendung:
+## Functionality of the web application:
 ### Home
-Nach dem Start der Webanwendung erscheint die Startseite unter dem Reiter "Home".
+After starting the web application, the start page appears under the "Home" tab.
 
-### Modeltrainig und Klassifikation
-Unter dem Reiter "Modeltrainig und Klassifikation" befindet sich der Hauptteil der Webanwendung zur Durchführung einer überwachten Klassifikation.
+### Model training and classification
+The "Model training and classification" tab contains the main part of the web application for performing a supervised classification.
 
-Über eine Leafletkarte und mit Hilfe der Funktion zum zeichnen eines Rechteckes, kann der User im ersten Schritt einen Bereich auswählen, für den Satellitenbilder geladen werden sollen. 
-Im nächsten Schritt kann der User rechts das toggle-menu öffnen und dort die Funktion "Sentinel-2" auswählen. Es öffnet sich das Popupfenster "Satelliten". 
-Hat der User zuvor kein Rechteck gezeichnet und betätigt die Funktion, erscheint ein Hinweisfenster, dass zuerst ein Rechteck auf der Karte eingezeichnet sein muss. 
-Im Popupfenster "Satelliten" werden die Nordost- und Südwest-Koordinaten des eingezeichneten Rechtecks dargestellt. Weiterhin kann der User über ein Kalender-widget einen Zeitraum auswählen, über dem der User Sentinel-2 Bilder beziehen möchte. Dabei wird vom ausgewählten Datum immer eine Zeitspanne von einem Monat nach dem ausgewählten Datum berücksichtigt. Dies soll ein übermäßiges einladen von Satellitenbildern und damit einbüßen der Performance verhindern.
-Mit "Abbrechen" kann der User das Popupfenster wieder verlassen und ggf. ein neues Rechteck einzeichnen.
-Mit "OK" gelangt der User in ein nächstes Popupfenster, dass ein Auswahlfenster bereitstellt. 
-Hier kann der User über die ID der Satellitenbilder, eines der Satellitenbilder auswählen. Nachdem der User die Auswahl mit "Ok" bestätigt hat, wird das Satellitenbild in der Leafletkarte angezeigt.
-
-Über die Funktion "Trainigsdaten" im toggle-menu, kann der User Trainigsdaten über den Button „Datai-Upload“ hochladen oder mit dem Button „Zeichnen sie selber Trainigsdaten“ mit Hilfe der Leafletfunktion „Polygon-zeichnen“ selber einzeichnen. 
-Für beide Funktionen muss zuerst eine Area Of Training (AOT) mit der Leafletfunktion „Rechteck-zeichnen“ erstellt werden. 
-Wird der Button „Datei-Upload“ betätigt, wird der User über ein Popup-Fenster darüber Informiert, dass er zunächst ein AOT einzeichnen muss um mit der Funktion des Hochladens, weiter fahren zu können.
-Wird der Button „Zeichnen sie selber Trainingsdaten“ betätigt, wird der User zunächst über ein Popup-Fenster darüber Informiert was er beim selber zeichnen zu beachten hat.
-Der User wird darüber informaiert, dass er mindestens neun Trainingsgebiete einzeichnen muss. Dabei muss mindestens von jeder ClassID und Objektname drei vorliegen und es müssen mindestens drei verschiedene Kategorie erstellt werden. Ein Beispiel wird im Popup-fenster ebenfalls dargestellt.
-Wird das Hinweis-popup mit „ok“ bestätigt, kann der User nun als erstes mithilfe der „Rechteck-Zeichnen“ Funktion ein AOT einzeichnen und anschließend mit der „Polygon-zeichen“ Funktion Trainingsdaten einzeichnen.
-Die hochgeladenen oder im Browser selber erstellten Trainingsdaten müssen alle in dem definierten AOT liegen, Ansonsten erscheint eine Fehlermeldung.
-Der User hat die Möglichkeit Daten im Format geojson oder gpkg hochzuladen. 
-Wichtiger Hinweis: Das Format und die Struktur der Daten wird validiert. Die Felder „ClassID“ und „Label“ sind zwingend erforderlich. Weiterhin ist es notwendig, dass eine ClassID mindestens dreimal vorkommen muss und es muss mindestens drei unterschiedliche ClassID geben.
-Sie Finden im Repository Beispieldateien für ein geojson und ein gpkg.
-Mit dem Trainingspolygone_Dortmund_valid.geojson können Trainigsgebiete im Bereich von Dortmund eingeladen werden.
-Mit dem Trainingspolygone_Paderborn_valid.gpkg können Trainigsgebiete im Bereich von Paderborn eingeladen werden.
-
-Über die Funktion "Algorithmus" kann der User einen von vier Algorithmen über die Checkboxfunktion auswählen. Mit "Abbrechen" kann der User das Popupfenster wieder verlassen. Mit "Ok" wird die Auswahl gespeichert. Dabei kann der User immer nur ein Algorithmus wählen. Wird kein Algorithmus über die Checkbox gewählt oder mehrere Algorithmen gleichzeitig, so wird eine Fehlermeldung ausgegeben.
+#### Sentinel-2
+This button triggers the process of obtaining sentinel -2 images. Before you can press this button, you must first select an area in the leaflet map for which a sentinel -2 image should be loaded. In order to be able to use machine learning for classification, the program needs a sentinel-2 image that can be evaluated. You can draw the desired area using the "draw a rectangle" button on the left-hand edge of the map. Once you have clicked on the sentinel-2 button, you will be asked to select a date in the " time period from:" field. Based on the selected date, a period of exactly 1 month is taken into account and the corresponding sentinel-2 images are used for this period.
+You can also enter a cloud cover in %. It goes without saying that a low cloud cover is best suited for drawing training-areas and performing a classification.
+If you confirm your selection with "Ok", another pop-up window "make selection" appears. Here you can select the sentinel-2 images available for the selected area, time period and cloud cover. By pressing "Ok" the sentinel-2 image is now loaded.
 
 
-Über die Funktion „AOI“ kann der User ein Area of Intrest einzeichnen. Dieses Gebiet ist das was schließlich klassifiziert wird. Dabei gilt, je größer das Gebiet desto länger braucht die Berechnung. 
+#### Training data
+Training datas are required for a successful classification. You can either upload this training data via "File upload" or create it right here in the web application. Please ensure that the training datas are only located within the previously selected "Area Of Training" (AOT).
+If the "File upload" button is clicked, a pop-up window informs you that an AOT must first be available before you can continue with the upload function.
+If you click on the "Draw your own training data" button, a pop-up window will first inform you of what you need to do.
+You will be shown that at least nine training areas must be drawn. There must be at least three of each "ClassID" and " Label" and at least three different categories must be created. An example is also shown in the pop-up window.
+If you confirm the pop-up window with "Ok", you can now define an AOT with "Draw Rectangle" and then draw the training datas with "Draw Polygon". 
+With "File upload" of training datas, you have the option of uploading files in GeoJSON or GeoPackage format.
+Important note: The format and structure of the data is validated. The fields "ClassID" and "Label" are mandatory. Furthermore, it is necessary that a „ClassID“ must occur at least three times and there must be at least three different of it.
 
-Über die Funktion „Auflösung“ kann der User bestimmen in welcher Auflösung die Klassifikation ausgegeben werden kann. Dabei gilt, je kleiner die Auflösung desto lönger braucht die Berechnung. Es gilt zu beachten, dass eine Auflösung von 30x30, 60x60 und 100x100 bitte nur für kleine „AOI’s“ verwendet wird, weil ansonsten die Klassifikation zu lange dauert. 
-Für größere Bereiche wurde extra eine Auflösung von 200x200 und 500x500 hinzugefügt.
-
-Über die Funktion „Klassifikation wird nun die überwachte Klassifikation angestoßen. Es erscheint ein Ladezeichen, dass anzeigt dass die Berechnung durchgeführt wird. Nach erfolgreicher Beendigung, wird für das AOI die überwachte Klassifikation in der Karte angezeigt. 
-
-über die Funktion "Download Model" hat der User nun die Möglichkeit das trainierte Model für die durchgeführte Klassifikation als rds herunter zuladen.
-
-Über die letzte Funktion „reload“ kann der User die Webseite neu laden lassen und somit eine neue klassifikation durchführen.
-
-### Beispiel
-Der Reiter "Beispiel" liefert ein "one-Click" Demonstration einer überwachten Klassifikation.
-Nachdem der Button „Start Demo“ ausgeführt wird, wird eine überwachte Klassifikation durchgeführt anhand von fest vorgegebenen Informationen. Diese beinhalten:
-Das Area of Intest, Area of Training, Trainigsdaten, Start und Endzeitpunkt, Algorithmus, und Auflösung.
+#### Algorithm
+After clicking on this symbol, you can choose between four different algorithms. You can choose between the "Minimum Distance", "Random Forest", "Gradient Boosting Machine" and "Support Vector Machine" algorithms. You can only select one algorithm at a time. Confirm your selection with "OK".
 
 
-### Dokumentation
-Im Reiter "Dokumentation" findet der User eine ausführliche Dokumentation zu den Funktionen, die unter „Modeltraining und Klassifikation“ zu finden sind.
+#### AOI
+Once you have clicked the button, the "Area Of Training" disappears. Now you can draw an "Area Of Interest" by clicking on "Draw a rectangle". This represents the area to be classified. The larger the area, the longer the calculation takes.
 
-### Impressum
-Im Reiter "Impressum" befinden sich die Kontaktdaten.
+#### Resolution
+You can use the "Resolution" function to determine the resolution in which the classification is to be carried out. The smaller the resolution, the longer the calculation takes. Please note that a resolution of 30x30, 60x60 and 100x100 should only be used for small "AOI's", otherwise the classification will take too long. For larger areas, a resolution of 200x200 and 500x500 has been added.
 
-Lizensierung:
-Als Lizenz wird die GNU Affero General Public License version 3 verwendet.
+#### Classification
+Click on this button to start the calculation for the monitored classification. A loading symbol appears, indicating that the calculation is being carried out. After successful completion, you will be asked in a pop-up window whether you want to download the classification as a GeoTiff. The result of the monitored classification for the AOI is then displayed on the map.
+
+#### Download Model
+Using the "Download Model" function, the user now has the option of downloading the trained model for the classification performed as rds.
+
+#### Reload
+The last function "reload" allows the user to reload the website and thus perform a new classification.
+
+### Example
+The "Example" tab provides a "one-click" demonstration of a supervised classification. After the "Start Demo" button is clicked, a supervised classification is carried out using predefined information. This includes: The "Area of Intest", "Area of Training", training data, start and end time, algorithm, and resolution.
+
+### Documentation
+In the "Documentation" tab, you will find detailed documentation on the functions that can be found under "Model training and classification".
+
+### Imprint
+The contact details can be found in the "Imprint" tab.
+
+Licensing:
+The license used is the GNU Affero General Public License version 3.
 https://opensource.org/license/agpl-v3/
-
