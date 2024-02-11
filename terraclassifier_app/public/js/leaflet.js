@@ -142,7 +142,6 @@ map.on("draw:created", function(event) {
         console.log(newFeature);
         polygonToGeoJSON(newFeature);
         drawnFeatures.addLayer(layer);
-        addPopup(layer);
         checkConditionButton3();
       });
     } else {
@@ -743,87 +742,6 @@ function hslToRgb(h, s, l) {
 }
 
 /**
- * function showTiff() {
-  setTimeout(async () => {
-    const response = await fetch('/show-tiff');
-    const arrayBuffer = await response.arrayBuffer();
-    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
-    const image = await tiff.getImage();
-    const raster = await image.readRasters();
-
-    parseGeoraster(arrayBuffer).then(georaster => {
-      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID))
-      let classColor = {}
-      let classLabel = new Map()
-
-      allDrawnFeatures.features.forEach(feature => {
-        const classID = feature.properties.ClassID
-        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt'
-        if(classID && !classLabel.has(classID)){
-          classLabel.set(classID, label)
-        }
-      })
-
-      uniqueClasses.forEach(classID => {
-        classColor[classID] = valueToColor(classID, uniqueClasses.size)
-      })
-
-      const layer = new GeoRasterLayer({
-        georaster: georaster,
-        pixelValuesToColorFn: function(pixelValues) {
-          const value = pixelValues[0]; // Angenommen, Sie haben nur ein Band
-          if (value === georaster.noDataValue){
-            return `rgba(0,0,0,0)`
-          }else{
-            return classColor[value] || `rgba(0,0,0,0)`
-          }
-        },
-        resolution: 256
-      });
-
-      layer.addTo(map);
-      map.fitBounds(layer.getBounds());
-      legend(classLabel)
-    });
-
-    $('#loadingSpinner').hide();
-  }, 2000);
-}
-
-function valueToColor(classID, totalClasses) {
-  let hue = (classID * 360 / totalClasses) % 360
-  return `hsl(${hue}, 100%, 50%)`
-}
-
-
-
-//https://stackoverflow.com/questions/37701211/custom-legend-image-as-legend-in-leaflet-map
-function legend(classLabel){
-  if(window.myLegend){
-    map.removeControl(window.myLegend)
-  }
-  const legend = L.control({position: 'topleft'})
-  legend.onAdd = function(map){
-    const div = L.DomUtil.create('div', 'info legend')
-    let labels = ['<strong>Klassen</strong>']
-
-    classLabel.forEach((label, classID) => {
-      const color = valueToColor(classID, classLabel.size)
-      labels.push(`<div class="legend-entry"><i style="background:${color};"></i><span class="label">${label}</span></div>`)
-
-  })
-  
-  div.innerHTML = labels.join('<br>')
-  return div
-}
-window.myLegend = legend
-legend.addTo(map)
-}
- */
-
-
-
-/**
  * Function to close Popup-windows
  * @param {*} ID_Popup
  */
@@ -851,18 +769,6 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
     $('#popup_algo').modal('show');
-  /* } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
-    $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
-    $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_NotBetween10And50') {
-    $('#popup_NotBetween10And50').modal('hide');
-    $('#popup_EnterHyperparameterMinimumDistance').modal('show');
-  } else if (ID_Popup == 'popup_EnterHyperparameterRandomForest') {
-    $('#popup_EnterHyperparameterRandomForest').modal('hide');
-    $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_NotBetween10And500') {
-    $('#popup_NotBetween10And500').modal('hide');
-    $('#popup_EnterHyperparameterRandomForest').modal('show'); */
   } else if (ID_Popup == 'popup_NoteDrawTrainigsData') {
     $('#popup_NoteDrawTrainigsData').modal('hide');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
@@ -2016,15 +1922,6 @@ function delete_data() {
   allRectangle = { "type": "Featurecollection", "features": [] };
   drawnFeatures.clearLayers()
   rectangleCoordinates = null
-}
-
-/**
- * Function addPopup
- * @param {*} layer 
- */
-function addPopup(layer) {
-  var popupContent = '<button onclick="download_data()">Download</button>'
-  layer.bindPopup(popupContent);
 }
 
 /**
