@@ -627,7 +627,7 @@ function downloadRDS(){
         let url = window.URL.createObjectURL(blob);
         let a = document.createElement('a');
         a.href = url;
-        a.download = 'train.RDS';
+        a.download = 'train.rds';
         document.body.appendChild(a);
         a.click();
         a.remove();
