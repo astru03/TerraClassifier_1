@@ -1678,7 +1678,7 @@ async function handleFileUpload() {
 
       const filteredGeometry = data_geojson.features.filter(feature => 
         rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates) &&
-        feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' 
+        feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' || feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString'
       );
       let classID_counts = {};
       let classID_miss = false;

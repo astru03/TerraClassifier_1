@@ -495,7 +495,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table); 
 
       const filteredFeatures = geojsonFeatures.filter(feature => {
-        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
+        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' || feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString';
         
         return polygon_multipolygon
       });
