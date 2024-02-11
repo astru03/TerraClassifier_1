@@ -7,13 +7,9 @@ const path = require('path');
 const GeoTIFF = require('geotiff');
 const {createCanvas} = require('canvas')
 const im = require('imagemagick');
-
-
-
 const fs = require('fs');
 const multer = require('multer')
 const { GeoPackageAPI } = require('@ngageoint/geopackage');
-//const JSZIP = require('jszip');
 const { OpenEO } = require('@openeo/js-client');
 const stream = require('stream');
 
@@ -177,7 +173,7 @@ async function processGraph_erstellen(data_all, train_data_path) {
 
   
   try {
-    const trainigs_data = await fs.promises.readFile(train_data_path, "utf-8")
+    const trainigs_data = await fs.promises.readFile(train_data_path, 'utf-8')
     console.log(trainigs_data)
 
 
@@ -215,46 +211,39 @@ async function processGraph_erstellen(data_all, train_data_path) {
 
     console.log(northEast_AOT, southWest_AOT)
 
-    const connection = await OpenEO.connect("http://54.185.59.127:8080");
+    const connection = await OpenEO.connect('http://54.185.59.127:8080');
     //const connection = await OpenEO.connect("http://openeocubes_custom:8080");
-    // Basic login
-    await connection.authenticateBasic("user", "password");
-    // Erstellen des Prozess-Builders
+    await connection.authenticateBasic('user', 'password');
     var builder = await connection.buildProcess();
     let aoi = builder.load_collection(
-      "sentinel-s2-l2a-cogs",
+      'sentinel-s2-l2a-cogs',
       {
-        "west": west,
-        "east": east,
-        "south": south,
-        "north": north,
-        "crs": 3857
+        'west': west,
+        'east': east,
+        'south': south,
+        'north': north,
+        'crs': 3857
       },
-      //["2023-07-01", "2023-08-01"]
       [startdate,enddate]
     );
     
     let aot = builder.load_collection(
-      "sentinel-s2-l2a-cogs",
+      'sentinel-s2-l2a-cogs',
       {
-        "west": west_AOT,
-        "east": east_AOT,
-        "south": south_AOT,
-        "north": north_AOT,
-        "crs": 3857
+        'west': west_AOT,
+        'east': east_AOT,
+        'south': south_AOT,
+        'north': north_AOT,
+        'crs': 3857
       },
-      //["2023-07-01", "2023-08-01"]
       [startdate,enddate]
     );
 
 
 
-
-
-
-    let filter_aoi = builder.filter_bands(aoi, ["B02", "B03", "B04"]);
-    let filter_aot = builder.filter_bands(aot, ["B02", "B03", "B04"]);
-    console.log("filter")
+    let filter_aoi = builder.filter_bands(aoi, ['B02', 'B03', 'B04']);
+    let filter_aot = builder.filter_bands(aot, ['B02', 'B03', 'B04']);
+    console.log('filter')
     
 
     if(alg === 'MD'){
@@ -276,36 +265,37 @@ async function processGraph_erstellen(data_all, train_data_path) {
       console.log('es wurde der SVM ausgewählt')
 
     }
-    console.log("train")
+    console.log('train')
     let classify_cube_data =  builder.classify_cube(filter_aoi, traininngsmodel_cube)
-    console.log("classify")
+    console.log('classify')
     var reducer = function (data) { return this.median(data) }
-    datacube = builder.reduce_dimension(classify_cube_data, reducer, "t")
+    datacube = builder.reduce_dimension(classify_cube_data, reducer,'t')
     resolutioncube = builder.resample_spatial(datacube, resolution)
-    cube = builder.save_result(resolutioncube, "GTiff")
-    console.log("Bitte warten!")
+    trainRDS = builder.save_result(traininngsmodel_cube, 'RDS')
+    cube = builder.save_result(resolutioncube, 'GTiff')
+    console.log('Bitte warten!')
     try {
       let datacube_tif = await connection.computeResult(cube)
+      let rds = await connection.computeResult(trainRDS)
       console.log(datacube_tif.data)
       if (datacube_tif.data instanceof stream.Readable) {
         console.log('datacube_tif.data ist ein lesbarer Stream.');
         //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
         const filePath = path.join(__dirname, 'test_js_1.tif');
+        const fileRDS = path.join(__dirname, 'train.rds')
         const writeStream = fs.createWriteStream(filePath);
+        const rds_write = fs.createWriteStream(fileRDS)
         datacube_tif.data.pipe(writeStream);
-        datacube_tif.data.on('end', () => {
+        rds.data.pipe(rds_write)
+        datacube_tif.data.on('end', async() => {
           console.log('Stream zu Ende gelesen und Datei gespeichert.');
+          await color_tif_download()
           resolve()
         });
       } else {
         console.error('datacube_tif.data ist kein lesbarer Stream.');
       }
-
-      //B02, B08, ndwi
-      //B11, B08  ndbi
-      //ndsi B02, B11
-
-      console.log("jetzt")
+      console.log('jetzt')
     } catch (err) {
       reject(err)
     }
@@ -315,496 +305,99 @@ async function processGraph_erstellen(data_all, train_data_path) {
   }
 
   })
-
-
-
 }
 
-
-
-/**
- * try {
-    const northEast = data_all.AOI._northEast
-    const southWest = data_all.AOI._southWest
-    const wgs84 = 'EPSG:4326'
-    const mercator = 'EPSG:3857'
-    const proj_mercator_northEast = proj4(wgs84, mercator, [northEast.lng, northEast.lat])
-    const proj_mercator_southWest = proj4(wgs84, mercator, [southWest.lng, southWest.lat])
-    console.log(northEast)
-    console.log(southWest)
-    const west = proj_mercator_southWest[0]
-    const east = proj_mercator_northEast[0]
-    const south = proj_mercator_southWest[1]
-    const north = proj_mercator_northEast[1]
-    const connection = await OpenEO.connect("http://54.185.59.127:8000");
-    // Basic login
-    await connection.authenticateBasic("user", "password");
-    // Erstellen des Prozess-Builders
-    var builder = await connection.buildProcess();
-    let load1 = builder.load_collection(
-      "sentinel-s2-l2a-cogs",
-      {
-        "west": west,
-        "east": east,
-        "south": south,
-        "north": north,
-        "crs": 3857
-      },
-      ["2022-01-01", "2022-12-31"],
-      ["B02", "B04", "B08"]
-    );
-    let filter2 = builder.filter_bands(load1, ["B04", "B08"]);
-    let ndvi = builder.ndvi(filter2, "B04", "B08")
-    var reducer = function (data) { return this.mean(data) }
-    datacube = builder.reduce_dimension(ndvi, reducer, "t")
-    cube = builder.save_result(datacube, "GTiff")
-    console.log("Bitte warten!")
-    try {
-      let datacube_tif = await connection.computeResult(cube)
-      console.log(datacube_tif.data)
-      if (datacube_tif.data instanceof stream.Readable) {
-        console.log('datacube_tif.data ist ein lesbarer Stream.');
-        //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
-        const filePath = path.join(__dirname, 'test_js_1.tif');
-        const writeStream = fs.createWriteStream(filePath);
-        datacube_tif.data.pipe(writeStream);
-        datacube_tif.data.on('end', () => {
-          console.log('Stream zu Ende gelesen und Datei gespeichert.');
-        });
-      } else {
-        console.error('datacube_tif.data ist kein lesbarer Stream.');
-      }
-
-      //B02, B08, ndwi
-      //B11, B08  ndbi
-      //ndsi B02, B11
-
-      console.log("jetzt")
-    } catch {
-    }
-  }
- */
-
-
-/**
- *   const color = [
-     [255, 255, 255], // Weiß
-     [0, 128, 0],     // Grün
-     [0, 0, 255],     // Blau
-     [255, 255, 0],   // Gelb
-     [255, 165, 0],   // Orange
-     [255, 0, 255],   // Magenta
-  ];
- 
-function getColor(classID){
-  return color[classID] || color[0]
-} 
-
-
- async function color_geotiff() {
-    try {
-      const filePath = path.join(__dirname, 'test_js_1.tif');
-      const tiff = await GeoTIFF.fromFile(filePath);
-      const image = await tiff.getImage();
-      const width = image.getWidth();
-      const height = image.getHeight();
-      const numBands = image.getSamplesPerPixel();
-      const raster = await image.readRasters()
-      //console.log(`Breite: ${width}, Höhe: ${height}, Bänder: ${numBands}, raster ${raster}`);
-
-      const classData = raster[0]
-      const minValue = Math.min(...classData)
-      const maxValue = Math.max(...classData)
-
-      let colorRaster = colorMapping(classData, minValue, maxValue)
-      return [colorRaster, height, width]
-
-
-
-    } catch (error) {
-      console.log("Fehler beim Lesen der TIFF-Datei:", error);
-    }
-  }
-
-
-  function colorMapping(data, minValue, maxValue){
-    const numClass = color.length
-    const range = maxValue - minValue
-    const step = range / numClass
-
-    const coloredData = new Uint8ClampedArray(data.length * 4); // RGBA
-    for (let i = 0; i < data.length; i++) {
-      const classID = Math.min(numClass - 1, Math.floor((data[i] - minValue) / step))
-      const [r, g, b] = getColor(classID);
-      coloredData[i * 4] = r;
-      coloredData[i * 4 + 1] = g;
-      coloredData[i * 4 + 2] = b;
-      coloredData[i * 4 + 3] = 255; // Alpha
-  }
-  return coloredData;
-  }
-
-  
-
-  function createImage(width, height, colorData){
-    return new Promise((resolve , reject) => {
+//https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createImageData?retiredLocale=de
+async function color_tif_download(){
+  return new Promise(async (resolve, reject) => {
+    try{
+    const filePath = path.join(__dirname, 'test_js_1.tif')
+    const tiff = await GeoTIFF.fromFile(filePath)
+    const image = await tiff.getImage()
+    const raster = await image.readRasters()
+    const width = image.getWidth()
+    const height = image.getHeight()
+    let classData = raster[0]
+    
     const canvas = createCanvas(width, height)
     const ctx = canvas.getContext('2d')
-
     const imageData = ctx.createImageData(width, height)
-    imageData.data.set(colorData)
 
-    ctx.putImageData(imageData, 0, 0)
-
-    const out = fs.createWriteStream('image.png')
-    const stream = canvas.createPNGStream()
-    stream.pipe(out)
-    out.on('finish', () =>  {
-
-     console.log('PNG-Datei wurde erstellt')
-     resolve(canvas)
-    
+    let uniqueClasses = new Set(classData)
+    let classIDColor = {}
+    let index = 0
+    uniqueClasses.forEach(classID => {
+      let hue = (index * 360 / uniqueClasses.size) % 360
+      let [r,g,b] = hslToRgb(hue / 360, 1, 0.5)
+      classIDColor[classID] = {r,g,b}
+      index++
     })
-    out.on('error', reject)
-    })
-    
 
-  }
-   
- */
-
-
-  function valueToColor(value, minValue, maxValue){
-  const normalized = (value - minValue) / (maxValue - minValue);
-  const r = Math.round(normalized * 255);
-  const g = 0;
-  const b = Math.round((1 - normalized) * 255);
-  return [r, g, b];
-}
-
-function colorMapping(data, minValue, maxValue) {
-  const coloredData = new Uint8ClampedArray(data.length * 4); // RGBA
-  for (let i = 0; i < data.length; i++) {
-    const [r, g, b] = valueToColor(data[i], minValue, maxValue);
-    coloredData[i * 4] = r;
-    coloredData[i * 4 + 1] = g;
-    coloredData[i * 4 + 2] = b;
-    coloredData[i * 4 + 3] = 255; // Alpha
-  }
-  return coloredData;
-}
-
-// Korrigierte color_geotiff Funktion
-async function color_geotiff() {
-  try {
-    const filePath = path.join(__dirname, 'test_js_1.tif');
-    const tiff = await GeoTIFF.fromFile(filePath);
-    const image = await tiff.getImage();
-    const width = image.getWidth();
-    const height = image.getHeight();
-    const raster = await image.readRasters();
-    const classData = raster[0];
-    const minValue = Math.min(...classData);
-    const maxValue = Math.max(...classData);
-    let colorRaster = colorMapping(classData, minValue, maxValue);
-    console.log(minValue, maxValue, "color_geotiff")
-    return [colorRaster, height, width, minValue, maxValue];
-  } catch (error) {
-    console.log("Fehler beim Lesen der TIFF-Datei:", error);
-  }
-}
-
-
-
-
-/**
- * 
- * function createLegend(minValue, maxValue){
-  const width = 200
-  const height = 50
-  const canavs_legend = createCanvas(width, height)
-  var ctx = canavs_legend.getContext('2d')
-  console.log(minValue, maxValue, "createLegend")
-
-  for (let i = 0; i <= width; i++) {
-    const value = minValue + (i / width) * (maxValue - minValue);
-    const [r, g, b] = valueToColor(value, minValue, maxValue);
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(i, 0, 1, height / 2);
-  }
-  // Beschriftungen hinzufügen
-  ctx.fillStyle = 'black';
-  ctx.fillText(minValue.toString(), 0, height);
-  ctx.fillText(maxValue.toString(), height - ctx.measureText(maxValue.toString()).width, height);
-
-  return canavs_legend;
-
-}
- * 
- * 
- * async function addLegend(){
-  const [colorData, height, width, minValue, maxValue] = await color_geotiff();
-  console.log(minValue, maxValue, "addLegend")
-  console.log(colorData)
-  
-   // Ersetzen Sie dies durch Ihre tatsächlichen Min-/Max-Werte
-  const legendCanvas = createLegend(minValue, maxValue);
-  console.log(legendCanvas)
-  console.log(height, width)
-
-
-
-  // Speichern oder senden Sie das kombinierte Bild
-  const legendPath = path.join(__dirname, 'legend.png')
-  const out = fs.createWriteStream(legendPath);
-  const stream = legendCanvas.createPNGStream();
-  stream.pipe(out);
-  out.on('finish', () => {
-    console.log('PNG-Datei mit Legende wurde erstellt');
-  });
-  out.on('error', (err) => {
-    console.error('Fehler beim Erstellen der PNG-Datei mit Legende:', err);
-  });
-
-}
- */
-
-
-
-function createImage(width, height, colorData){
-  return new Promise((resolve , reject) => {
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext('2d');
-
-      const imageData = ctx.createImageData(width, height);
-      imageData.data.set(colorData);
-
-      ctx.putImageData(imageData, 0, 0);
-
-      const out = fs.createWriteStream('image.png');
-      const stream = canvas.createPNGStream();
-      stream.pipe(out);
-      out.on('finish', () => {
-          console.log('PNG-Datei wurde erstellt');
-          resolve(canvas);
-      });
-      out.on('error', (err) => {
-          console.error('Fehler beim Erstellen der PNG-Datei:', err);
-          reject(err);
-      });
-  });
-}
-
-
-
-/**
- *  function valueToColor(value, minValue, maxValue){
-  const normalized = (value - minValue) / (maxValue - minValue);
-  const r = Math.round(normalized * 255);
-  const g = 0;
-  const b = Math.round((1 - normalized) * 255);
-  return [r, g, b];
-}
-
-function colorMapping(data, minValue, maxValue) {
-  const coloredData = new Uint8ClampedArray(data.length * 4); // RGBA
-  for (let i = 0; i < data.length; i++) {
-    const [r, g, b] = valueToColor(data[i], minValue, maxValue);
-    coloredData[i * 4] = r;
-    coloredData[i * 4 + 1] = g;
-    coloredData[i * 4 + 2] = b;
-    coloredData[i * 4 + 3] = 255; // Alpha
-  }
-  return coloredData;
-}
-
-// Korrigierte color_geotiff Funktion
-async function color_geotiff() {
-  try {
-    const filePath = path.join(__dirname, 'test_js_1.tif');
-    const tiff = await GeoTIFF.fromFile(filePath);
-    const image = await tiff.getImage();
-    const width = image.getWidth();
-    const height = image.getHeight();
-    const raster = await image.readRasters();
-    const classData = raster[0];
-    const minValue = Math.min(...classData);
-    const maxValue = Math.max(...classData);
-    let colorRaster = colorMapping(classData, minValue, maxValue);
-    console.log(minValue, maxValue, "color_geotiff")
-    return [colorRaster, height, width, minValue, maxValue];
-  } catch (error) {
-    console.log("Fehler beim Lesen der TIFF-Datei:", error);
-  }
-}
-
-
-function createLegend(minValue, maxValue){
-  const width = 200
-  const height = 50
-  const canavs_legend = createCanvas(width, height)
-  var ctx = canavs_legend.getContext('2d')
-  console.log(minValue, maxValue, "createLegend")
-
-  for (let i = 0; i <= width; i++) {
-    const value = minValue + (i / width) * (maxValue - minValue);
-    const [r, g, b] = valueToColor(value, minValue, maxValue);
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(i, 0, 1, height / 2);
-  }
-  // Beschriftungen hinzufügen
-  ctx.fillStyle = 'black';
-  ctx.fillText(minValue.toString(), 0, height);
-  ctx.fillText(maxValue.toString(), height - ctx.measureText(maxValue.toString()).width, height);
-
-  return canavs_legend;
-
-}
-
-async function addLegend(){
-  const [colorData, height, width, minValue, maxValue] = await color_geotiff();
-  console.log(minValue, maxValue, "addLegend")
-  console.log(colorData)
-  
-   // Ersetzen Sie dies durch Ihre tatsächlichen Min-/Max-Werte
-  const legendCanvas = createLegend(minValue, maxValue);
-  console.log(legendCanvas)
-  console.log(height, width)
-
-
-
-  // Speichern oder senden Sie das kombinierte Bild
-  const legendPath = path.join(__dirname, 'legend.png')
-  const out = fs.createWriteStream(legendPath);
-  const stream = legendCanvas.createPNGStream();
-  stream.pipe(out);
-  out.on('finish', () => {
-    console.log('PNG-Datei mit Legende wurde erstellt');
-  });
-  out.on('error', (err) => {
-    console.error('Fehler beim Erstellen der PNG-Datei mit Legende:', err);
-  });
-
-}
-
-
-function createImage(width, height, colorData){
-  return new Promise((resolve , reject) => {
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext('2d');
-
-      const imageData = ctx.createImageData(width, height);
-      imageData.data.set(colorData);
-
-      ctx.putImageData(imageData, 0, 0);
-
-      const out = fs.createWriteStream('image.png');
-      const stream = canvas.createPNGStream();
-      stream.pipe(out);
-      out.on('finish', () => {
-          console.log('PNG-Datei wurde erstellt');
-          resolve(canvas);
-      });
-      out.on('error', (err) => {
-          console.error('Fehler beim Erstellen der PNG-Datei:', err);
-          reject(err);
-      });
-  });
-}
- */
-
-
-  
-   
-
-
-
-
-
-  /**
-   * function generateRandomColor() {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    return [r, g, b];
-  }
-
-  async function color_geotiff() {
-    try {
-      const filePath = path.join(__dirname, 'test_js_1.tif');
-      const tiff = await GeoTIFF.fromFile(filePath);
-      const image = await tiff.getImage();
-      const width = image.getWidth();
-      const height = image.getHeight();
-      const numBands = image.getSamplesPerPixel();
-      const raster = await image.readRasters()
-      console.log(`Breite: ${width}, Höhe: ${height}, Bänder: ${numBands}, raster ${raster}`);
-
-      const classData = raster[0]
-      let uniqueClassID = new Set()
-
-      for(let value of classData){
-        uniqueClassID.add(Math.round(value))
-      }
-      console.log(Array.from(uniqueClassID))
-
-      let colorraster = coloradd(classData, uniqueClassID)
-
-
-      return [colorraster, height, width]
-
-
-    } catch (error) {
-      console.log("Fehler beim Lesen der TIFF-Datei:", error);
+    for (let i = 0; i < classData.length; i++){
+      let classID = classData[i]
+      let {r,g,b} = classIDColor[classID]
+      let index = i * 4
+      imageData.data[index] = r
+      imageData.data[index + 1] = g
+      imageData.data[index + 2] = b
+      imageData.data[index + 3] = 255
     }
-  }
-
-  function coloradd(classData, uniqueClassID){
-    const colorMap = {}
-   uniqueClassID.forEach(id => {
-    colorMap[id] = generateRandomColor()
-   })
-   const coloredData = new Uint8ClampedArray(classData.length * 4); // RGBA
-  for (let i = 0; i < classData.length; i++) {
-    const [r, g, b] = colorMap[classData[i]] || [255, 255, 255]; // Schwarz als Standardfarbe
-    coloredData[i * 4] = r;
-    coloredData[i * 4 + 1] = g;
-    coloredData[i * 4 + 2] = b;
-    coloredData[i * 4 + 3] = 255; // Alpha
-  }
-  return coloredData
-  }
-
-  function createImage(width, height, colorData){
-    return new Promise((resolve , reject) => {
-    const canvas = createCanvas(width, height)
-    const ctx = canvas.getContext('2d')
-
-    const imageData = ctx.createImageData(width, height)
-    imageData.data.set(colorData)
 
     ctx.putImageData(imageData, 0, 0)
-
-    const out = fs.createWriteStream('image.png')
-    const stream = canvas.createPNGStream()
-    stream.pipe(out)
-    out.on('finish', () =>  {
-
-     console.log('PNG-Datei wurde erstellt')
-     resolve(canvas)
     
-    })
-    out.on('error', reject)
-    })
-    
+    const outPNG = path.join(__dirname, 'image.png')
+    const buffer = canvas.toBuffer('image/png')
+    await fs.promises.writeFile(outPNG, buffer)
 
+    let outTif = path.join(__dirname, 'color_tif.tif')
+    im.convert([outPNG, outTif], function(err){
+      if(err) throw err
+      console.log('Die Tif mit Farbwerten wurde erfolgreich erstellt!')
+      resolve()
+    })
+    }catch(error){
+      console.error('Fehler bei der Erstellung der Color_tif!', error)
+      reject(error)
+    }
+
+
+
+  })
+}
+
+/**
+ * HSL To RGB
+ * https://gist.github.com/mjackson/5311256
+ * 
+ * 
+ */
+
+function hslToRgb(h, s, l) {
+  let r, g, b;
+
+  if (s == 0) {
+      r = g = b = l; 
+  } else {
+      const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+      }
+
+      let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      let p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
   }
-   */
 
-  
+  // Konvertierung zu Werten im Bereich [0, 255] für RGB
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
 
-
- 
 
 
 
@@ -817,7 +410,7 @@ app.post('/processgraph', (req, res) => {
     }
     const data_all = JSON.parse(data);
     if(data_all.trainigsdata && data_all.trainigsdata.features){
-      const train_data_path = "train_data_all.geojson"
+      const train_data_path = 'train_data_all.geojson'
       const geo_train_data = {
         type:"FeatureCollection",
         features: data_all.trainigsdata.features
@@ -825,26 +418,25 @@ app.post('/processgraph', (req, res) => {
 
       fs.writeFile(train_data_path, JSON.stringify(geo_train_data), async (err) => {
         if(err){
-          res.status(500).send({message: "Fehler beim konverteiren zu einem String"})
+          res.status(500).send({message: 'Fehler beim konverteiren zu einem String'})
         }
         try{
           await processGraph_erstellen(data_all, train_data_path)
-          res.send({message:"Erfolgreich durchgeführt"})
+          res.send({message:'Erfolgreich durchgeführt'})
         }catch (error) {
-          //console.error("Fehler", error)
-          res.status(500).send({message:"Fehler"})
+          res.status(500).send({message:'Fehler'})
         }
       })
     } else {
       console.error('Traingsdaten nicht im Path gefunden')
-      return res.status(500).send({message: "Trainingsdaten konnten nicht unter dem Path gefunden werden"})
+      return res.status(500).send({message: 'Trainingsdaten konnten nicht unter dem Path gefunden werden'})
     }
   });
 });
 
 app.get('/download-tiff', (req, res) => {
-  const filePath = path.join(__dirname, 'test_js_1.tif')
-  res.download(filePath, 'test_js_1.tif', (err) => {
+  const filePath = path.join(__dirname, 'color_tif.tif')
+  res.download(filePath, 'color_tif.tif', (err) => {
     if (err) {
       res.status(500).send('Fehler beim Herunterladen der Datei');
     }
@@ -857,78 +449,13 @@ app.get('/show-tiff', (req, res) => {
 
 })
 
-app.get('/color-tiff', async (req, res) => {
+app.get('/download-rds', (req, res) => {
+  const filePath = path.join(__dirname, 'train.rds')
+  res.download(filePath)
 
-  try{  
-
-    const [colorData, height, width, minValue, maxValue] = await color_geotiff()
-    const t = await createImage(width, height, colorData)
-    //await addLegend()
-    const pngPath = path.join(__dirname, 'image.png')
-
-    
-    console.log('Das Bild kann heruntergeladen werden')
-      res.download(pngPath, 'image.png', (err) => {
-        if(err) {
-          console.error('Fehler', err)
-          res.status(500).send({message: "Fehler"})
-        }
-      })
-    
-    
-   
-    
-  
-    
-
-  }catch (error){
-    console.error('Fehler:', error);
-    res.status(500).send('Ein unerwarteter Fehler ist aufgetreten');
-  }
-    
-  
- 
 })
 
-/**
- * app.get('/color-tiff', async (req, res) => {
 
-  try{  
-
-    const [colorData, height, width] = await color_geotiff()
-    const canvas = await createImage(width, height, colorData)
-    const pngPath = path.join(__dirname, 'image.png')
-    const pngBuffer = canvas.toBuffer()
-    
-    canvas.createPNGStream().pipe(fs.createWriteStream(pngPath))
-    .on('finish', () => {
-      //console.log('PNG-Datei wurde erstellt');
-      res.download(pngPath, 'image.png', (err) => {
-        if (err) {
-          console.error('Fehler beim Herunterladen der PNG-Datei:', err);
-          res.status(500).send('Fehler beim Herunterladen der PNG-Datei');
-        }
-      });
-    })
-    .on('error', (err) => {
-      console.error('Fehler beim Erstellen der PNG-Datei:', err);
-      res.status(500).send('Fehler beim Erstellen der PNG-Datei');
-    });
-    
-  
-    
-
-  }catch (error){
-    console.error('Fehler:', error);
-    res.status(500).send('Ein unerwarteter Fehler ist aufgetreten');
-  }
-    
-  
- 
-})
- */
-
-//löschen alles, nicht einzeln!
 
 app.post('/delete', (req, res) => {
   //Trainingsdaten zurücksetzen
@@ -972,6 +499,7 @@ app.get('/get-backend-data', (req, res) => {
  * https://www.npmjs.com/package/@ngageoint/geopackage
  * https://github.com/ngageoint/geopackage-js
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter?retiredLocale=de
+ * https://github.com/ngageoint/geopackage-js/blob/master/README.md
  * 
  * values classID: https://stackoverflow.com/questions/47214800/every-function-with-object-values-not-working
  */
@@ -1006,78 +534,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-/**
- * app.post('/upload', upload.single('file'), async (req, res) => {
-  try {
-    const file = req.file.path;
-    const geoPackage = await GeoPackageAPI.open(file);
-    const featureTables = geoPackage.getFeatureTables();
-    const layers = {};
-    var classID_counts = {}
-
-    for (const table of featureTables) {
-      const featureDao = geoPackage.getFeatureDao(table);
-      const geojsonFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table); 
-
-      const filteredFeatures = geojsonFeatures.filter(feature => {
-        const polygon_multipolygon = feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon';
-        const classID_data = feature.properties && 'ClassID' in feature.properties;
-        if(classID_data){
-          classID_counts[feature.properties.ClassID] = (classID_counts[feature.properties.ClassID] || 0) + 1
-        }
-        return polygon_multipolygon && classID_data;
-      });
-
-      layers[table] = {
-        type: 'FeatureCollection',
-        features: filteredFeatures
-      };
-    }
-    const all_classID = Object.values(classID_counts).every(count => count >=3)
-    if(!all_classID){
-      throw new Error('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
-    }
-
-    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
-  } catch (error) {
-    console.error('Fehler beim verarbeiten der GeoPackage Datei:', error);
-    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei: ' + error.message });
-  }
-});
- */
-
-/**
- * 
-
-app.post('/upload', upload.single('file'), async (req, res) => {
-  try {
-    const file = req.file.path;
-    const geoPackage = await GeoPackageAPI.open(file);
-    const feature = geoPackage.getFeatureTables();
-    const layers = {};
-
-    for (const table of feature) {
-      // Abfrage aller Features als GeoJSON
-      const allFeatures = geoPackage.queryForGeoJSONFeaturesInTable(table);
-
-      const polygonFeatur = allFeatures.filter(feature => feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon')
-
-      layers[table] = {
-        type: 'FeatureCollection',
-        features: polygonFeatur
-      };
-    }
-
-    res.json({ message: 'Geopackage erfolgreich hochgeladen', data: layers });
-  } catch (error) {
-    console.error('Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:', error);
-    res.status(500).send({ message: 'Fehler beim verarbeiten der GeoPackage Datei. Bitte überpürfen ob die Datei Valide ist:' + error.message });
-  }
-});
- */
-
-
-//Listener
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })
