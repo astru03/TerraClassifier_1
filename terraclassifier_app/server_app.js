@@ -201,8 +201,8 @@ async function processGraph_erstellen(data_all, train_data_path) {
 
     console.log(northEast_AOT, southWest_AOT);
 
-    const connection = await OpenEO.connect('http://54.185.59.127:8080');
-    //const connection = await OpenEO.connect("http://openeocubes_custom:8080");
+
+    const connection = await OpenEO.connect("http://openeocubes_custom:8080");
     await connection.authenticateBasic('user', 'password');
     var builder = await connection.buildProcess();
     let aoi = builder.load_collection(
