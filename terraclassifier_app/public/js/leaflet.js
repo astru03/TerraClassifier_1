@@ -51,7 +51,7 @@ function setStyle(layer, layerType) {
   if(layerType === 'rectangle') {
     layer.setStyle({
       color : 'black', 
-      weight : 2, 
+      weight : 3, 
       fillOpacity : 0,
     })
   }
@@ -142,7 +142,6 @@ map.on("draw:created", function(event) {
         console.log(newFeature);
         polygonToGeoJSON(newFeature);
         drawnFeatures.addLayer(layer);
-        addPopup(layer);
         checkConditionButton3();
       });
     } else {
@@ -153,8 +152,8 @@ map.on("draw:created", function(event) {
 
 function remove_satalite_layer(){
   if(satalite_layer){
-    map.removeLayer(satalite_layer)
-    satalite_layer = null
+    map.removeLayer(satalite_layer);
+    satalite_layer = null;
   }
 }
 
@@ -171,13 +170,13 @@ map.on("draw:edited", function(event) {
 
 // deleting the training data
 map.on(L.Draw.Event.DELETED, function(event) {
-  var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?')
+  var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?');
   if(deleteAll) {
-    delete_data()
-    drawPolygone = true //vorher false
+    delete_data();
+    drawPolygone = true;
     localStorage.setItem('drawPolygone', 'false');
-    update_drawing()
-    location.reload()
+    update_drawing();
+    location.reload();
   }
 })
 
@@ -366,14 +365,14 @@ function initial_drawing() {
   console.log(value)
 
   if (value === null) {
-    drawPolygone = false
-    localStorage.setItem('drawPolygone', 'false')
-    console.log('Erster Besuch der Seite', drawPolygone)
+    drawPolygone = false;
+    localStorage.setItem('drawPolygone', 'false');
+    console.log('Erster Besuch der Seite', drawPolygone);
   } else {
     drawPolygone = value === 'true'
-    console.log('Aktualisiert', drawPolygone)
+    console.log('Aktualisiert', drawPolygone);
   }
-  update_drawing()
+  update_drawing();
 }
  
 /**
@@ -392,8 +391,8 @@ function update_drawing() {
       marker: false
     }
   })
-  map.addControl(drawControl)
-  console.log(drawPolygone)
+  map.addControl(drawControl);
+  console.log(drawPolygone);
 }
 
 $(document).ready(function () {
@@ -401,8 +400,8 @@ $(document).ready(function () {
 
     if (rectangleCoordinates) {
       resolutionBooelan = true;
-      $('#popup_TrainingDataChoice').modal('hide')
-      document.getElementById('fileInput').click()
+      $('#popup_TrainingDataChoice').modal('hide');
+      document.getElementById('fileInput').click();
       //checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
       // only when everything is resolutionBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
       // if the training data should be uploaded
@@ -420,10 +419,10 @@ $(document).ready(function () {
     $('#popup_TrainingDataChoice').modal('hide')
     // Note if you want to draw the training data yourself
     $('#popup_NoteDrawTrainigsData').modal('show')
-    reset_AOI()
-    drawPolygone = true
-    localStorage.setItem('drawPolygone', 'true')
-    update_drawing()
+    reset_AOI();
+    drawPolygone = true;
+    localStorage.setItem('drawPolygone', 'true');
+    update_drawing();
     // set d to true so that the coordinates are preserved when drawing the rectangle for the AOT (for drawing in training data yourself)
     drawDataChoiceBoolean = true;
   })
@@ -481,7 +480,7 @@ function algorithm() {
       
     $('#popup_algo').modal('hide');
     algoBoolean = true;
-    checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+    checkConditionButton4(); // check Condition to activate easybutton 4 (areaOfIntrest)
     
   })
 }
@@ -491,15 +490,15 @@ function algorithm() {
  */
 function areaOfIntrest() {
   if (previousRectangle) {
-    drawnFeatures.removeLayer(previousRectangle)
-    previousRectangle = null
-    rectangleCoordinates = null
-    drawnFeatures.clearLayers()
+    drawnFeatures.removeLayer(previousRectangle);
+    previousRectangle = null;
+    rectangleCoordinates = null;
+    drawnFeatures.clearLayers();
   }
-  drawPolygone = false
-  localStorage.setItem('drawPolygone', 'false')
-  update_drawing()
-  aoiBoolean = true
+  drawPolygone = false;
+  localStorage.setItem('drawPolygone', 'false');
+  update_drawing();
+  aoiBoolean = true;
 }
 
 /**
@@ -512,11 +511,13 @@ async function resolutionData() {
     let resolutionInput = document.getElementById('objectResolutionInput').value;
     if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       modelBoolean = true;
-      $('#loadingSpinner').show();
+      checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+      /*
+      $('#loadingSpinner').show(); 
       setTimeout(function() {
         $('#loadingSpinner').hide(); //Time, to wait until the application has finished loading
         checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
-      }, 3000);
+      }, 5000); */
     } else {
       console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
     }
@@ -545,7 +546,7 @@ async function resolutionData() {
         "resolution": resolutionInput
       };
       console.log(DATAJSON);
-      send_backend_json(DATAJSON)
+      send_backend_json(DATAJSON);
     }
     catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
       console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
@@ -565,17 +566,14 @@ function classification() {
   })
     .then(response => {
       if (response.ok) {
-        downloadTiff()
-        showTiff()
+        downloadTiff();
+        showTiff();
         classBoolean = true;
-        // Darf nur in checkConditionButton7 wenn nicht Demo gedrück wurde
         if (demoBoolean === false) {
-            checkConditionButton7()
+            checkConditionButton7();
         }
       } else {
-        //console.log("Fehler bei der Verarbeitung der Datei!")
         $('#loadingSpinner').hide();
-        //alert('Die Wolkenbedeckung für den angegebenen Zeitraum ist > 30%')
         $('#popup_NoteCloudCoverCalculation').modal('show');
       }
     })
@@ -590,7 +588,7 @@ function classification() {
  * 
  */
 function downloadModeltraining() {
-  downloadRDS()
+  downloadRDS();
   downloadModel = true;
   checkConditionButton8();
 }
@@ -600,20 +598,19 @@ function downloadModeltraining() {
  * Function downloadTiff
  */
 function downloadTiff() {
-  var user_confirm = confirm("Möchten sie die Klassifikation herunterladen?")
+  var user_confirm = confirm('Möchten sie die Klassifikation herunterladen?');
   if (user_confirm) {
     setTimeout(() => {
       fetch('/download-tiff')
         .then(response => {
           response.blob().then(blob => {
-            // creating a link element for the download
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
             a.download = 'color_tif.tif';
             document.body.appendChild(a);
             a.click();
-            a.remove(); // removing the element after the download
+            a.remove(); 
           });
         })
     }, 2000)
@@ -628,18 +625,17 @@ function downloadRDS(){
   fetch('/download-rds')
     .then(response => {
       response.blob().then(blob => {
-        let url = window.URL.createObjectURL(blob)
-        let a = document.createElement('a')
-        a.href = url
-        a.download = 'color.rds'
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'train.rds';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       })
     })
 }
 
-//var geladen = false;
 /**
  * Function showTiff
  */
@@ -652,26 +648,26 @@ function showTiff() {
     const raster = await image.readRasters();
 
     parseGeoraster(arrayBuffer).then(georaster => {
-      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID))
-      let classColor = {}
-      let classLabel = new Map()
+      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID));
+      let classColor = {};
+      let classLabel = new Map();
 
       allDrawnFeatures.features.forEach(feature => {
-        const classID = feature.properties.ClassID
-        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt'
+        const classID = feature.properties.ClassID;
+        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt';
         if(classID && !classLabel.has(classID)){
-          classLabel.set(classID, label)
+          classLabel.set(classID, label);
         }
       })
 
       uniqueClasses.forEach(classID => {
-        classColor[classID] = valueToColor(classID, uniqueClasses.size)
+        classColor[classID] = valueToColor(classID, uniqueClasses.size);
       })
 
       const layer = new GeoRasterLayer({
         georaster: georaster,
         pixelValuesToColorFn: function(pixelValues) {
-          const value = pixelValues[0]; // Angenommen, Sie haben nur ein Band
+          const value = pixelValues[0]; 
           if (value === georaster.noDataValue){
             return `rgba(0,0,0,0)`
           }else{
@@ -683,7 +679,7 @@ function showTiff() {
 
       layer.addTo(map);
       map.fitBounds(layer.getBounds());
-      legend(classLabel)
+      legend(classLabel);
     });
 
     $('#loadingSpinner').hide();
@@ -701,15 +697,15 @@ function valueToColor(classID, totalClasses) {
 //https://stackoverflow.com/questions/37701211/custom-legend-image-as-legend-in-leaflet-map
 function legend(classLabel){
   if(window.myLegend){
-    map.removeControl(window.myLegend)
+    map.removeControl(window.myLegend);
   }
-  const legend = L.control({position: 'topleft'})
+  const legend = L.control({position: 'topleft'});
   legend.onAdd = function(map){
-    const div = L.DomUtil.create('div', 'info legend')
-    let labels = ['<strong>Klassen</strong>']
+    const div = L.DomUtil.create('div', 'info legend');
+    let labels = ['<strong>Klassen</strong>'];
 
     classLabel.forEach((label, classID) => {
-      const color = valueToColor(classID, classLabel.size)
+      const color = valueToColor(classID, classLabel.size);
       labels.push(`<div class="legend-entry"><i style="background:${color};"></i><span class="label">${label}</span></div>`)
 
   })
@@ -718,7 +714,7 @@ function legend(classLabel){
   return div
 }
 window.myLegend = legend
-legend.addTo(map)
+legend.addTo(map);
 }
 
 
@@ -748,87 +744,6 @@ function hslToRgb(h, s, l) {
 }
 
 /**
- * function showTiff() {
-  setTimeout(async () => {
-    const response = await fetch('/show-tiff');
-    const arrayBuffer = await response.arrayBuffer();
-    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
-    const image = await tiff.getImage();
-    const raster = await image.readRasters();
-
-    parseGeoraster(arrayBuffer).then(georaster => {
-      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID))
-      let classColor = {}
-      let classLabel = new Map()
-
-      allDrawnFeatures.features.forEach(feature => {
-        const classID = feature.properties.ClassID
-        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt'
-        if(classID && !classLabel.has(classID)){
-          classLabel.set(classID, label)
-        }
-      })
-
-      uniqueClasses.forEach(classID => {
-        classColor[classID] = valueToColor(classID, uniqueClasses.size)
-      })
-
-      const layer = new GeoRasterLayer({
-        georaster: georaster,
-        pixelValuesToColorFn: function(pixelValues) {
-          const value = pixelValues[0]; // Angenommen, Sie haben nur ein Band
-          if (value === georaster.noDataValue){
-            return `rgba(0,0,0,0)`
-          }else{
-            return classColor[value] || `rgba(0,0,0,0)`
-          }
-        },
-        resolution: 256
-      });
-
-      layer.addTo(map);
-      map.fitBounds(layer.getBounds());
-      legend(classLabel)
-    });
-
-    $('#loadingSpinner').hide();
-  }, 2000);
-}
-
-function valueToColor(classID, totalClasses) {
-  let hue = (classID * 360 / totalClasses) % 360
-  return `hsl(${hue}, 100%, 50%)`
-}
-
-
-
-//https://stackoverflow.com/questions/37701211/custom-legend-image-as-legend-in-leaflet-map
-function legend(classLabel){
-  if(window.myLegend){
-    map.removeControl(window.myLegend)
-  }
-  const legend = L.control({position: 'topleft'})
-  legend.onAdd = function(map){
-    const div = L.DomUtil.create('div', 'info legend')
-    let labels = ['<strong>Klassen</strong>']
-
-    classLabel.forEach((label, classID) => {
-      const color = valueToColor(classID, classLabel.size)
-      labels.push(`<div class="legend-entry"><i style="background:${color};"></i><span class="label">${label}</span></div>`)
-
-  })
-  
-  div.innerHTML = labels.join('<br>')
-  return div
-}
-window.myLegend = legend
-legend.addTo(map)
-}
- */
-
-
-
-/**
  * Function to close Popup-windows
  * @param {*} ID_Popup
  */
@@ -856,18 +771,6 @@ function closePopup(ID_Popup) {
   } else if (ID_Popup == 'popup_NoAlgorithm') {
     $('#popup_NoAlgorithm').modal('hide');
     $('#popup_algo').modal('show');
-  /* } else if (ID_Popup == 'popup_EnterHyperparameterMinimumDistance') {
-    $('#popup_EnterHyperparameterMinimumDistance').modal('hide');
-    $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_NotBetween10And50') {
-    $('#popup_NotBetween10And50').modal('hide');
-    $('#popup_EnterHyperparameterMinimumDistance').modal('show');
-  } else if (ID_Popup == 'popup_EnterHyperparameterRandomForest') {
-    $('#popup_EnterHyperparameterRandomForest').modal('hide');
-    $('#popup_algo').modal('show');
-  } else if (ID_Popup == 'popup_NotBetween10And500') {
-    $('#popup_NotBetween10And500').modal('hide');
-    $('#popup_EnterHyperparameterRandomForest').modal('show'); */
   } else if (ID_Popup == 'popup_NoteDrawTrainigsData') {
     $('#popup_NoteDrawTrainigsData').modal('hide');
   } else if (ID_Popup == 'popup_TrainingDataChoice') {
@@ -899,13 +802,11 @@ function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
   demoBoolean = true;
   $('#loadingSpinner').show();
-  //const DEMO_AOICOORD = { _northEast: { lat: 51.966, lng: 7.6175 }, _southWest: { lat: 51.939, lng: 7.5714 } }
-  const DEMO_AOICOORD = { _northEast: { lat: 51.954582, lng: 7.607768 }, _southWest: { lat: 51.943571, lng: 7.585886 } }
-  //const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
+  const DEMO_AOICOORD = { _northEast: { lat: 51.811162, lng: 7.769222 }, _southWest: { lat: 51.777931, lng: 7.706051 } }
   const DEMO_AOTCOORD = { _northEast: { lat: 51.572593, lng: 7.608034 }, _southWest: { lat: 51.428018, lng: 7.267525 } }
   const DEMO_NewStartDate = "2022-07-01"
   const DEMO_endDate = "2022-08-01"
-  const DEMO_algorithem = "RF"
+  const DEMO_algorithem = "MD"
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
     "features": [
@@ -1485,9 +1386,9 @@ function demoButton() {
     "resolution": DEMO_resolutionInput
   };
   console.log(DEMODATAJSON);
-  send_backend_json(DEMODATAJSON)
+  send_backend_json(DEMODATAJSON);
   setTimeout(() => {
-    classification()
+    classification();
 
   }, 10000)
 }
@@ -1505,10 +1406,10 @@ function showPopupNoRectangle() {
  */
 function reset_AOI() {
   if (previousRectangle) {
-    drawnFeatures.removeLayer(previousRectangle)
-    delete_data()
-    previousRectangle = null
-    rectangleCoordinates = null
+    drawnFeatures.removeLayer(previousRectangle);
+    delete_data();
+    previousRectangle = null;
+    rectangleCoordinates = null;
   }
 }
 
@@ -1554,8 +1455,8 @@ function checkConditionButton3() {
 
 // Button area of intrest -----------------------------
 var button4 = L.easyButton('<img src="../images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
-  areaOfIntrest()
-  remove_satalite_layer()
+  areaOfIntrest();
+  remove_satalite_layer();
 }, 'AOI');
 button4.disable(); // by default the button is disabled
 /**
@@ -1597,7 +1498,6 @@ button6.disable(); // by default the button is disabled
  */
 function checkConditionButton6() {
   if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
-    //button5.disable();
     button6.enable();
   } else {
     button6.disable();
@@ -1677,15 +1577,15 @@ toggleMenuButton.addTo(map);
 /**
  * **********************************************************************************
  */
- var duplicate_key = {}
+ var duplicate_key = {};
 
 /**
  * Function create_key
- * Generiert einen eindeutigen Schlüssel für ein gegebenes Feature. 
- * Die Funktion bekommt ein feature-Objekt und wandelt dieses, aufgrund der Geometrie und der Eigenschaft, in ein JSON-String um und fügt sie zusammen. 
- * Diese Kombination dient als eindeutiger Schlüssel und wird später eingesetzt, um doppelte Polygone zu verhindern. 
+ * Generates a unique key for a given feature. 
+ * The function receives a feature object and converts it into a JSON string based on the geometry and the property and joins them together. 
+ * This combination serves as a unique key and is used later to prevent duplicate polygons.
  * @param {*} feature 
- * @returns {String} Einen einzigartigen Schlüssel für das gegebene Feature
+ * @returns {String} A unique key for the given feature
  */
 function create_key(feature){
   return JSON.stringify(feature.geometry) + JSON.stringify(feature.properties)
@@ -1693,17 +1593,15 @@ function create_key(feature){
 
 /**
  * Function addFeature
- * Fügt ein Feature zu Sammlung hinzu, wenn es noch nicht vorhanden ist 
- * Verwendet 'create_key', um Duplikate zu vermeiden
+ * Adds a feature to the collection if it does not already exist
+ * Uses 'create_key' to avoid duplicates
  * @param {*} feature 
  */
 function addFeature(feature) {
   var key = create_key(feature)
   if (!duplicate_key[key]) {
-    // Kopie des Features erstellen. Damit die features classID und Name nicht doppelt erscheinen
     var featureCopy = JSON.parse(JSON.stringify(feature));
     allDrawnFeatures.features.push(featureCopy);
-    //allDrawnFeatures.features.push(feature);
     duplicate_key[key] = true;
   }
 }
@@ -1711,11 +1609,11 @@ function addFeature(feature) {
 
 /**
  * Function polygonToGeoJSON
- * Diese Funktion, fügt ein Polygon als GeoJSON-Objekt hinzu
- * @param {*} newFeature Das GeoJSON-Objekt, was hinzugeügt werden soll
+ * This function adds a polygon as a GeoJSON object
+ * @param {*} newFeatureThe GeoJSON object that is to be added
  */
 function polygonToGeoJSON(newFeature) {
-  addFeature(newFeature)
+  addFeature(newFeature);
 }
 
 /**
@@ -1745,7 +1643,7 @@ function isUploadinRectangle(feature, rectangleCoordinates) {
 
 /**
  * Function handleFileUpload
- * Diese asynchrone Funktion ermöglicht das hochladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
+ * This asynchronous function enables the upload of GeoJSON or geopackage files. In addition, the polygons contained are then displayed on the map
  * https://stackoverflow.com/questions/61486834/check-every-values-in-array-of-object
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
  * @returns 
@@ -1758,10 +1656,10 @@ async function handleFileUpload() {
 
   if (!file) {
       alert('Datei auswählen!');
-      return;
+      return
   }
 
-  // Datentyp filtern 
+  
   const fileType = file.name.split('.').pop().toLowerCase();
 
   if (fileType === 'json' || fileType === 'geojson') {
@@ -1774,25 +1672,25 @@ async function handleFileUpload() {
       
       for(const feature of data_geojson.features){
           if(!feature.properties || Object.keys(feature.properties).length === 0){
-            alert('Die Daten müssen gelabelt sein!')
-            delete_data()
+            alert('Die Daten müssen gelabelt sein!');
+            delete_data();
             return
           }
       }
 
       const filteredGeometry = data_geojson.features.filter(feature => 
         rectangleCoordinates && isUploadinRectangle(feature, rectangleCoordinates) &&
-        feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' 
+        feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon' || feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString'
       );
       let classID_counts = {};
       let classID_miss = false;
-      let class_ID_set = new Set()
+      let class_ID_set = new Set();
       filteredGeometry.forEach(feature => {
           if ('ClassID' in feature.properties) {
           const classID = feature.properties.ClassID;
           classID_counts[classID] = (classID_counts[classID] || 0) + 1;
           if(classID_counts[classID] >= 3){
-            class_ID_set.add(classID)
+            class_ID_set.add(classID);
           }
         } else {
           classID_miss = true;
@@ -1801,14 +1699,14 @@ async function handleFileUpload() {
     if (classID_miss) {
       alert('Einige der Daten haben keine ClassID!');
       delete_data();
-      return;
+      return
     }
     const all_classID = Object.values(classID_counts).every(count => count >= 3);
     const classID_three = class_ID_set.size >= 3
       if (!all_classID || !classID_three) {
           alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
           delete_data();
-          return;
+          return
           }
 
 
@@ -1817,26 +1715,24 @@ async function handleFileUpload() {
 
   merge_choice(
          () => {
-          console.log("Nun bei der anzeige")
+          console.log("Nun bei der anzeige");
 
-          addToMap({ type: 'FeatureCollection', features: filteredGeometry }) // GeoJSON zur Leaflet-Karte hinzufügen
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry });
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
           drawPolygone = true;
           localStorage.setItem('drawPolygone', 'true');
           update_drawing();
         }, 
-        //Wenn man abbricht
         () => {
-          L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map)
-          console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry })
+          L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map);
+          console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry });
         }
         
       )
       }catch{
-        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
-        delete_data()
-        //setFileInput()
+        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!');
+        delete_data();
       }
     };
     reader.readAsText(file);
@@ -1845,8 +1741,8 @@ async function handleFileUpload() {
  
   else if (fileType === 'gpkg') {
     console.log('GeoPackage Datei auswählen');
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData();
+    formData.append('file', file);
 
     fetch('/upload' , {
       method : 'POST' , 
@@ -1855,15 +1751,15 @@ async function handleFileUpload() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
-      const layers = data.data 
+      console.log(data);
+      const layers = data.data; 
       for(layer in layers){
         const geojson_data = layers[layer]
         if(geojson_data.type === 'FeatureCollection'){
 
           for(const feature of geojson_data.features){
             if(!feature.properties || Object.keys(feature.properties).length === 0){
-              alert("Die Daten müssen gelabelt sein!")
+              alert("Die Daten müssen gelabelt sein!");
               return
             }
           }
@@ -1873,13 +1769,13 @@ async function handleFileUpload() {
           );
           let classID_counts = {};
           let classID_miss = false;
-          let class_ID_set = new Set()
+          let class_ID_set = new Set();
           filteredGeometry.forEach(feature => {
               if ('ClassID' in feature.properties) {
               const classID = feature.properties.ClassID;
               classID_counts[classID] = (classID_counts[classID] || 0) + 1;
               if(classID_counts[classID] >= 3){
-                class_ID_set.add(classID)
+                class_ID_set.add(classID);
               }
           } else {
               classID_miss = true;
@@ -1891,7 +1787,7 @@ async function handleFileUpload() {
           return;
         }
         const all_classID = Object.values(classID_counts).every(count => count >= 3);
-        const classID_three = class_ID_set.size >= 3
+        const classID_three = class_ID_set.size >= 3;
         if (!all_classID || !classID_three) {
             alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
             delete_data();
@@ -1902,14 +1798,14 @@ async function handleFileUpload() {
           addToMap({ type: 'FeatureCollection', features: filteredGeometry });
           checkConditionButton3();
         }else{
-          console.error('Kein gültiges Format!')
+          console.error('Kein gültiges Format!');
         }
       }
       
     })
     .catch(error => {
-      console.error('Fehler', error)
-      delete_data()
+      console.error('Fehler', error);
+      delete_data();
     })
 
     
@@ -1926,12 +1822,11 @@ async function handleFileUpload() {
 
 /**
  * Function addToMap
- * Fügt die Daten zur leaflet-Karte hinzu
- * @param {*} data GeoJSON-data die zur Karte hinzugefügt werden soll
+ * Adds the data to the leaflet map
+ * @param {*} data GeoJSON-data to be added to the map
  */
 function addToMap(data) {
   if (data.type === 'FeatureCollection') {
-    // Einzelnes GeoJSON-Objekt
     L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
         addFeature(feature);
@@ -1939,7 +1834,6 @@ function addToMap(data) {
       }
     }).addTo(map);
   } else if (typeof data === 'object') {
-    // Sammlung von GeoJSON-Objekten
     for (const layerName in data) {
       const layerData = data[layerName];
       L.geoJSON(layerData, {
@@ -1954,18 +1848,18 @@ function addToMap(data) {
 
 /**
  * Function node_polygon
- * Verarbeitet GeoJSON-Daten. Es wird differenziert zwischen Feature und FeatureCollection, aber sendet jedes Feature einzeln
+ * Processes GeoJSON data. Differentiates between Feature and FeatureCollection, but sends each feature individually
  * @param {*} geojsonData 
  * @returns 
  */
 function node_polygon(geojsonData) {
-  // Wenn ein einzelnes Feature übergeben wird, füge es zu allDrawnFeatures hinzu
+  // If a single feature is passed, add it to allDrawnFeatures
   if (geojsonData.type === 'Feature') {
     addFeature(geojsonData);
   }
-  // Wenn eine FeatureCollection übergeben wird, füge jedes Feature einzeln hinzu
+  //If a FeatureCollection is passed, add each feature individually
   else if (geojsonData.type === 'FeatureCollection') {
-    geojsonData.features.forEach(addFeature)
+    geojsonData.features.forEach(addFeature);
   }
 }
 
@@ -1976,9 +1870,7 @@ function node_polygon(geojsonData) {
 function node_rectangle(area_of_Training) {
   console.log('allRectangle vor dem Push:', allRectangle);
   console.log('area_of_Training:', area_of_Training);
-  allRectangle.features.push(area_of_Training)
-  //area_of_Training_save(area_of_Training)
-  // Setzen der rectangle_Boundes auf die Grenzen des neuen Rechtecks
+  allRectangle.features.push(area_of_Training);
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
 }
 
@@ -1990,7 +1882,7 @@ async function status_server() {
   return fetch('/status')
     .then(response => {
       if (!response.ok) {
-        console.log('Server-Fehler')
+        console.log('Server-Fehler');
       }
       return response.json()
     })
@@ -2005,12 +1897,11 @@ async function status_server() {
 async function check_map() {
   if (await status_server()) {
   } else {
-    console.log('Server ist noch nicht bereit!')
-    location.reload()
+    console.log('Server ist noch nicht bereit!');
+    location.reload();
   }
 }
 
-//Funktion muss behalten werden, nur geändert
 /**
  * Function delete_data
  * @param {*}
@@ -2025,24 +1916,13 @@ function delete_data() {
   })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
+      console.log(data);
     })
     .catch(error => console.error('Fehler beim löschen', error))
-  //behalten
   allDrawnFeatures = { "type": "FeatrueCollection", "features": [] };
-  //behalten
   allRectangle = { "type": "Featurecollection", "features": [] };
-  drawnFeatures.clearLayers()
-  rectangleCoordinates = null
-}
-
-/**
- * Function addPopup
- * @param {*} layer 
- */
-function addPopup(layer) {
-  var popupContent = '<button onclick="download_data()">Download</button>'
-  layer.bindPopup(popupContent);
+  drawnFeatures.clearLayers();
+  rectangleCoordinates = null;
 }
 
 /**
@@ -2050,23 +1930,35 @@ function addPopup(layer) {
  * @param {*} DATAJSON 
  */
 function send_backend_json(DATAJSON) {
-  fetch('/send-data', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(DATAJSON)
-
-  })
-    .then(response => response.json())
-    .then(data => { console.log(data) })
-    .catch(error => { console.error(error) })
+  return new Promise((resolve, reject) => {
+    fetch('/send-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(DATAJSON)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        resolve(); 
+      })
+      .catch(error => {
+        console.error(error);
+        reject(error);
+      });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  initial_drawing()
-  check_map()
-  delete_data()
+  initial_drawing();
+  check_map();
+  delete_data();
 });
 
 window.addEventListener('beforeunload', function (e) {

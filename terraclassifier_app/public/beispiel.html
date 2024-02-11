@@ -35,8 +35,26 @@
     <!--jQuery UI JS-->
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <!--georaster-layer-for-leaflet JS-->
-    <script
-        src=" https://cdn.jsdelivr.net/npm/georaster-layer-for-leaflet@3.10.0/dist/v3/webpack/bundle/georaster-layer-for-leaflet.min.js "></script>
+  <script
+  src=" https://cdn.jsdelivr.net/npm/georaster-layer-for-leaflet@3.10.0/dist/v3/webpack/bundle/georaster-layer-for-leaflet.min.js "></script>
+
+    <!-- GeoRaster -->
+    <script src="https://unpkg.com/georaster"></script>
+
+    <!-- GeoRasterLayer for Leaflet -->
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+  
+    <!--geotiff--> 
+    <script src="https://unpkg.com/geotiff"></script>
+
+
+    <!-- openEO_Client  ???????-->
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/oidc-client@1/dist/oidc-client.min.js"></script>
+    <!-- Only required if you'd like to enable authentication via OpenID Connect -->
+    <script src="https://cdn.jsdelivr.net/npm/multihashes@3/src/index.min.js"></script>
+    <!-- Only required if you have checksums in the STAC metadata -->
+    <script src="https://cdn.jsdelivr.net/npm/@openeo/js-client@2/openeo.min.js"></script>
 </head>
 
 <body>
@@ -81,6 +99,8 @@
         </div>
         <a href="/download-tiff" download="test_js_1.tif"></a>
         <a href="/color-tiff" download="image.png"></a>
+        <a href="/download-tiff" download="color_tif.tif"></a>
+        <a href="/download-rds" download="train.rds"></a>
 
     </main>
 
