@@ -894,13 +894,11 @@ function demoButton() {
   document.getElementById('exampleButton').style.display = 'none';
   demoBoolean = true;
   $('#loadingSpinner').show();
-  const DEMO_AOICOORD = { _northEast: { lat: 51.973566, lng: 7.606487 }, _southWest: { lat: 51.957585, lng: 7.572333 } }
-  //const DEMO_AOICOORD = { _northEast: { lat: 51.954582, lng: 7.607768 }, _southWest: { lat: 51.943571, lng: 7.585886 } }
-  //const DEMO_AOTCOORD = { _northEast: { lat: 51.90462174078735, lng: 7.668225785886583 }, _southWest: { lat: 51.87908396304335, lng: 7.617230713510279 } }
+  const DEMO_AOICOORD = { _northEast: { lat: 51.811162, lng: 7.769222 }, _southWest: { lat: 51.777931, lng: 7.706051 } }
   const DEMO_AOTCOORD = { _northEast: { lat: 51.572593, lng: 7.608034 }, _southWest: { lat: 51.428018, lng: 7.267525 } }
   const DEMO_NewStartDate = "2022-07-01"
   const DEMO_endDate = "2022-08-01"
-  const DEMO_algorithem = "RF"
+  const DEMO_algorithem = "MD"
   const DEMO_allDrawnFeatures = {
     "type": "FeatureCollection",
     "features": [
