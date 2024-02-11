@@ -30,6 +30,8 @@ If the application has been started locally, it can be accessed at the following
 If the application has been started via an AWS EC2 instance, it can be accessed at the following URL: http://IP-of-your-EC2-Instance:3000
 
 Please use the Chrome or Edge browser to start the application.
+Please be patient, as the application, especially when running locally, is very slow and depends on the utilization of openeo-API.
+Depending on the area, a classification can take up to 10 minutes.
 
 ## Installing and starting the DockerHub web application:
 You can get a hosted Docker image of the platform on DockerHub https://hub.docker.com/r/astru/terraclassifier
