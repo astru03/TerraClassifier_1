@@ -512,7 +512,11 @@ async function resolutionData() {
     let resolutionInput = document.getElementById('objectResolutionInput').value;
     if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       modelBoolean = true;
-      checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+      $('#loadingSpinner').show();
+      setTimeout(function() {
+        $('#loadingSpinner').hide(); //Time, to wait until the application has finished loading
+        checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+      }, 3000);
     } else {
       console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
     }
