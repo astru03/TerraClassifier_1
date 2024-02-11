@@ -567,7 +567,6 @@ function classification() {
       if (response.ok) {
         downloadTiff()
         showTiff()
-        color_tiff()
         classBoolean = true;
         // Darf nur in checkConditionButton7 wenn nicht Demo gedrück wurde
         if (demoBoolean === false) {
@@ -591,6 +590,7 @@ function classification() {
  * 
  */
 function downloadModeltraining() {
+  downloadRDS()
   downloadModel = true;
   checkConditionButton8();
 }
@@ -610,7 +610,7 @@ function downloadTiff() {
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
-            a.download = 'test_js_1.tif';
+            a.download = 'color_tif.tif';
             document.body.appendChild(a);
             a.click();
             a.remove(); // removing the element after the download
@@ -622,60 +622,211 @@ function downloadTiff() {
   }
 }
 
+
+function downloadRDS(){
+  
+  fetch('/download-rds')
+    .then(response => {
+      response.blob().then(blob => {
+        let url = window.URL.createObjectURL(blob)
+        let a = document.createElement('a')
+        a.href = url
+        a.download = 'color.rds'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+      })
+    })
+}
+
 //var geladen = false;
 /**
  * Function showTiff
  */
 function showTiff() {
-  //geladen = true;
-  setTimeout(() => {
-    fetch('/show-tiff')
-      .then(response => {
-        response.blob()
-          .then(blob => {
-            let url = window.URL.createObjectURL(blob)
-            parseGeoraster(url).then(georaster => {
-              var layer = new GeoRasterLayer({
-                georaster: georaster,
-                useWebWorkers: true,
-                resolution: 128,
-                keepBuffer: 8
-              })
-              layer.addTo(map)
-            })
-          })
-          .catch(error => {
-            console.error('Fehler beim anzeigen der Tif!')
-          })
+  setTimeout(async () => {
+    const response = await fetch('/show-tiff');
+    const arrayBuffer = await response.arrayBuffer();
+    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+    const image = await tiff.getImage();
+    const raster = await image.readRasters();
+
+    parseGeoraster(arrayBuffer).then(georaster => {
+      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID))
+      let classColor = {}
+      let classLabel = new Map()
+
+      allDrawnFeatures.features.forEach(feature => {
+        const classID = feature.properties.ClassID
+        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt'
+        if(classID && !classLabel.has(classID)){
+          classLabel.set(classID, label)
+        }
       })
-      $('#loadingSpinner').hide();
-  }, 2000)
-}
 
-function color_tiff() {
-  setTimeout(() => {
-    fetch('/color-tiff')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Netzwerkantwort war nicht ok');
-      }
-      return response.blob();
-    })
-    .then(blob => { 
-      let url = window.URL.createObjectURL(blob);
-      let a = document.createElement('a');
-      a.href = url;
-      a.download = 'image.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove(); // Entfernen des Elements nach dem Download
-    })
-    .catch(error => {
-      console.error('Fehler beim Herunterladen der TIFF-Datei:', error);
+      uniqueClasses.forEach(classID => {
+        classColor[classID] = valueToColor(classID, uniqueClasses.size)
+      })
+
+      const layer = new GeoRasterLayer({
+        georaster: georaster,
+        pixelValuesToColorFn: function(pixelValues) {
+          const value = pixelValues[0]; // Angenommen, Sie haben nur ein Band
+          if (value === georaster.noDataValue){
+            return `rgba(0,0,0,0)`
+          }else{
+            return classColor[value] || `rgba(0,0,0,0)`
+          }
+        },
+        resolution: 256
+      });
+
+      layer.addTo(map);
+      map.fitBounds(layer.getBounds());
+      legend(classLabel)
     });
-  },1000)
 
+    $('#loadingSpinner').hide();
+  }, 2000);
 }
+
+function valueToColor(classID, totalClasses) {
+  let hue = (classID * 360 / totalClasses) % 360
+  let [r,g,b] = hslToRgb(hue/ 360, 1, 0.5)
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+
+
+//https://stackoverflow.com/questions/37701211/custom-legend-image-as-legend-in-leaflet-map
+function legend(classLabel){
+  if(window.myLegend){
+    map.removeControl(window.myLegend)
+  }
+  const legend = L.control({position: 'topleft'})
+  legend.onAdd = function(map){
+    const div = L.DomUtil.create('div', 'info legend')
+    let labels = ['<strong>Klassen</strong>']
+
+    classLabel.forEach((label, classID) => {
+      const color = valueToColor(classID, classLabel.size)
+      labels.push(`<div class="legend-entry"><i style="background:${color};"></i><span class="label">${label}</span></div>`)
+
+  })
+  
+  div.innerHTML = labels.join('<br>')
+  return div
+}
+window.myLegend = legend
+legend.addTo(map)
+}
+
+
+function hslToRgb(h, s, l) {
+  let r, g, b;
+
+  if (s === 0) {
+      r = g = b = l; 
+  } else {
+      const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+      };
+
+      let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      let p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+/**
+ * function showTiff() {
+  setTimeout(async () => {
+    const response = await fetch('/show-tiff');
+    const arrayBuffer = await response.arrayBuffer();
+    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+    const image = await tiff.getImage();
+    const raster = await image.readRasters();
+
+    parseGeoraster(arrayBuffer).then(georaster => {
+      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID))
+      let classColor = {}
+      let classLabel = new Map()
+
+      allDrawnFeatures.features.forEach(feature => {
+        const classID = feature.properties.ClassID
+        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt'
+        if(classID && !classLabel.has(classID)){
+          classLabel.set(classID, label)
+        }
+      })
+
+      uniqueClasses.forEach(classID => {
+        classColor[classID] = valueToColor(classID, uniqueClasses.size)
+      })
+
+      const layer = new GeoRasterLayer({
+        georaster: georaster,
+        pixelValuesToColorFn: function(pixelValues) {
+          const value = pixelValues[0]; // Angenommen, Sie haben nur ein Band
+          if (value === georaster.noDataValue){
+            return `rgba(0,0,0,0)`
+          }else{
+            return classColor[value] || `rgba(0,0,0,0)`
+          }
+        },
+        resolution: 256
+      });
+
+      layer.addTo(map);
+      map.fitBounds(layer.getBounds());
+      legend(classLabel)
+    });
+
+    $('#loadingSpinner').hide();
+  }, 2000);
+}
+
+function valueToColor(classID, totalClasses) {
+  let hue = (classID * 360 / totalClasses) % 360
+  return `hsl(${hue}, 100%, 50%)`
+}
+
+
+
+//https://stackoverflow.com/questions/37701211/custom-legend-image-as-legend-in-leaflet-map
+function legend(classLabel){
+  if(window.myLegend){
+    map.removeControl(window.myLegend)
+  }
+  const legend = L.control({position: 'topleft'})
+  legend.onAdd = function(map){
+    const div = L.DomUtil.create('div', 'info legend')
+    let labels = ['<strong>Klassen</strong>']
+
+    classLabel.forEach((label, classID) => {
+      const color = valueToColor(classID, classLabel.size)
+      labels.push(`<div class="legend-entry"><i style="background:${color};"></i><span class="label">${label}</span></div>`)
+
+  })
+  
+  div.innerHTML = labels.join('<br>')
+  return div
+}
+window.myLegend = legend
+legend.addTo(map)
+}
+ */
+
+
 
 /**
  * Function to close Popup-windows
@@ -769,12 +920,30 @@ function demoButton() {
           "type": "Polygon",
           "coordinates": [
             [
-              [7.4530336, 51.5693962],
-              [7.4520832, 51.5625256],
-              [7.4611466, 51.5589562],
-              [7.4601393, 51.5680142],
-              [7.4601393, 51.5680142],
-              [7.4530336, 51.5693962]
+              [
+                7.4530336,
+                51.5693962
+              ],
+              [
+                7.4520832,
+                51.5625256
+              ],
+              [
+                7.4611466,
+                51.5589562
+              ],
+              [
+                7.4601393,
+                51.5680142
+              ],
+              [
+                7.4601393,
+                51.5680142
+              ],
+              [
+                7.4530336,
+                51.5693962
+              ]
             ]
           ]
         }
@@ -1305,22 +1474,22 @@ function demoButton() {
   }
   const DEMO_resolutionInput = "30"
 
+  allDrawnFeatures = DEMO_allDrawnFeatures
   let DEMODATAJSON = {
     "AOI": DEMO_AOICOORD,
     "AOT": DEMO_AOTCOORD,
     "StartDate": DEMO_NewStartDate,
     "Enddate": DEMO_endDate,
     "algorithm": DEMO_algorithem,
-    "trainigsdata": DEMO_allDrawnFeatures,
+    "trainigsdata": allDrawnFeatures,
     "resolution": DEMO_resolutionInput
   };
   console.log(DEMODATAJSON);
-  //HIER PROZESSAUFRUF
   send_backend_json(DEMODATAJSON)
   setTimeout(() => {
     classification()
 
-  }, 1000)
+  }, 10000)
 }
 
 
@@ -1555,7 +1724,7 @@ function polygonToGeoJSON(newFeature) {
  * @param {*} onCancel
  */
 function merge_choice(onConfirm, onCancel) {
-  var userChoice = confirm("Möchten Sie die hochgeladene GeoJSON-Datei mit den vorhandenen Daten zusammenführen?");
+  var userChoice = confirm('Möchten Sie die hochgeladene GeoJSON-Datei mit den vorhandenen Daten zusammenführen?');
   if (userChoice) {
     onConfirm();
     checkConditionButton3();
@@ -1577,6 +1746,8 @@ function isUploadinRectangle(feature, rectangleCoordinates) {
 /**
  * Function handleFileUpload
  * Diese asynchrone Funktion ermöglicht das hochladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
+ * https://stackoverflow.com/questions/61486834/check-every-values-in-array-of-object
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
  * @returns 
  */
 async function handleFileUpload() {
@@ -1645,14 +1816,12 @@ async function handleFileUpload() {
 
 
   merge_choice(
-        //Wenn man auf Ok drückt
          () => {
           console.log("Nun bei der anzeige")
 
           addToMap({ type: 'FeatureCollection', features: filteredGeometry }) // GeoJSON zur Leaflet-Karte hinzufügen
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
-          // Aktualisiere drawPolygone und die Zeichenkontrollen
           drawPolygone = true;
           localStorage.setItem('drawPolygone', 'true');
           update_drawing();
@@ -1673,78 +1842,7 @@ async function handleFileUpload() {
     reader.readAsText(file);
   }
 
-  /**
-   * if (fileType === 'json' || fileType === 'geojson') {
-    const reader = new FileReader();
-    reader.onload = async function(event) {
-      console.log('GeoJSON Datei wurde erfolgreich geladen');
-      try{
-        const data_geojson = JSON.parse(event.target.result);
-
-      
-      for(const feature of data_geojson.features){
-          if(!feature.properties || Object.keys(feature.properties).length === 0){
-            alert('Die Daten müssen gelabelt sein!')
-            return
-          }
-      }
-
-      let classID_counts = {}
-      let classID_miss = {}
-
-
-      const filteredGeometry = data_geojson.features.filter(feature => 
-        (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') &&
-        feature.properties && 'ClassID' in feature.properties
-      );
-       let finalFetaures = filteredGeometry 
-      if (rectangleCoordinates) {
-         finalFetaures = filteredGeometry.filter(feature => 
-          isUploadinRectangle(feature, rectangleCoordinates)
-        );
-      }else{
-        console.log('Bitte Rechteck einzeichnen, um die Trainingsdaten hochzuladen!')
-      }
-
-      finalFetaures.forEach(feature => {
-        const classID = feature.properties.ClassID
-        classID_counts[classID] = (classID_counts[classID] || 0) + 1
-      })
-      const all_classID = Object.values(classID_counts).every(count => count >= 3)
-      if(!all_classID){
-        alert('Jede ClassID muss mindestens dreimal vorkommen, um darauf das Model zu trainiern!')
-        delete_data()
-        return
-      }
-
-
-
-
-      merge_choice(
-        //Wenn man auf Ok drückt
-         () => {
-          addToMap({ type: 'FeatureCollection', features: finalFetaures }) // GeoJSON zur Leaflet-Karte hinzufügen
-          console.log('GeoJSON Daten zur Karte hinzugefügt');
-
-          // Aktualisiere drawPolygone und die Zeichenkontrollen
-          drawPolygone = true;
-          localStorage.setItem('drawPolygone', 'true');
-          update_drawing();
-        }, 
-        //Wenn man abbricht
-        () => {
-          L.geoJSON({ type: 'FeatureCollection', features: finalFetaures }).addTo(map)
-          console.log('GeoJSON', { type: 'FeatureCollection', features: finalFetaures })
-        }
-        
-      )
-      }catch{
-        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
-      }
-    };
-    reader.readAsText(file);
-  }
-   */
+ 
   else if (fileType === 'gpkg') {
     console.log('GeoPackage Datei auswählen');
     const formData = new FormData()
@@ -1762,7 +1860,6 @@ async function handleFileUpload() {
       for(layer in layers){
         const geojson_data = layers[layer]
         if(geojson_data.type === 'FeatureCollection'){
-          //let filter = geojson_data.features
 
           for(const feature of geojson_data.features){
             if(!feature.properties || Object.keys(feature.properties).length === 0){
@@ -1823,12 +1920,7 @@ async function handleFileUpload() {
   fileInput.value = '';
 }
 
-/**
- *function  setFileInput(){
-  fileInput.removeEventListener('change', handleFileUpload)
-  fileInput.addEventListener('change', handleFileUpload)
-} 
- */
+
 
 
 
@@ -1882,8 +1974,8 @@ function node_polygon(geojsonData) {
  * @param {*} area_of_Training 
  */
 function node_rectangle(area_of_Training) {
-  console.log("allRectangle vor dem Push:", allRectangle);
-  console.log("area_of_Training:", area_of_Training);
+  console.log('allRectangle vor dem Push:', allRectangle);
+  console.log('area_of_Training:', area_of_Training);
   allRectangle.features.push(area_of_Training)
   //area_of_Training_save(area_of_Training)
   // Setzen der rectangle_Boundes auf die Grenzen des neuen Rechtecks
@@ -1944,7 +2036,6 @@ function delete_data() {
   rectangleCoordinates = null
 }
 
-//Download data_geojson.json als ZIP-Datei 
 /**
  * Function addPopup
  * @param {*} layer 
