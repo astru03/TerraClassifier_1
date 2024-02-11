@@ -511,11 +511,13 @@ async function resolutionData() {
     let resolutionInput = document.getElementById('objectResolutionInput').value;
     if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && rectangleCoordinates) {
       modelBoolean = true;
-      $('#loadingSpinner').show();
+      checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
+      /*
+      $('#loadingSpinner').show(); 
       setTimeout(function() {
         $('#loadingSpinner').hide(); //Time, to wait until the application has finished loading
         checkConditionButton6(); // Check Condition to activate easybutton 6 (classification)
-      }, 3000);
+      }, 5000); */
     } else {
       console.log("Es müssen zuerst Trainigsdaten erstellt, ein Algorithmus ausgewählt und ein AOI gezeichnet werden");
     }
@@ -1928,17 +1930,29 @@ function delete_data() {
  * @param {*} DATAJSON 
  */
 function send_backend_json(DATAJSON) {
-  fetch('/send-data', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(DATAJSON)
-
-  })
-    .then(response => response.json())
-    .then(data => { console.log(data) })
-    .catch(error => { console.error(error) })
+  return new Promise((resolve, reject) => {
+    fetch('/send-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(DATAJSON)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        resolve(); 
+      })
+      .catch(error => {
+        console.error(error);
+        reject(error);
+      });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
