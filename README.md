@@ -66,7 +66,7 @@ If you click on the "Draw your own training data" button, a pop-up window will f
 You will be shown that at least nine training areas must be drawn. There must be at least three of each "ClassID" and " Label" and at least three different categories must be created. An example is also shown in the pop-up window.
 If you confirm the pop-up window with "Ok", you can now define an AOT with "Draw Rectangle" and then draw the training datas with "Draw Polygon". 
 With "File upload" of training datas, you have the option of uploading files in GeoJSON or GeoPackage format.
-Important note: The format and structure of the data is validated. The fields "ClassID" and "Label" are mandatory. Furthermore, it is necessary that a „ClassID“ must occur at least three times and there must be at least three different of it. The training polygons must be of the polygon or multipolygon type.
+Important note: The format and structure of the data is validated. The type of training data may only be Polygon, Multipolygon, LineString or MulitLineStrings. The fields "ClassID" and "Label" are mandatory. Furthermore, it is necessary that a „ClassID“ must occur at least three times and there must be at least three different of it. The training polygons must be of the polygon or multipolygon type.
 
 #### Algorithm
 After clicking on this symbol, you can choose between four different algorithms. You can choose between the "Minimum Distance", "Random Forest", "Gradient Boosting Machine" and "Support Vector Machine" algorithms. You can only select one algorithm at a time. Confirm your selection with "OK".
