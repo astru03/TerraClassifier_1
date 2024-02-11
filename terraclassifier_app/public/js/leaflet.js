@@ -568,14 +568,11 @@ function classification() {
         downloadTiff()
         showTiff()
         classBoolean = true;
-        // Darf nur in checkConditionButton7 wenn nicht Demo gedrück wurde
         if (demoBoolean === false) {
             checkConditionButton7()
         }
       } else {
-        //console.log("Fehler bei der Verarbeitung der Datei!")
         $('#loadingSpinner').hide();
-        //alert('Die Wolkenbedeckung für den angegebenen Zeitraum ist > 30%')
         $('#popup_NoteCloudCoverCalculation').modal('show');
       }
     })
@@ -606,14 +603,13 @@ function downloadTiff() {
       fetch('/download-tiff')
         .then(response => {
           response.blob().then(blob => {
-            // creating a link element for the download
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
             a.download = 'color_tif.tif';
             document.body.appendChild(a);
             a.click();
-            a.remove(); // removing the element after the download
+            a.remove(); 
           });
         })
     }, 2000)
@@ -631,7 +627,7 @@ function downloadRDS(){
         let url = window.URL.createObjectURL(blob)
         let a = document.createElement('a')
         a.href = url
-        a.download = 'color.rds'
+        a.download = 'color.RDS'
         document.body.appendChild(a)
         a.click()
         a.remove()
@@ -639,7 +635,6 @@ function downloadRDS(){
     })
 }
 
-//var geladen = false;
 /**
  * Function showTiff
  */
@@ -671,7 +666,7 @@ function showTiff() {
       const layer = new GeoRasterLayer({
         georaster: georaster,
         pixelValuesToColorFn: function(pixelValues) {
-          const value = pixelValues[0]; // Angenommen, Sie haben nur ein Band
+          const value = pixelValues[0]; 
           if (value === georaster.noDataValue){
             return `rgba(0,0,0,0)`
           }else{
@@ -1681,11 +1676,11 @@ toggleMenuButton.addTo(map);
 
 /**
  * Function create_key
- * Generiert einen eindeutigen Schlüssel für ein gegebenes Feature. 
- * Die Funktion bekommt ein feature-Objekt und wandelt dieses, aufgrund der Geometrie und der Eigenschaft, in ein JSON-String um und fügt sie zusammen. 
- * Diese Kombination dient als eindeutiger Schlüssel und wird später eingesetzt, um doppelte Polygone zu verhindern. 
+ * Generates a unique key for a given feature. 
+ * The function receives a feature object and converts it into a JSON string based on the geometry and the property and joins them together. 
+ * This combination serves as a unique key and is used later to prevent duplicate polygons.
  * @param {*} feature 
- * @returns {String} Einen einzigartigen Schlüssel für das gegebene Feature
+ * @returns {String} A unique key for the given feature
  */
 function create_key(feature){
   return JSON.stringify(feature.geometry) + JSON.stringify(feature.properties)
@@ -1693,17 +1688,15 @@ function create_key(feature){
 
 /**
  * Function addFeature
- * Fügt ein Feature zu Sammlung hinzu, wenn es noch nicht vorhanden ist 
- * Verwendet 'create_key', um Duplikate zu vermeiden
+ * Adds a feature to the collection if it does not already exist
+ * Uses 'create_key' to avoid duplicates
  * @param {*} feature 
  */
 function addFeature(feature) {
   var key = create_key(feature)
   if (!duplicate_key[key]) {
-    // Kopie des Features erstellen. Damit die features classID und Name nicht doppelt erscheinen
     var featureCopy = JSON.parse(JSON.stringify(feature));
     allDrawnFeatures.features.push(featureCopy);
-    //allDrawnFeatures.features.push(feature);
     duplicate_key[key] = true;
   }
 }
@@ -1711,8 +1704,8 @@ function addFeature(feature) {
 
 /**
  * Function polygonToGeoJSON
- * Diese Funktion, fügt ein Polygon als GeoJSON-Objekt hinzu
- * @param {*} newFeature Das GeoJSON-Objekt, was hinzugeügt werden soll
+ * This function adds a polygon as a GeoJSON object
+ * @param {*} newFeatureThe GeoJSON object that is to be added
  */
 function polygonToGeoJSON(newFeature) {
   addFeature(newFeature)
@@ -1745,7 +1738,7 @@ function isUploadinRectangle(feature, rectangleCoordinates) {
 
 /**
  * Function handleFileUpload
- * Diese asynchrone Funktion ermöglicht das hochladen von GeoJSON oder Geopackage-Datein. Zudem werden dann die enthaltenen Polygone auf der Karte abgebildet
+ * This asynchronous function enables the upload of GeoJSON or geopackage files. In addition, the polygons contained are then displayed on the map
  * https://stackoverflow.com/questions/61486834/check-every-values-in-array-of-object
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
  * @returns 
@@ -1761,7 +1754,7 @@ async function handleFileUpload() {
       return;
   }
 
-  // Datentyp filtern 
+  
   const fileType = file.name.split('.').pop().toLowerCase();
 
   if (fileType === 'json' || fileType === 'geojson') {
@@ -1819,14 +1812,13 @@ async function handleFileUpload() {
          () => {
           console.log("Nun bei der anzeige")
 
-          addToMap({ type: 'FeatureCollection', features: filteredGeometry }) // GeoJSON zur Leaflet-Karte hinzufügen
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry })
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
           drawPolygone = true;
           localStorage.setItem('drawPolygone', 'true');
           update_drawing();
         }, 
-        //Wenn man abbricht
         () => {
           L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map)
           console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry })
@@ -1836,7 +1828,6 @@ async function handleFileUpload() {
       }catch{
         alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
         delete_data()
-        //setFileInput()
       }
     };
     reader.readAsText(file);
@@ -1926,12 +1917,11 @@ async function handleFileUpload() {
 
 /**
  * Function addToMap
- * Fügt die Daten zur leaflet-Karte hinzu
- * @param {*} data GeoJSON-data die zur Karte hinzugefügt werden soll
+ * Adds the data to the leaflet map
+ * @param {*} data GeoJSON-data to be added to the map
  */
 function addToMap(data) {
   if (data.type === 'FeatureCollection') {
-    // Einzelnes GeoJSON-Objekt
     L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
         addFeature(feature);
@@ -1939,7 +1929,6 @@ function addToMap(data) {
       }
     }).addTo(map);
   } else if (typeof data === 'object') {
-    // Sammlung von GeoJSON-Objekten
     for (const layerName in data) {
       const layerData = data[layerName];
       L.geoJSON(layerData, {
@@ -1954,16 +1943,16 @@ function addToMap(data) {
 
 /**
  * Function node_polygon
- * Verarbeitet GeoJSON-Daten. Es wird differenziert zwischen Feature und FeatureCollection, aber sendet jedes Feature einzeln
+ * Processes GeoJSON data. Differentiates between Feature and FeatureCollection, but sends each feature individually
  * @param {*} geojsonData 
  * @returns 
  */
 function node_polygon(geojsonData) {
-  // Wenn ein einzelnes Feature übergeben wird, füge es zu allDrawnFeatures hinzu
+  // If a single feature is passed, add it to allDrawnFeatures
   if (geojsonData.type === 'Feature') {
     addFeature(geojsonData);
   }
-  // Wenn eine FeatureCollection übergeben wird, füge jedes Feature einzeln hinzu
+  //If a FeatureCollection is passed, add each feature individually
   else if (geojsonData.type === 'FeatureCollection') {
     geojsonData.features.forEach(addFeature)
   }
@@ -1977,8 +1966,6 @@ function node_rectangle(area_of_Training) {
   console.log('allRectangle vor dem Push:', allRectangle);
   console.log('area_of_Training:', area_of_Training);
   allRectangle.features.push(area_of_Training)
-  //area_of_Training_save(area_of_Training)
-  // Setzen der rectangle_Boundes auf die Grenzen des neuen Rechtecks
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
 }
 
