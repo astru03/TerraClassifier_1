@@ -51,7 +51,7 @@ function setStyle(layer, layerType) {
   if(layerType === 'rectangle') {
     layer.setStyle({
       color : 'black', 
-      weight : 2, 
+      weight : 3, 
       fillOpacity : 0,
     })
   }
@@ -587,7 +587,7 @@ function classification() {
  * 
  */
 function downloadModeltraining() {
-  downloadRDS()
+  downloadRDS();
   downloadModel = true;
   checkConditionButton8();
 }
@@ -597,7 +597,7 @@ function downloadModeltraining() {
  * Function downloadTiff
  */
 function downloadTiff() {
-  var user_confirm = confirm("Möchten sie die Klassifikation herunterladen?")
+  var user_confirm = confirm('Möchten sie die Klassifikation herunterladen?');
   if (user_confirm) {
     setTimeout(() => {
       fetch('/download-tiff')
@@ -624,13 +624,13 @@ function downloadRDS(){
   fetch('/download-rds')
     .then(response => {
       response.blob().then(blob => {
-        let url = window.URL.createObjectURL(blob)
-        let a = document.createElement('a')
-        a.href = url
-        a.download = 'color.RDS'
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'train.RDS';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       })
     })
 }
@@ -647,20 +647,20 @@ function showTiff() {
     const raster = await image.readRasters();
 
     parseGeoraster(arrayBuffer).then(georaster => {
-      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID))
-      let classColor = {}
-      let classLabel = new Map()
+      let uniqueClasses = new Set(allDrawnFeatures.features.map(feature => feature.properties.ClassID));
+      let classColor = {};
+      let classLabel = new Map();
 
       allDrawnFeatures.features.forEach(feature => {
-        const classID = feature.properties.ClassID
-        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt'
+        const classID = feature.properties.ClassID;
+        const label = feature.properties.Label || feature.properties.Name || 'Unbekannt';
         if(classID && !classLabel.has(classID)){
-          classLabel.set(classID, label)
+          classLabel.set(classID, label);
         }
       })
 
       uniqueClasses.forEach(classID => {
-        classColor[classID] = valueToColor(classID, uniqueClasses.size)
+        classColor[classID] = valueToColor(classID, uniqueClasses.size);
       })
 
       const layer = new GeoRasterLayer({
@@ -678,7 +678,7 @@ function showTiff() {
 
       layer.addTo(map);
       map.fitBounds(layer.getBounds());
-      legend(classLabel)
+      legend(classLabel);
     });
 
     $('#loadingSpinner').hide();
@@ -696,15 +696,15 @@ function valueToColor(classID, totalClasses) {
 //https://stackoverflow.com/questions/37701211/custom-legend-image-as-legend-in-leaflet-map
 function legend(classLabel){
   if(window.myLegend){
-    map.removeControl(window.myLegend)
+    map.removeControl(window.myLegend);
   }
-  const legend = L.control({position: 'topleft'})
+  const legend = L.control({position: 'topleft'});
   legend.onAdd = function(map){
-    const div = L.DomUtil.create('div', 'info legend')
-    let labels = ['<strong>Klassen</strong>']
+    const div = L.DomUtil.create('div', 'info legend');
+    let labels = ['<strong>Klassen</strong>'];
 
     classLabel.forEach((label, classID) => {
-      const color = valueToColor(classID, classLabel.size)
+      const color = valueToColor(classID, classLabel.size);
       labels.push(`<div class="legend-entry"><i style="background:${color};"></i><span class="label">${label}</span></div>`)
 
   })
@@ -713,7 +713,7 @@ function legend(classLabel){
   return div
 }
 window.myLegend = legend
-legend.addTo(map)
+legend.addTo(map);
 }
 
 
@@ -1480,9 +1480,9 @@ function demoButton() {
     "resolution": DEMO_resolutionInput
   };
   console.log(DEMODATAJSON);
-  send_backend_json(DEMODATAJSON)
+  send_backend_json(DEMODATAJSON);
   setTimeout(() => {
-    classification()
+    classification();
 
   }, 10000)
 }
@@ -1500,10 +1500,10 @@ function showPopupNoRectangle() {
  */
 function reset_AOI() {
   if (previousRectangle) {
-    drawnFeatures.removeLayer(previousRectangle)
-    delete_data()
-    previousRectangle = null
-    rectangleCoordinates = null
+    drawnFeatures.removeLayer(previousRectangle);
+    delete_data();
+    previousRectangle = null;
+    rectangleCoordinates = null;
   }
 }
 
@@ -1672,7 +1672,7 @@ toggleMenuButton.addTo(map);
 /**
  * **********************************************************************************
  */
- var duplicate_key = {}
+ var duplicate_key = {};
 
 /**
  * Function create_key
@@ -1708,7 +1708,7 @@ function addFeature(feature) {
  * @param {*} newFeatureThe GeoJSON object that is to be added
  */
 function polygonToGeoJSON(newFeature) {
-  addFeature(newFeature)
+  addFeature(newFeature);
 }
 
 /**
@@ -1767,8 +1767,8 @@ async function handleFileUpload() {
       
       for(const feature of data_geojson.features){
           if(!feature.properties || Object.keys(feature.properties).length === 0){
-            alert('Die Daten müssen gelabelt sein!')
-            delete_data()
+            alert('Die Daten müssen gelabelt sein!');
+            delete_data();
             return
           }
       }
@@ -1785,7 +1785,7 @@ async function handleFileUpload() {
           const classID = feature.properties.ClassID;
           classID_counts[classID] = (classID_counts[classID] || 0) + 1;
           if(classID_counts[classID] >= 3){
-            class_ID_set.add(classID)
+            class_ID_set.add(classID);
           }
         } else {
           classID_miss = true;
@@ -1810,9 +1810,9 @@ async function handleFileUpload() {
 
   merge_choice(
          () => {
-          console.log("Nun bei der anzeige")
+          console.log("Nun bei der anzeige");
 
-          addToMap({ type: 'FeatureCollection', features: filteredGeometry })
+          addToMap({ type: 'FeatureCollection', features: filteredGeometry });
           console.log('GeoJSON Daten zur Karte hinzugefügt');
 
           drawPolygone = true;
@@ -1826,8 +1826,8 @@ async function handleFileUpload() {
         
       )
       }catch{
-        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!')
-        delete_data()
+        alert('Bitte überprüfen sie, ob die GeoJSON Valide ist!');
+        delete_data();
       }
     };
     reader.readAsText(file);
@@ -1836,8 +1836,8 @@ async function handleFileUpload() {
  
   else if (fileType === 'gpkg') {
     console.log('GeoPackage Datei auswählen');
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData();
+    formData.append('file', file);
 
     fetch('/upload' , {
       method : 'POST' , 
@@ -1846,15 +1846,15 @@ async function handleFileUpload() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
-      const layers = data.data 
+      console.log(data);
+      const layers = data.data; 
       for(layer in layers){
         const geojson_data = layers[layer]
         if(geojson_data.type === 'FeatureCollection'){
 
           for(const feature of geojson_data.features){
             if(!feature.properties || Object.keys(feature.properties).length === 0){
-              alert("Die Daten müssen gelabelt sein!")
+              alert("Die Daten müssen gelabelt sein!");
               return
             }
           }
@@ -1864,13 +1864,13 @@ async function handleFileUpload() {
           );
           let classID_counts = {};
           let classID_miss = false;
-          let class_ID_set = new Set()
+          let class_ID_set = new Set();
           filteredGeometry.forEach(feature => {
               if ('ClassID' in feature.properties) {
               const classID = feature.properties.ClassID;
               classID_counts[classID] = (classID_counts[classID] || 0) + 1;
               if(classID_counts[classID] >= 3){
-                class_ID_set.add(classID)
+                class_ID_set.add(classID);
               }
           } else {
               classID_miss = true;
@@ -1882,7 +1882,7 @@ async function handleFileUpload() {
           return;
         }
         const all_classID = Object.values(classID_counts).every(count => count >= 3);
-        const classID_three = class_ID_set.size >= 3
+        const classID_three = class_ID_set.size >= 3;
         if (!all_classID || !classID_three) {
             alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
             delete_data();
@@ -1893,14 +1893,14 @@ async function handleFileUpload() {
           addToMap({ type: 'FeatureCollection', features: filteredGeometry });
           checkConditionButton3();
         }else{
-          console.error('Kein gültiges Format!')
+          console.error('Kein gültiges Format!');
         }
       }
       
     })
     .catch(error => {
-      console.error('Fehler', error)
-      delete_data()
+      console.error('Fehler', error);
+      delete_data();
     })
 
     
@@ -1997,7 +1997,6 @@ async function check_map() {
   }
 }
 
-//Funktion muss behalten werden, nur geändert
 /**
  * Function delete_data
  * @param {*}
@@ -2015,9 +2014,7 @@ function delete_data() {
       console.log(data)
     })
     .catch(error => console.error('Fehler beim löschen', error))
-  //behalten
   allDrawnFeatures = { "type": "FeatrueCollection", "features": [] };
-  //behalten
   allRectangle = { "type": "Featurecollection", "features": [] };
   drawnFeatures.clearLayers()
   rectangleCoordinates = null

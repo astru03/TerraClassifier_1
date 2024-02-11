@@ -282,7 +282,7 @@ async function processGraph_erstellen(data_all, train_data_path) {
         console.log('datacube_tif.data ist ein lesbarer Stream.');
         //https://www.tabnine.com/code/javascript/functions/fs/WriteStream/path
         const filePath = path.join(__dirname, 'test_js_1.tif');
-        const fileRDS = path.join(__dirname, 'train.rds')
+        const fileRDS = path.join(__dirname, 'train.RDS')
         const writeStream = fs.createWriteStream(filePath);
         const rds_write = fs.createWriteStream(fileRDS)
         datacube_tif.data.pipe(writeStream);
