@@ -1704,7 +1704,7 @@ async function handleFileUpload() {
     const all_classID = Object.values(classID_counts).every(count => count >= 3);
     const classID_three = class_ID_set.size >= 3
       if (!all_classID || !classID_three) {
-          alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
+          alert('Bitte Beachten Sie! Der Typ der Trainigsdaten darf nur Polygon, Multipolygon, LineString oder MulitLineStringsein sein. In den Eigenschaften muss "CLassID" und "Label" vorkommen und jede "ClassID" muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche "ClassID" geben, damit wir ein Modelltraining durchführen können!');
           delete_data();
           return
           }
