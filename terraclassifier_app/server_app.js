@@ -450,7 +450,7 @@ app.get('/show-tiff', (req, res) => {
 })
 
 app.get('/download-rds', (req, res) => {
-  const filePath = path.join(__dirname, 'train.rds')
+  const filePath = path.join(__dirname, 'train.RDS')
   res.download(filePath)
 
 })
