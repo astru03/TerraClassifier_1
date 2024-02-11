@@ -152,8 +152,8 @@ map.on("draw:created", function(event) {
 
 function remove_satalite_layer(){
   if(satalite_layer){
-    map.removeLayer(satalite_layer)
-    satalite_layer = null
+    map.removeLayer(satalite_layer);
+    satalite_layer = null;
   }
 }
 
@@ -170,13 +170,13 @@ map.on("draw:edited", function(event) {
 
 // deleting the training data
 map.on(L.Draw.Event.DELETED, function(event) {
-  var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?')
+  var deleteAll = confirm('Möchten sie wirklich die Trainingsdaten und Area of Training löschen?');
   if(deleteAll) {
-    delete_data()
-    drawPolygone = true //vorher false
+    delete_data();
+    drawPolygone = true;
     localStorage.setItem('drawPolygone', 'false');
-    update_drawing()
-    location.reload()
+    update_drawing();
+    location.reload();
   }
 })
 
@@ -365,14 +365,14 @@ function initial_drawing() {
   console.log(value)
 
   if (value === null) {
-    drawPolygone = false
-    localStorage.setItem('drawPolygone', 'false')
-    console.log('Erster Besuch der Seite', drawPolygone)
+    drawPolygone = false;
+    localStorage.setItem('drawPolygone', 'false');
+    console.log('Erster Besuch der Seite', drawPolygone);
   } else {
     drawPolygone = value === 'true'
-    console.log('Aktualisiert', drawPolygone)
+    console.log('Aktualisiert', drawPolygone);
   }
-  update_drawing()
+  update_drawing();
 }
  
 /**
@@ -391,8 +391,8 @@ function update_drawing() {
       marker: false
     }
   })
-  map.addControl(drawControl)
-  console.log(drawPolygone)
+  map.addControl(drawControl);
+  console.log(drawPolygone);
 }
 
 $(document).ready(function () {
@@ -400,8 +400,8 @@ $(document).ready(function () {
 
     if (rectangleCoordinates) {
       resolutionBooelan = true;
-      $('#popup_TrainingDataChoice').modal('hide')
-      document.getElementById('fileInput').click()
+      $('#popup_TrainingDataChoice').modal('hide');
+      document.getElementById('fileInput').click();
       //checkConditionButton3(); // check Condition to activate easybutton 3 (algorithm)
       // only when everything is resolutionBooelan === true && rectangleCoordinates --> Then save AOI in AOTCOORD for the JSON that is sent to R
       // if the training data should be uploaded
@@ -419,10 +419,10 @@ $(document).ready(function () {
     $('#popup_TrainingDataChoice').modal('hide')
     // Note if you want to draw the training data yourself
     $('#popup_NoteDrawTrainigsData').modal('show')
-    reset_AOI()
-    drawPolygone = true
-    localStorage.setItem('drawPolygone', 'true')
-    update_drawing()
+    reset_AOI();
+    drawPolygone = true;
+    localStorage.setItem('drawPolygone', 'true');
+    update_drawing();
     // set d to true so that the coordinates are preserved when drawing the rectangle for the AOT (for drawing in training data yourself)
     drawDataChoiceBoolean = true;
   })
@@ -480,7 +480,7 @@ function algorithm() {
       
     $('#popup_algo').modal('hide');
     algoBoolean = true;
-    checkConditionButton4() // check Condition to activate easybutton 4 (areaOfIntrest)
+    checkConditionButton4(); // check Condition to activate easybutton 4 (areaOfIntrest)
     
   })
 }
@@ -490,15 +490,15 @@ function algorithm() {
  */
 function areaOfIntrest() {
   if (previousRectangle) {
-    drawnFeatures.removeLayer(previousRectangle)
-    previousRectangle = null
-    rectangleCoordinates = null
-    drawnFeatures.clearLayers()
+    drawnFeatures.removeLayer(previousRectangle);
+    previousRectangle = null;
+    rectangleCoordinates = null;
+    drawnFeatures.clearLayers();
   }
-  drawPolygone = false
-  localStorage.setItem('drawPolygone', 'false')
-  update_drawing()
-  aoiBoolean = true
+  drawPolygone = false;
+  localStorage.setItem('drawPolygone', 'false');
+  update_drawing();
+  aoiBoolean = true;
 }
 
 /**
@@ -544,7 +544,7 @@ async function resolutionData() {
         "resolution": resolutionInput
       };
       console.log(DATAJSON);
-      send_backend_json(DATAJSON)
+      send_backend_json(DATAJSON);
     }
     catch (error) {  // Stellen Sie sicher, dass 'error' hier definiert ist
       console.error('Fehler bei der Verarbeitung der Trainingsdaten:', error);
@@ -564,11 +564,11 @@ function classification() {
   })
     .then(response => {
       if (response.ok) {
-        downloadTiff()
-        showTiff()
+        downloadTiff();
+        showTiff();
         classBoolean = true;
         if (demoBoolean === false) {
-            checkConditionButton7()
+            checkConditionButton7();
         }
       } else {
         $('#loadingSpinner').hide();
@@ -1453,8 +1453,8 @@ function checkConditionButton3() {
 
 // Button area of intrest -----------------------------
 var button4 = L.easyButton('<img src="../images/aoi_icon.png" style="width: 20px; height: 20px;">', function () {
-  areaOfIntrest()
-  remove_satalite_layer()
+  areaOfIntrest();
+  remove_satalite_layer();
 }, 'AOI');
 button4.disable(); // by default the button is disabled
 /**
@@ -1496,7 +1496,6 @@ button6.disable(); // by default the button is disabled
  */
 function checkConditionButton6() {
   if (resolutionBooelan === true && algoBoolean === true && aoiBoolean === true && modelBoolean === true && rectangleCoordinates) {
-    //button5.disable();
     button6.enable();
   } else {
     button6.disable();
@@ -1655,7 +1654,7 @@ async function handleFileUpload() {
 
   if (!file) {
       alert('Datei auswählen!');
-      return;
+      return
   }
 
   
@@ -1683,7 +1682,7 @@ async function handleFileUpload() {
       );
       let classID_counts = {};
       let classID_miss = false;
-      let class_ID_set = new Set()
+      let class_ID_set = new Set();
       filteredGeometry.forEach(feature => {
           if ('ClassID' in feature.properties) {
           const classID = feature.properties.ClassID;
@@ -1698,14 +1697,14 @@ async function handleFileUpload() {
     if (classID_miss) {
       alert('Einige der Daten haben keine ClassID!');
       delete_data();
-      return;
+      return
     }
     const all_classID = Object.values(classID_counts).every(count => count >= 3);
     const classID_three = class_ID_set.size >= 3
       if (!all_classID || !classID_three) {
           alert('Jede ClassID muss mindestens dreimal vorkommen und es muss mindestens drei unterschiedliche ClassID geben, damit wir ein Modelltraining durchführen können!');
           delete_data();
-          return;
+          return
           }
 
 
@@ -1724,8 +1723,8 @@ async function handleFileUpload() {
           update_drawing();
         }, 
         () => {
-          L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map)
-          console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry })
+          L.geoJSON({ type: 'FeatureCollection', features: filteredGeometry }).addTo(map);
+          console.log('GeoJSON', { type: 'FeatureCollection', features: filteredGeometry });
         }
         
       )
@@ -1858,7 +1857,7 @@ function node_polygon(geojsonData) {
   }
   //If a FeatureCollection is passed, add each feature individually
   else if (geojsonData.type === 'FeatureCollection') {
-    geojsonData.features.forEach(addFeature)
+    geojsonData.features.forEach(addFeature);
   }
 }
 
@@ -1869,7 +1868,7 @@ function node_polygon(geojsonData) {
 function node_rectangle(area_of_Training) {
   console.log('allRectangle vor dem Push:', allRectangle);
   console.log('area_of_Training:', area_of_Training);
-  allRectangle.features.push(area_of_Training)
+  allRectangle.features.push(area_of_Training);
   rectangleCoordinates = L.geoJSON(area_of_Training).getBounds();
 }
 
@@ -1881,7 +1880,7 @@ async function status_server() {
   return fetch('/status')
     .then(response => {
       if (!response.ok) {
-        console.log('Server-Fehler')
+        console.log('Server-Fehler');
       }
       return response.json()
     })
@@ -1896,8 +1895,8 @@ async function status_server() {
 async function check_map() {
   if (await status_server()) {
   } else {
-    console.log('Server ist noch nicht bereit!')
-    location.reload()
+    console.log('Server ist noch nicht bereit!');
+    location.reload();
   }
 }
 
@@ -1915,13 +1914,13 @@ function delete_data() {
   })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
+      console.log(data);
     })
     .catch(error => console.error('Fehler beim löschen', error))
   allDrawnFeatures = { "type": "FeatrueCollection", "features": [] };
   allRectangle = { "type": "Featurecollection", "features": [] };
-  drawnFeatures.clearLayers()
-  rectangleCoordinates = null
+  drawnFeatures.clearLayers();
+  rectangleCoordinates = null;
 }
 
 /**
@@ -1943,9 +1942,9 @@ function send_backend_json(DATAJSON) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  initial_drawing()
-  check_map()
-  delete_data()
+  initial_drawing();
+  check_map();
+  delete_data();
 });
 
 window.addEventListener('beforeunload', function (e) {
