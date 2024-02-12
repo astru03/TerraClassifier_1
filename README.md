@@ -26,8 +26,8 @@ docker-compose up --build -d
 ```
 4. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
 5. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
-If the application has been started locally, it can be accessed at the following URL: http://localhost:3000
-If the application has been started via an AWS EC2 instance, it can be accessed at the following URL: http://IP-of-your-EC2-Instance:3000
+If the application has been started locally, it can be accessed at the following URL: http://localhost:3000.<br>
+If the application has been started via an AWS EC2 instance, it can be accessed at the following URL: http://IP-of-your-EC2-Instance:3000.
 
 Please use the Chrome or Edge browser to start the application.
 Please be patient, as the application, especially when running locally, is very slow and depends on the utilization of openeo-API.
