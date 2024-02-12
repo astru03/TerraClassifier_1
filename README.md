@@ -40,11 +40,11 @@ You must enable port 3000 and 8080 of the EC2 instance for provisioning and comm
 
 First, the image must be pulled from Dockerhub with the command:
 ```bash
-docker pull astru/openeocubes_customc
+docker pull astru/openeocubes_custom
 ```
 After pulling the image can be started with the command:
 ```bash
-docker run -p -d 8080:8080  --env AWSHOST=54.185.59.127  astru/openeocubes_custom:latest
+docker run -p -d 8080:8080  --env AWSHOST=<AWS-IPv4-ADDRESS>  astru/openeocubes_custom:latest
 ```
 
 ## Functionality of the web application:
