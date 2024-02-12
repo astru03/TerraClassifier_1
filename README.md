@@ -34,7 +34,7 @@ Please be patient, as the application, especially when running locally, is very 
 Depending on the area, a classification can take up to 10 minutes.
 
 ## Installing and starting the DockerHub web application:
-You can get a hosted Docker image of openeocubes_custom via the Dockerhub platform. https://hub.docker.com/r/astru/openeocubes_custom
+You can get a hosted Docker image of openeocubes_custom via the Dockerhub platform. https://hub.docker.com/r/astru/openeocubes_custom.<br>
 It is highly recommended to deploy the service on an AWS EC2 machine that is in us-west-2 region (Oregon) as that is the data centre where the Earth Observation(EO) datasets found in AWS STAC search are stored.
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
 
