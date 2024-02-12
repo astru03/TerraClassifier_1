@@ -55,7 +55,7 @@ docker run -d -p 8080:8080  --env AWSHOST=<AWS-IPv4-ADDRESS>  astru/openeocubes_
 docker run -d -p 3000:3000  --env MY_ENV_VARIABLE=<AWS-IPv4-ADDRESS> astru/terraclassifier_app:latest
 ```
 3. Once the container has been successfully started, the application can be accessed in the browser via the following URL: http://<AWS-IPv4-ADDRESS>:3000.
-4. 
+  
 Please use the Chrome or Edge browser to start the application. Please be patient, as the application, especially when running locally, is very slow and depends on the utilization of openeo-API. Depending on the area, a classification can take up to 10 minutes.
 
 ## Functionality of the web application:
