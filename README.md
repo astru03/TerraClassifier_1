@@ -25,7 +25,7 @@ cd TerraClassifier_1
 docker-compose up --build -d
 ```
 4. An image of the application is created and the image of "openeocubes_custom" published on Dockerhub is used at the same time. Both images are started together in a container.
-5. Once the container has been successfully downloaded and started, the application can be accessed in the browser.
+5. Once the container has been successfully started, the application can be accessed in the browser.
 If the application has been started locally, it can be accessed at the following URL: http://localhost:3000.<br>
 If the application has been started via an AWS EC2 instance, it can be accessed at the following URL: http://IP-of-your-EC2-Instance:3000.
 
@@ -40,20 +40,21 @@ https://hub.docker.com/r/astru/openeocubes_custom.<br>
 It is highly recommended to deploy the service on an AWS EC2 machine that is in us-west-2 region (Oregon) as that is the data centre where the Earth Observation(EO) datasets found in AWS STAC search are stored.
 You must enable port 3000 and 8080 of the EC2 instance for provisioning and communication with the service.
 
-First, the images of both the terreclassifier_app and the openeocubes_custom must be pulled from Dockerhub with the commands:
+1. First, the images of both the terreclassifier_app and the openeocubes_custom must be pulled from Dockerhub with the commands:
 ```bash
 docker pull astru/terraclassifier_app:latest
 ```
 ```bash
 docker pull astru/openeocubes_custom:latest
 ```
-After pulling the images the terreclassifier_app and the openeocubes_custom can be started with the command:
+2. After pulling the images the terreclassifier_app and the openeocubes_custom can be started with the command:
 ```bash
 docker run -d -p 8080:8080  --env AWSHOST=<AWS-IPv4-ADDRESS>  astru/openeocubes_custom:latest
 ```
 ```bash
 docker run -d -p 3000:3000  --env MY_ENV_VARIABLE=<AWS-IPv4-ADDRESS> astru/terraclassifier_app:latest
 ```
+3. Once the container has been successfully started, the application can be accessed in the browser via the following URL: http://<AWS-IPv4-ADDRESS>:3000.
 
 ## Functionality of the web application:
 ### Home
