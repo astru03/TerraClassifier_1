@@ -34,7 +34,7 @@ Please be patient, as the application, especially when running locally, is very 
 Depending on the area, a classification can take up to 10 minutes.
 
 ## Installing and starting the DockerHub web application:
-You can get a hosted Docker image of the terreclassifier_app and the openeocubes_custom via the Dockerhub platform. 
+You can get a hosted Docker image of the terreclassifier_app and the openeocubes_custom via the Dockerhub platform.<br>
 https://hub.docker.com/r/astru/terraclassifier_app.<br>
 https://hub.docker.com/r/astru/openeocubes_custom.<br>
 It is highly recommended to deploy the service on an AWS EC2 machine that is in us-west-2 region (Oregon) as that is the data centre where the Earth Observation(EO) datasets found in AWS STAC search are stored.
@@ -55,6 +55,8 @@ docker run -d -p 8080:8080  --env AWSHOST=<AWS-IPv4-ADDRESS>  astru/openeocubes_
 docker run -d -p 3000:3000  --env MY_ENV_VARIABLE=<AWS-IPv4-ADDRESS> astru/terraclassifier_app:latest
 ```
 3. Once the container has been successfully started, the application can be accessed in the browser via the following URL: http://<AWS-IPv4-ADDRESS>:3000.
+4. 
+Please use the Chrome or Edge browser to start the application. Please be patient, as the application, especially when running locally, is very slow and depends on the utilization of openeo-API. Depending on the area, a classification can take up to 10 minutes.
 
 ## Functionality of the web application:
 ### Home
